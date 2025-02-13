@@ -6,7 +6,7 @@ class Config:
     BOT_TOKEN = getenv("BOT_TOKEN", "7365852964:AAHZHUP0UGLyU2hco5AruU7XlTcW3ktwmwo")
     FSUB = getenv("FSUB", "DK_ANIMES")
     CHID = int(getenv("CHID", "-1002154311129"))
-    SUDO = list(map(int, getenv("SUDO").split(6872968794)))
+    SUDO = list(map(int, getenv("SUDO").split()))
     MONGO_URI = getenv("MONGO_URI", "mongodb+srv://Autofilterbot:Autofilterbot@cluster0.1oipdqu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
     
     
