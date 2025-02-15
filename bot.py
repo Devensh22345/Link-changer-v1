@@ -30,7 +30,7 @@ async def approve(_, m : Message):
         add_group(m.chat.id)
         await app.approve_chat_join_request(op.id, kk.id)
         img = random.choice(gif)
-        await app.send_video(kk.id, "**Hello**")
+        await app.send_video(kk.id,"**Hello**")
         await app.send_video(kk.id,img)
         add_user(kk.id)
     except errors.PeerIdInvalid as e:
