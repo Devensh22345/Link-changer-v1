@@ -33,9 +33,9 @@ txt1 = [
 ]
 
 txt2 = [
-    '**is Group pe aao na baat karte hai \n @DKANIME_GROUP\n @DKANIME_GROUP**',
-    '**Tumhe pata hai is group pe sare anime hindi me milte hai Bas name likhne se\n @DKANIME_GROUP\n @DKANIME_GROUP**',
-    '**please mera group join karlo \n @DKANIME_GROUP\n @DKANIME_GROUP**'
+    '**is Group pe aao na baat karte hai \n\n @DKANIME_GROUP\n @DKANIME_GROUP**',
+    '**Tumhe pata hai is group pe sare anime hindi me milte hai Bas name likhne se\n\n @DKANIME_GROUP\n @DKANIME_GROUP**',
+    '**please mera group join karlo \n\n @DKANIME_GROUP\n @DKANIME_GROUP**'
 ]
 
 
