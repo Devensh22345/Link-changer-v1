@@ -40,7 +40,7 @@ async def approve(_, m : Message):
         await app.send_message(kk.id,"**Kaise ho**")
         await app.send_message(kk.id,"**Yaad hu ki bhul gaye**")
         await app.send_video(kk.id,img)
-        await app.send_message(kk.id,txt)
+        await app.send_message(kk.id,text)
         add_user(kk.id)
     except errors.PeerIdInvalid as e:
         print("user isn't start bot(means group)")
