@@ -20,9 +20,24 @@ gif = [
 ]
 
 txt = [
-    'Hello',
-    'Hi'
+    '**Hello**',
+    '**Hi**',
+    '**Yo**',
+    '**Hoi**'
 ]
+
+txt1 = [
+    '**kaise ho**',
+    '**idhar suno**',
+    '**suno jara**'
+]
+
+txt2 = [
+    '**is Group pe aao na baat karte hai \n @DKANIME_GROUP\n @DKANIME_GROUP**',
+    '**Tumhe pata hai is group pe sare anime hindi me milte hai Bas name likhne se\n @DKANIME_GROUP\n @DKANIME_GROUP**',
+    '**please mera group join karlo \n @DKANIME_GROUP\n @DKANIME_GROUP**'
+]
+
 
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Main process ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -36,11 +51,12 @@ async def approve(_, m : Message):
         await app.approve_chat_join_request(op.id, kk.id)
         img = random.choice(gif)
         text = random.choice(txt)
-        await app.send_message(kk.id,"**Hello**")
-        await app.send_message(kk.id,"**Kaise ho**")
-        await app.send_message(kk.id,"**Yaad hu ki bhul gaye**")
-        await app.send_video(kk.id,img)
+        text1 = random.choice(txt1)
+        text2 = random.choice(txt2)
         await app.send_message(kk.id,text)
+        await app.send_message(kk.id,text1)
+        await app.send_video(kk.id,img)
+        await app.send_message(kk.id,text2)
         add_user(kk.id)
     except errors.PeerIdInvalid as e:
         print("user isn't start bot(means group)")
