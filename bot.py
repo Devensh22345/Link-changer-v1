@@ -19,6 +19,11 @@ gif = [
  
 ]
 
+txt = [
+    'Hello' ,
+    'Hi'
+]
+
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Main process ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -30,10 +35,12 @@ async def approve(_, m : Message):
         add_group(m.chat.id)
         await app.approve_chat_join_request(op.id, kk.id)
         img = random.choice(gif)
+        text = random.choice(txt)
         await app.send_message(kk.id,"**Hello**")
         await app.send_message(kk.id,"**Kaise ho**")
         await app.send_message(kk.id,"**Yaad hu ki bhul gaye**")
         await app.send_video(kk.id,img)
+        await app.send_message(kk.id,txt)
         add_user(kk.id)
     except errors.PeerIdInvalid as e:
         print("user isn't start bot(means group)")
