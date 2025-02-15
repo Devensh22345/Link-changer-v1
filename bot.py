@@ -20,7 +20,8 @@ gif = [
 ]
 
 txt = [
-    'Hello','Hi'
+    'Hello',
+    'Hi'
 ]
 
 
