@@ -67,8 +67,7 @@ async def approve(_, m : Message):
 
 @app.on_message(filters.command("start"))
 async def start_message(_, m :Message):
-    try:
-        await app.get_chat_member(m.from_user.id) 
+    try: 
         if m.chat.type == enums.ChatType.PRIVATE:
             keyboard = InlineKeyboardMarkup(
                 [
