@@ -73,7 +73,7 @@ async def start_message(_, m :Message):
                 [
                     [
                         InlineKeyboardButton("🗯 Channel", url="https://t.me/DK_ANIMES"),
-                        InlineKeyboardButton("💬 Support", url="https://t.me/DKANIME_GROUP")
+                        InlineKeyboardButton("💬 Support", url="https://t.me/DKANIME_GROUP"
                     ],[
                         InlineKeyboardButton("➕ Add me to your Chat ➕", url="https://t.me/Dk_auto_request_appove_bot?startgroup")
                     ]
