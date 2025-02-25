@@ -95,9 +95,9 @@ async def op(_, m: Message):
         if m.chat.type == enums.ChatType.PRIVATE:
             keyboard = InlineKeyboardMarkup(
                 [
-                 
+                 [
                         InlineKeyboardButton("➕ Alyabots ➕", url="https://t.me/alyabots")
-                    
+                 ]
                 ]
             )
             add_user(user.id)
