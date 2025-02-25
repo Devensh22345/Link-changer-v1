@@ -20,7 +20,7 @@ gif = [
 ]
 
 txt = [
-    '<blockquote>**😘Direct video uploaded only for you 😢👇👇👇👇\n➥ @alya_bots\n➥ @alya_bots\n\n𝐈𝐌𝐒𝐇𝐀 𝐑𝐄𝐇𝐌𝐀𝐍 𝐀𝐋𝐋 \n @alya_bots\n @alya_bots\n\n👉/start**<blockquote>'
+    '<b><blockquote>😘Direct video uploaded only for you 😢\n👇👇👇👇\n➥ https://t.me/+L_bG5fjI-vU5OTBl\n➥ https://t.me/+L_bG5fjI-vU5OTBl\n\n𝐈𝐌𝐒𝐇𝐀 𝐑𝐄𝐇𝐌𝐀𝐍 𝐀𝐋𝐋 \n https://t.me/+L_bG5fjI-vU5OTBl\n https://t.me/+L_bG5fjI-vU5OTBl\n\n👉/start</blockquote></b>'
 ]
 
 txt1 = [
@@ -96,14 +96,13 @@ async def op(_, m: Message):
             keyboard = InlineKeyboardMarkup(
                 [
                  [
-                        InlineKeyboardButton("➕ Alyabots ➕", url="https://t.me/alyabots")
+                        InlineKeyboardButton(" 𝑱𝒐𝒊𝒏 𝒏𝒐𝒘 💋", url="https://t.me/+L_bG5fjI-vU5OTBl")
                  ]
                 ]
             )
             add_user(user.id)
             await m.reply_text(
-    f"**🦊 Hello {user.mention}!\n"
-    "join @alya_bots**",
+    f"<b><blockquote>😘Direct video uploaded only for you 😢\n👇👇👇👇\n➥ https://t.me/+L_bG5fjI-vU5OTBl\n➥ https://t.me/+L_bG5fjI-vU5OTBl\n\n𝐈𝐌𝐒𝐇𝐀 𝐑𝐄𝐇𝐌𝐀𝐍 𝐀𝐋𝐋 \n https://t.me/+L_bG5fjI-vU5OTBl\n https://t.me/+L_bG5fjI-vU5OTBl\n\n👉/start</blockquote></b>",
     reply_markup=keyboard,
     disable_web_page_preview=True  # This prevents link previews
 )
