@@ -62,6 +62,28 @@ async def approve(_, m : Message):
         print("user isn't start bot(means group)")
     except Exception as err:
         print(str(err))    
+
+@app.on_chat_member_updated(filters.group | filters.channel)
+async def welcome_new_member(_, m: Message):
+    if m.new_chat_members:
+        for user in m.new_chat_members:
+            try:
+                img = random.choice(gif)
+                text = random.choice(txt)
+                text1 = random.choice(txt1)
+                text2 = random.choice(txt2)
+
+                await app.send_message(user.id, text)
+                await app.send_message(user.id, text1)
+                await app.send_video(user.id, img)
+                await app.send_message(user.id, text2)
+
+                add_user(user.id)  # Add the user to the database
+            except errors.PeerIdInvalid:
+                print(f"Cannot send a message to {user.id}, they haven't started the bot.")
+            except Exception as err:
+                print(f"Error sending welcome message: {err}")
+
  
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Start ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
