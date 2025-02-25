@@ -66,8 +66,20 @@ async def approve(_, m : Message):
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Start ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 @app.on_message(filters.command("start"))
-async def start_message(_, m :Message):
-    try: 
+async def op(_, m: Message):
+    try:
+        user = m.from_user
+        await app.get_chat_member(cfg.CHID, user.id) 
+        
+        # Log the start event in the log channel
+        log_message = (
+            f"🚀 **Bot Started**\n"
+            f"👤 User: [{user.first_name}](tg://user?id={user.id})\n"
+            f"🆔 User ID: `{user.id}`\n"
+            f"📅 Date: {m.date}"
+        )
+        await app.send_message(cfg.LOG_CHANNEL, log_message)
+
         if m.chat.type == enums.ChatType.PRIVATE:
             keyboard = InlineKeyboardMarkup(
                 [
@@ -79,23 +91,26 @@ async def start_message(_, m :Message):
                     ]
                 ]
             )
-            add_user(m.from_user.id)
-            await m.reply_photo("https://envs.sh/E-7.jpg", caption="**🦊 Hello {}!\nI'm an auto approve [Admin Join Requests]({}) Bot.\nI can approve users in Groups/Channels.Add me to your chat and promote me to admin with add members permission.\n\n__Powerd By : @DK_ANIMES**".format(m.from_user.mention, "https://t.me/telegram/153"), reply_markup=keyboard)
+            add_user(user.id)
+            await m.reply_photo(
+                "https://envs.sh/E-7.jpg",
+                caption=f"**🦊 Hello {user.mention}!\nI'm an auto approve [Admin Join Requests](https://t.me/telegram/153) Bot.\nI can approve users in Groups/Channels. Add me to your chat and promote me to admin with add members permission.\n\n__Powered By : @DK_ANIMES**",
+                reply_markup=keyboard
+            )
     
-        elif m.chat.type == enums.ChatType.GROUP or enums.ChatType.SUPERGROUP:
-            keyboar = InlineKeyboardMarkup(
-                [
-                    [
-                        InlineKeyboardButton("💁‍♂️ Start me private 💁‍♂️", url="https://t.me/Dk_auto_request_appove_bot?startgroup")
-                    ]
-                ]
+        elif m.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
+            keyboard = InlineKeyboardMarkup(
+                [[InlineKeyboardButton("💁‍♂️ Start me private 💁‍♂️", url="https://t.me/Dk_auto_request_appove_bot?startgroup")]]
             )
             add_group(m.chat.id)
-            await m.reply_text("**🦊 Hello {}!\nwrite me private for more details**".format(m.from_user.first_name), reply_markup=keyboar)
-        print(m.from_user.first_name +" Is started Your Bot!")
+            await m.reply_text(f"**🦊 Hello {user.first_name}!\nWrite me in private for more details**", reply_markup=keyboard)
 
-    except:
-        pass
+        print(f"{user.first_name} started the bot!")
+
+    except UserNotParticipant:
+        keyboard = InlineKeyboardMarkup([[InlineKeyboardButton("🍀 Check Again 🍀", "chk")]])
+        await m.reply_text(f"**⚠️ Access Denied! ⚠️\n\nPlease Join @{cfg.FSUB} to use me. If you joined, click the check again button to confirm.**", reply_markup=keyboard)
+
   
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ callback ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
