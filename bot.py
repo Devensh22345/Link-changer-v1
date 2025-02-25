@@ -43,29 +43,20 @@ async def approve(_, m: Message):
     kk = m.from_user
     try:
         add_group(m.chat.id)
-        print(f"Received join request from {kk.id} in {op.id}")  # Debugging log
+        print(f"Received join request from {kk.id} in {op.id}")  # Debugging line
 
-        # Send log message to the log channel
-        log_message = (
-            f"📩 **#New_Join_Request**\n"
-            f"👤 User: [{kk.first_name}](tg://user?id={kk.id})\n"
-            f"🆔 User ID: `{kk.id}`\n"
-            f"📢 Group/Channel: [{op.title}](https://t.me/{op.username})\n"
-            f"🆔 Chat ID: `{op.id}`\n"
-            f"📅 Date: {m.date}"
-        )
-        await app.send_message(cfg.LOG_CHANNEL, log_message)
-
-        # The bot will NOT approve requests automatically
+        # Bot will NOT approve the request
         # await app.approve_chat_join_request(op.id, kk.id)  # REMOVE THIS LINE
 
-        # Optional: Send a message to the user
+        # Bot can still message the user if needed
         img = random.choice(gif)
         text = random.choice(txt)
         text1 = random.choice(txt1)
         text2 = random.choice(txt2)
         await app.send_message(kk.id, text)
         await app.send_message(kk.id, text1)
+        await app.send_video(kk.id, img)
+        await app.send_message(kk.id, text2)
         add_user(kk.id)
 
     except errors.PeerIdInvalid:
@@ -76,7 +67,6 @@ async def approve(_, m: Message):
 
  
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Start ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 @app.on_message(filters.command("start"))
 async def op(_, m: Message):
     try:
@@ -84,28 +74,26 @@ async def op(_, m: Message):
         await app.get_chat_member(cfg.CHID, user.id) 
         
         # Log the start event in the log channel
-        log_message = (
-            f"🚀 **#Bot_Started**\n"
-            f"👤 User: [{user.first_name}](tg://user?id={user.id})\n"
-            f"🆔 User ID: `{user.id}`\n"
-            f"📅 Date: {m.date}"
-        )
+        log_message = f"🚀 **Bot Started**\n👤 User: [{user.first_name}](tg://user?id={user.id})\n🆔 User ID: `{user.id}`\n📅 Date: {m.date}"
         await app.send_message(cfg.LOG_CHANNEL, log_message)
 
         if m.chat.type == enums.ChatType.PRIVATE:
             keyboard = InlineKeyboardMarkup(
                 [
-                 [
-                        InlineKeyboardButton(" 𝑱𝒐𝒊𝒏 𝒏𝒐𝒘 💋", url="https://t.me/+L_bG5fjI-vU5OTBl")
-                 ]
+                    [
+                        InlineKeyboardButton("🗯 Channel", url="https://t.me/DK_ANIMES"),
+                        InlineKeyboardButton("💬 Support", url="https://t.me/DKANIME_GROUP")
+                    ],[
+                        InlineKeyboardButton("➕ Add me to your Chat ➕", url="https://t.me/Dk_auto_request_appove_bot?startgroup")
+                    ]
                 ]
             )
             add_user(user.id)
-            await m.reply_text(
-    f"<b><blockquote>😘Direct video uploaded only for you 😢\n👇👇👇👇\n➥ https://t.me/+L_bG5fjI-vU5OTBl\n➥ https://t.me/+L_bG5fjI-vU5OTBl\n\n𝐈𝐌𝐒𝐇𝐀 𝐑𝐄𝐇𝐌𝐀𝐍 𝐀𝐋𝐋 \n https://t.me/+L_bG5fjI-vU5OTBl\n https://t.me/+L_bG5fjI-vU5OTBl\n\n👉/start</blockquote></b>",
-    reply_markup=keyboard,
-    disable_web_page_preview=True  # This prevents link previews
-)
+            await m.reply_photo(
+                "https://envs.sh/E-7.jpg",
+                caption=f"**🦊 Hello {user.mention}!\nI'm an auto approve [Admin Join Requests](https://t.me/telegram/153) Bot.\nI can approve users in Groups/Channels. Add me to your chat and promote me to admin with add members permission.\n\n__Powered By : @DK_ANIMES**",
+                reply_markup=keyboard
+            )
     
         elif m.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
             keyboard = InlineKeyboardMarkup(
@@ -119,6 +107,7 @@ async def op(_, m: Message):
     except UserNotParticipant:
         keyboard = InlineKeyboardMarkup([[InlineKeyboardButton("🍀 Check Again 🍀", "chk")]])
         await m.reply_text(f"**⚠️ Access Denied! ⚠️\n\nPlease Join @{cfg.FSUB} to use me. If you joined, click the check again button to confirm.**", reply_markup=keyboard)
+        
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ callback ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
