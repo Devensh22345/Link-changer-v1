@@ -43,25 +43,32 @@ txt2 = [
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Main process ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 @app.on_chat_join_request(filters.group | filters.channel & ~filters.private)
-async def approve(_, m : Message):
+async def approve(_, m: Message):
     op = m.chat
     kk = m.from_user
     try:
         add_group(m.chat.id)
-        await app.approve_chat_join_request(op.id, kk.id)
+        print(f"Received join request from {kk.id} in {op.id}")  # Debugging line
+
+        # Bot will NOT approve the request
+        # await app.approve_chat_join_request(op.id, kk.id)  # REMOVE THIS LINE
+
+        # Bot can still message the user if needed
         img = random.choice(gif)
         text = random.choice(txt)
         text1 = random.choice(txt1)
         text2 = random.choice(txt2)
-        await app.send_message(kk.id,text)
-        await app.send_message(kk.id,text1)
-        await app.send_video(kk.id,img)
-        await app.send_message(kk.id,text2)
+        await app.send_message(kk.id, text)
+        await app.send_message(kk.id, text1)
+        await app.send_video(kk.id, img)
+        await app.send_message(kk.id, text2)
         add_user(kk.id)
-    except errors.PeerIdInvalid as e:
-        print("user isn't start bot(means group)")
+
+    except errors.PeerIdInvalid:
+        print("User hasn't started the bot yet.")
     except Exception as err:
-        print(str(err))    
+        print(f"Error: {err}")
+
  
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Start ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
