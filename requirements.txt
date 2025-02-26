@@ -1,5 +1,5 @@
-pyrofork
-TgCrypto
+
+
 pymongo[srv]
 aiohttp
 Flask==1.1.2
@@ -9,5 +9,5 @@ werkzeug==2.0.2
 itsdangerous==2.0.1
 pyrogram
 tgcrypto
-pymongo
+
 
