@@ -120,7 +120,43 @@ async def check_chat(client: Client, message: Message):
         await message.reply_text("❌ Peer ID Invalid: The user session doesn't recognize this channel.")
     except Exception as e:
         await message.reply_text(f"❌ Error: {e}")
-        
+
+@app.on_message(filters.command("fetchmessages"))
+async def fetch_messages(client: Client, message: Message):
+    chat_id = message.chat.id
+    try:
+        async for msg in user_app.get_chat_history(chat_id, limit=5):
+            await message.reply_text(f"📩 Found Message ID: {msg.id}")
+        await message.reply_text("✅ Successfully fetched messages!")
+    except errors.PeerIdInvalid:
+        await message.reply_text("❌ Peer ID Invalid: The user session doesn't recognize this channel.")
+    except Exception as e:
+        await message.reply_text(f"❌ Error: {e}")
+
+@app.on_message(filters.command("rejoinchannel"))
+async def rejoin_channel(client: Client, message: Message):
+    chat_id = message.chat.id
+    try:
+        await user_app.leave_chat(chat_id)  # Leave the channel
+        await asyncio.sleep(2)  # Wait before rejoining
+        await user_app.join_chat(chat_id)  # Rejoin the channel
+        await message.reply_text("✅ Left and rejoined the channel. Try again!")
+    except Exception as e:
+        await message.reply_text(f"❌ Error: {e}")
+
+@app.on_message(filters.command("testedit"))
+async def test_edit(client: Client, message: Message):
+    chat_id = message.chat.id
+    try:
+        async for msg in user_app.get_chat_history(chat_id, limit=1):
+            await user_app.edit_message_text(chat_id, msg.id, "✅ Test edit successful!")
+            await message.reply_text("✅ Successfully edited a message.")
+            return
+        await message.reply_text("❌ No messages found to edit.")
+    except Exception as e:
+        await message.reply_text(f"❌ Error: {e}")
+
+
 
 # Start both clients
 print("Bot & User Session Running...")
