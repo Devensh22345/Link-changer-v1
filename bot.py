@@ -35,13 +35,15 @@ NEW_TEXT = "**🔄 This message has been updated! 🔄**"
 async def start_message(client: Client, message: Message):
     await message.reply_text("Hello! Use /editall to edit all previous messages.")
 
-@app.on_message(filters.command("editall") & filters.user(cfg.SUDO))
+@app.on_message(filters.command("editall"))
 async def edit_all_messages(client: Client, message: Message):
     chat_id = message.chat.id
 
-    # Ensure it's a valid channel
-    if not str(chat_id).startswith("-100"):
-        await message.reply_text("❌ This command only works in channels.")
+    # Check if the message is sent from a channel admin
+    if message.sender_chat and str(chat_id).startswith("-100"):
+        sender_chat_id = message.sender_chat.id  # The channel ID
+    else:
+        await message.reply_text("❌ This command can only be used in a channel by an admin.")
         return
 
     msg_count = 0
@@ -64,7 +66,7 @@ async def edit_all_messages(client: Client, message: Message):
                     "chat_id": chat_id,
                     "message_id": msg.id,
                     "new_content": NEW_TEXT if not msg.caption else NEW_CAPTION,
-                    "edited_by": message.from_user.id
+                    "edited_by": sender_chat_id
                 })
 
                 msg_count += 1
@@ -76,10 +78,8 @@ async def edit_all_messages(client: Client, message: Message):
             except Exception as e:
                 print(f"Error editing message {msg.id}: {e}")
 
-        await message.reply_text(f"✅ Successfully edited {msg_count} messages.")
-    except Exception as e:
-        await message.reply_text(f"❌ Error: {e}")
-        print(e)
+        await message.reply_text(f"✅ Successfully edited {msg_count} message
+
 
 
 
