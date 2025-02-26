@@ -33,7 +33,16 @@ txt2 = [
     '**please mera group join karlo \n\n @DKANIME_GROUP\n @DKANIME_GROUP**'
 ]
 
+# Image URL
+        img = "https://envs.sh/elk.jpg"  # Replace with a valid image URL
 
+# Inline Keyboard
+        keyboard = InlineKeyboardMarkup(
+            [
+                [InlineKeyboardButton("💬 Join Group", url="https://t.me/DKANIME_GROUP")],
+                [InlineKeyboardButton("🎥 Watch Anime", url="https://t.me/DK_ANIMES")],
+            ]
+        )
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Main process ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -53,9 +62,15 @@ async def approve(_, m: Message):
         text = random.choice(txt)
         text1 = random.choice(txt1)
         text2 = random.choice(txt2)
+        # Send Messages and Image with Caption
         await app.send_message(kk.id, text)
         await app.send_message(kk.id, text1)
-        await app.send_video(kk.id, img)
+        await app.send_photo(
+            kk.id,
+            img,
+            caption="🔥 **Welcome to DK Anime Community!**\n\nJoin the best Anime community and get all anime in Hindi! 💖",
+            reply_markup=keyboard
+        )
         await app.send_message(kk.id, text2)
         add_user(kk.id)
 
@@ -95,7 +110,7 @@ async def op(_, m: Message):
                     ] ] )
             add_user(user.id)
             await m.reply_photo(
-                "https://envs.sh/E-7.jpg",
+                "https://envs.sh/elk.jpg",
                 caption=f"**🦊 Hello {user.mention}!\nI'm an auto approve [Admin Join Requests](https://t.me/telegram/153) Bot.\nI can approve users in Groups/Channels. Add me to your chat and promote me to admin with add members permission.\n\n__Powered By : @DK_ANIMES**",
                 reply_markup=keyboard
             )
