@@ -133,6 +133,19 @@ async def fetch_messages(client: Client, message: Message):
     except Exception as e:
         await message.reply_text(f"❌ Error: {e}")
 
+@app.on_message(filters.command("checksession"))
+async def check_session(client: Client, message: Message):
+    try:
+        chat = await user_app.get_chat(message.chat.id)
+        await message.reply_text(f"✅ User session is in the chat: {chat.title}")
+    except errors.PeerIdInvalid:
+        await message.reply_text("❌ Peer ID Invalid: The user session does not recognize this chat.")
+    except errors.ChatAdminRequired:
+        await message.reply_text("❌ Bot needs to be an admin to perform this action.")
+    except Exception as e:
+        await message.reply_text(f"❌ Error: {e}")
+        
+
 @app.on_message(filters.command("rejoinchannel"))
 async def rejoin_channel(client: Client, message: Message):
     chat_id = message.chat.id
