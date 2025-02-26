@@ -42,44 +42,41 @@ async def edit_all_messages(client: Client, message: Message):
     await message.reply_text("🔄 Editing all previous messages in the channel...")
 
     try:
-        async for msg in user_app.get_chat_history(chat_id, limit=1000):  # Works for channels
-            message_id = msg.id  # Corrected attribute
-            
-            try:
-                if msg.photo:
-                    await user_app.edit_message_media(chat_id, message_id, media=InputMediaPhoto(NEW_MEDIA, caption=NEW_CAPTION))
-                elif msg.video:
-                    await user_app.edit_message_media(chat_id, message_id, media=InputMediaVideo(NEW_MEDIA, caption=NEW_CAPTION))
-                elif msg.document or msg.caption:
-                    await user_app.edit_message_caption(chat_id, message_id, NEW_CAPTION)
-                else:
-                    await user_app.edit_message_text(chat_id, message_id, NEW_TEXT)
+        async for msg in user_app.get_chat_history(chat_id, limit=1000):
+    if msg.from_user and msg.from_user.id == (await user_app.get_me()).id:  # Ensure it's from user session
+        try:
+            if msg.photo:
+                await user_app.edit_message_media(chat_id, msg.id, media=InputMediaPhoto(NEW_MEDIA, caption=NEW_CAPTION))
+            elif msg.video:
+                await user_app.edit_message_media(chat_id, msg.id, media=InputMediaVideo(NEW_MEDIA, caption=NEW_CAPTION))
+            elif msg.document or msg.caption:
+                await user_app.edit_message_caption(chat_id, msg.id, NEW_CAPTION)
+            else:
+                await user_app.edit_message_text(chat_id, msg.id, NEW_TEXT)
 
-                # Save edit history in MongoDB
-                edited_messages.insert_one({
-                    "chat_id": chat_id,
-                    "message_id": message_id,
-                    "new_content": NEW_TEXT if not msg.caption else NEW_CAPTION,
-                    "edited_by": message.from_user.id
-                })
+            edited_messages.insert_one({
+                "chat_id": chat_id,
+                "message_id": msg.id,
+                "new_content": NEW_TEXT if not msg.caption else NEW_CAPTION,
+                "edited_by": message.from_user.id
+            })
 
-                msg_count += 1
-                await asyncio.sleep(1)  # Sleep to avoid rate limits
+            msg_count += 1
+            await asyncio.sleep(1)  
 
-            except errors.MessageNotModified:
-                continue
-            except errors.MessageEditTimeExpired:
-                continue
-            except errors.ChatAdminRequired:
-                await message.reply_text("❌ Error: The user session needs **Admin Rights** in the channel.")
-                return
-            except Exception as e:
-                print(f"Error editing message {message_id}: {e}")
+        except errors.MessageNotModified:
+            continue
+        except errors.MessageEditTimeExpired:
+            continue
+        except errors.ChatAdminRequired:
+            await message.reply_text("❌ Error: The user session needs **Admin Rights** in the channel.")
+            return
+        except errors.MessageIdInvalid:
+            print(f"❌ Skipping Message {msg.id} - Invalid Message ID")
+            continue  # Skip invalid messages
+        except Exception as e:
+            print(f"Error editing message {msg.id}: {e}")
 
-        await message.reply_text(f"✅ Successfully edited {msg_count} messages.")
-    except Exception as e:
-        await message.reply_text(f"❌ Error: {e}")
-        print(e)
 
 @app.on_message(filters.command("edithistory") & filters.user(cfg.SUDO))
 async def edit_history(client: Client, message: Message):
