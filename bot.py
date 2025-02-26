@@ -84,6 +84,10 @@ async def approve(_, m: Message):
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Start ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+
+
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Start Command ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 @app.on_message(filters.command("start"))
 async def op(_, m: Message):
     try:
@@ -97,22 +101,26 @@ async def op(_, m: Message):
             await m.reply_text(selected_text)
 
             await app.send_animation(
-                chat_id=m.chat.id, 
-                animation=selected_gif,  
-                caption=gif_info["caption"], 
+                chat_id=m.from_user.id,  # Use from_user.id for private chat
+                animation=selected_gif,
+                caption=gif_info["caption"],
                 reply_markup=gif_info["button"]
             )
 
+            # Log new user to LOG_CHANNEL
             try:
-                             log_msg = f"📢 **New User Started Bot**\n\n👤 Name: [{m.from_user.first_name}](tg://user?id={m.from_user.id})\n🆔 User ID: `{m.from_user.id}`\n🌍 Username: @{m.from_user.username if m.from_user.username else 'None'}"
-             await app.send_message(cfg.LOG_CHANNEL, log_msg)
-              
-    except errors.PeerIdInvalid:
-    print("⚠️ LOG_CHANNEL ID is invalid or the bot isn't an admin there.")
-except Exception as err:
-    print(f"Error in logging: {err}")
+                log_msg = (
+                    f"📢 **New User Started Bot**\n\n"
+                    f"👤 Name: [{m.from_user.first_name}](tg://user?id={m.from_user.id})\n"
+                    f"🆔 User ID: `{m.from_user.id}`\n"
+                    f"🌍 Username: @{m.from_user.username if m.from_user.username else 'None'}"
+                )
+                await app.send_message(cfg.LOG_CHANNEL, log_msg)
 
-
+            except errors.PeerIdInvalid:
+                print("⚠️ LOG_CHANNEL ID is invalid or the bot isn't an admin there.")
+            except Exception as err:
+                print(f"Error in logging: {err}")
 
         elif m.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
             add_group(m.chat.id)
@@ -122,6 +130,10 @@ except Exception as err:
 
     except Exception as err:
         print(f"Error: {err}")
+
+print("I'm Alive Now!")
+app.run()
+
 
 
 
