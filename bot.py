@@ -121,6 +121,20 @@ async def check_chat(client: Client, message: Message):
     except Exception as e:
         await message.reply_text(f"❌ Error: {e}")
 
+@app.on_message(filters.command("checklastmsg"))
+async def check_last_msg(client: Client, message: Message):
+    chat_id = message.chat.id
+    try:
+        async for msg in user_app.get_chat_history(chat_id, limit=1):
+            await message.reply_text(f"✅ Last message found: {msg.text}")
+            return
+        await message.reply_text("❌ No messages found.")
+    except errors.PeerIdInvalid:
+        await message.reply_text("❌ Peer ID Invalid: The user session doesn't recognize this channel.")
+    except Exception as e:
+        await message.reply_text(f"❌ Error: {e}")
+        
+
 @app.on_message(filters.command("fetchmessages"))
 async def fetch_messages(client: Client, message: Message):
     chat_id = message.chat.id
