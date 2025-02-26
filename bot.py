@@ -43,39 +43,35 @@ async def edit_all_messages(client: Client, message: Message):
 
     try:
         async for msg in user_app.get_chat_history(chat_id, limit=1000):
-    if msg.from_user and msg.from_user.id == (await user_app.get_me()).id:  # Ensure it's from user session
-        try:
-            if msg.photo:
-                await user_app.edit_message_media(chat_id, msg.id, media=InputMediaPhoto(NEW_MEDIA, caption=NEW_CAPTION))
-            elif msg.video:
-                await user_app.edit_message_media(chat_id, msg.id, media=InputMediaVideo(NEW_MEDIA, caption=NEW_CAPTION))
-            elif msg.document or msg.caption:
-                await user_app.edit_message_caption(chat_id, msg.id, NEW_CAPTION)
-            else:
-                await user_app.edit_message_text(chat_id, msg.id, NEW_TEXT)
+    try:
+        message_id = msg.message_id  # Correct way to get message ID for channels
 
-            edited_messages.insert_one({
-                "chat_id": chat_id,
-                "message_id": msg.id,
-                "new_content": NEW_TEXT if not msg.caption else NEW_CAPTION,
-                "edited_by": message.from_user.id
-            })
+        if msg.photo:
+            await user_app.edit_message_media(chat_id, message_id, media=InputMediaPhoto(NEW_MEDIA, caption=NEW_CAPTION))
+        elif msg.video:
+            await user_app.edit_message_media(chat_id, message_id, media=InputMediaVideo(NEW_MEDIA, caption=NEW_CAPTION))
+        elif msg.document or msg.caption:
+            await user_app.edit_message_caption(chat_id, message_id, NEW_CAPTION)
+        else:
+            await user_app.edit_message_text(chat_id, message_id, NEW_TEXT)
 
-            msg_count += 1
-            await asyncio.sleep(1)  
+        edited_messages.insert_one({
+            "chat_id": chat_id,
+            "message_id": message_id,
+            "new_content": NEW_TEXT if not msg.caption else NEW_CAPTION,
+            "edited_by": message.from_user.id
+        })
 
-        except errors.MessageNotModified:
-            continue
-        except errors.MessageEditTimeExpired:
-            continue
-        except errors.ChatAdminRequired:
-            await message.reply_text("❌ Error: The user session needs **Admin Rights** in the channel.")
-            return
-        except errors.MessageIdInvalid:
-            print(f"❌ Skipping Message {msg.id} - Invalid Message ID")
-            continue  # Skip invalid messages
-        except Exception as e:
-            print(f"Error editing message {msg.id}: {e}")
+        await asyncio.sleep(1)  
+
+    except errors.MessageIdInvalid:
+        print(f"❌ Skipping Message {message_id} - Invalid Message ID")
+        continue  # Skip invalid messages
+    except Exception as e:
+        print(f"Error editing message {message_id}: {e}")
+
+
+        
 
 
 @app.on_message(filters.command("edithistory") & filters.user(cfg.SUDO))
