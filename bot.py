@@ -27,9 +27,9 @@ user_app = Client(
 )
 
 # Define new content
-NEW_MEDIA = "https://example.com/new_media.jpg"
-NEW_CAPTION = "**🔄 This media has been updated! 🔄**"
-NEW_TEXT = "**🔄 This message has been updated! 🔄**"
+NEW_MEDIA = "https://envs.sh/eZL.jpg"
+NEW_CAPTION = "**JOIN FOR ANIME IN HINDI - [@DK_ANIMES]**"
+NEW_TEXT = "**JOIN FOR ANIME IN HINDI - [@DK_ANIMES]**"
 
 @app.on_message(filters.command("start"))
 async def start_message(client: Client, message: Message):
@@ -38,7 +38,7 @@ async def start_message(client: Client, message: Message):
 @app.on_message(filters.command("editall"))
 async def edit_all_messages(client: Client, message: Message):
     chat_id = message.chat.id
-
+@DK_ANIMES
     # Check if command is issued by a channel admin
     if not message.sender_chat or not str(chat_id).startswith("-100"):
         await message.reply_text("❌ This command can only be used in a channel by an admin.")
