@@ -37,38 +37,45 @@ async def start_message(client: Client, message: Message):
 
 @app.on_message(filters.command("editall") & filters.user(cfg.SUDO))
 async def edit_all_messages(client: Client, message: Message):
-    chat_id = message.chat.id  # Channel ID if running in a channel
+    chat_id = str(message.chat.id)  # Convert chat_id to string for channels
     msg_count = 0
-    await message.reply_text("🔄 Editing all previous messages in the channel...")
+    await message.reply_text("🔄 Editing all previous messages...")
 
     try:
         async for msg in user_app.get_chat_history(chat_id, limit=1000):
-    try:
-        message_id = msg.message_id  # Correct way to get message ID for channels
+            try:
+                message_id = msg.message_id  # Ensure correct message ID for channels
 
-        if msg.photo:
-            await user_app.edit_message_media(chat_id, message_id, media=InputMediaPhoto(NEW_MEDIA, caption=NEW_CAPTION))
-        elif msg.video:
-            await user_app.edit_message_media(chat_id, message_id, media=InputMediaVideo(NEW_MEDIA, caption=NEW_CAPTION))
-        elif msg.document or msg.caption:
-            await user_app.edit_message_caption(chat_id, message_id, NEW_CAPTION)
-        else:
-            await user_app.edit_message_text(chat_id, message_id, NEW_TEXT)
+                if msg.photo:
+                    await user_app.edit_message_media(chat_id, message_id, media=InputMediaPhoto(NEW_MEDIA, caption=NEW_CAPTION))
+                elif msg.video:
+                    await user_app.edit_message_media(chat_id, message_id, media=InputMediaVideo(NEW_MEDIA, caption=NEW_CAPTION))
+                elif msg.document or msg.caption:
+                    await user_app.edit_message_caption(chat_id, message_id, NEW_CAPTION)
+                else:
+                    await user_app.edit_message_text(chat_id, message_id, NEW_TEXT)
 
-        edited_messages.insert_one({
-            "chat_id": chat_id,
-            "message_id": message_id,
-            "new_content": NEW_TEXT if not msg.caption else NEW_CAPTION,
-            "edited_by": message.from_user.id
-        })
+                edited_messages.insert_one({
+                    "chat_id": chat_id,
+                    "message_id": message_id,
+                    "new_content": NEW_TEXT if not msg.caption else NEW_CAPTION,
+                    "edited_by": message.from_user.id
+                })
 
-        await asyncio.sleep(1)  
+                msg_count += 1
+                await asyncio.sleep(1)  
 
-    except errors.MessageIdInvalid:
-        print(f"❌ Skipping Message {message_id} - Invalid Message ID")
-        continue  # Skip invalid messages
+            except errors.MessageIdInvalid:
+                print(f"❌ Skipping Message {message_id} - Invalid Message ID")
+                continue  # Skip invalid messages
+            except Exception as e:
+                print(f"Error editing message {message_id}: {e}")
+
+        await message.reply_text(f"✅ Successfully edited {msg_count} messages.")
     except Exception as e:
-        print(f"Error editing message {message_id}: {e}")
+        await message.reply_text(f"❌ Error: {e}")
+        print(e)
+
 
 
         
