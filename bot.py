@@ -12,7 +12,7 @@ app = Client(
 )
 
 # New media and caption (Replace with your content)
-NEW_MEDIA = "https://example.com/new_media.jpg"  # Replace with your image/video URL
+NEW_MEDIA = "https://envs.sh/eZL.jpg"  # Replace with your image/video URL
 NEW_CAPTION = "**🔄 This media has been updated! 🔄**"  # New caption
 NEW_TEXT = "**🔄 This message has been updated! 🔄**"  # New text for text-only messages
 
