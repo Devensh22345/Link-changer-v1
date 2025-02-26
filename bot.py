@@ -103,9 +103,14 @@ async def op(_, m: Message):
                 reply_markup=gif_info["button"]
             )
 
-            # 📌 Log user start event
-            log_msg = f"📢 **New User Started Bot**\n\n👤 Name: [{m.from_user.first_name}](tg://user?id={m.from_user.id})\n🆔 User ID: `{m.from_user.id}`\n🌍 Username: @{m.from_user.username if m.from_user.username else 'None'}"
-            await app.send_message(cfg.LOG_CHANNEL, log_msg)
+            try:
+    log_msg = f"📢 **New User Started Bot**\n\n👤 Name: [{m.from_user.first_name}](tg://user?id={m.from_user.id})\n🆔 User ID: `{m.from_user.id}`\n🌍 Username: @{m.from_user.username if m.from_user.username else 'None'}"
+    await app.send_message(cfg.LOG_CHANNEL, log_msg)
+except errors.PeerIdInvalid:
+    print("⚠️ LOG_CHANNEL ID is invalid or the bot isn't an admin there.")
+except Exception as err:
+    print(f"Error in logging: {err}")
+
 
         elif m.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
             add_group(m.chat.id)
