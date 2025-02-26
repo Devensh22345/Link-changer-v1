@@ -38,7 +38,7 @@ async def start_message(client: Client, message: Message):
 @app.on_message(filters.command("editall"))
 async def edit_all_messages(client: Client, message: Message):
     chat_id = message.chat.id
-@DK_ANIMES
+
     # Check if command is issued by a channel admin
     if not message.sender_chat or not str(chat_id).startswith("-100"):
         await message.reply_text("❌ This command can only be used in a channel by an admin.")
