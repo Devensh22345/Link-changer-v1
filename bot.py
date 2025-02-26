@@ -39,10 +39,8 @@ async def start_message(client: Client, message: Message):
 async def edit_all_messages(client: Client, message: Message):
     chat_id = message.chat.id
 
-    # Check if the message is sent from a channel admin
-    if message.sender_chat and str(chat_id).startswith("-100"):
-        sender_chat_id = message.sender_chat.id  # The channel ID
-    else:
+    # Check if the command is issued in a channel
+    if message.chat.type != "channel":
         await message.reply_text("❌ This command can only be used in a channel by an admin.")
         return
 
@@ -50,56 +48,55 @@ async def edit_all_messages(client: Client, message: Message):
     await message.reply_text("🔄 Editing all previous messages...")
 
     try:
-    async for msg in user_app.get_chat_history(chat_id, limit=1000):
-        try:
-            if msg.photo:
-                await user_app.edit_message_media(chat_id, msg.id, media=InputMediaPhoto(NEW_MEDIA, caption=NEW_CAPTION))
-            elif msg.video:
-                await user_app.edit_message_media(chat_id, msg.id, media=InputMediaVideo(NEW_MEDIA, caption=NEW_CAPTION))
-            elif msg.document:
-                await user_app.edit_message_caption(chat_id, msg.id, NEW_CAPTION)
-            elif msg.caption:
-                await user_app.edit_message_caption(chat_id, msg.id, NEW_CAPTION)
-            else:
-                await user_app.edit_message_text(chat_id, msg.id, NEW_TEXT)
+        async for msg in user_app.get_chat_history(chat_id, limit=1000):
+            try:
+                if msg.photo:
+                    await user_app.edit_message_media(chat_id, msg.message_id, media=InputMediaPhoto(NEW_MEDIA, caption=NEW_CAPTION))
+                elif msg.video:
+                    await user_app.edit_message_media(chat_id, msg.message_id, media=InputMediaVideo(NEW_MEDIA, caption=NEW_CAPTION))
+                elif msg.document:
+                    await user_app.edit_message_caption(chat_id, msg.message_id, NEW_CAPTION)
+                elif msg.caption:
+                    await user_app.edit_message_caption(chat_id, msg.message_id, NEW_CAPTION)
+                else:
+                    await user_app.edit_message_text(chat_id, msg.message_id, NEW_TEXT)
 
-            edited_messages.insert_one({
-                "chat_id": chat_id,
-                "message_id": msg.id,
-                "new_content": NEW_TEXT if not msg.caption else NEW_CAPTION,
-                "edited_by": message.from_user.id
-            })
+                # Store edited message info
+                edited_messages.insert_one({
+                    "chat_id": str(chat_id),
+                    "message_id": msg.message_id,
+                    "new_content": NEW_TEXT if not msg.caption else NEW_CAPTION,
+                    "edited_by": message.from_user.id
+                })
 
-            msg_count += 1
-            await asyncio.sleep(1)  
+                msg_count += 1
+                await asyncio.sleep(1)  
 
-        except errors.MessageNotModified:
-            continue
-        except errors.MessageEditTimeExpired:
-            continue
-        except Exception as e:
-            print(f"Error editing message {msg.id}: {e}")
+            except errors.MessageNotModified:
+                continue
+            except errors.MessageEditTimeExpired:
+                continue
+            except Exception as e:
+                print(f"Error editing message {msg.message_id}: {e}")
 
-    await message.reply_text(f"✅ Successfully edited {msg_count} messages.")
-except Exception as e:  # ✅ Add this block
-    await message.reply_text(f"❌ Error: {e}")
-    print(e)
+        await message.reply_text(f"✅ Successfully edited {msg_count} messages.")
 
-
-
-
-        
-
+    except Exception as e:
+        await message.reply_text(f"❌ Error: {e}")
+        print(e)
 
 @app.on_message(filters.command("edithistory") & filters.user(cfg.SUDO))
 async def edit_history(client: Client, message: Message):
-    chat_id = message.chat.id
+    chat_id = str(message.chat.id)
     history = edited_messages.find({"chat_id": chat_id})
     response = "**📝 Edit History:**\n"
+    
     for doc in history:
         response += f"📌 Message ID: {doc['message_id']} | Edited by: {doc['edited_by']}\n"
+    
     if response == "**📝 Edit History:**\n":
         response += "No edits found."
+    
     await message.reply_text(response)
 
 @app.on_message(filters.command("addsudo") & filters.user(cfg.SUDO))
