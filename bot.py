@@ -94,15 +94,18 @@ async def op(_, m: Message):
 
             add_user(m.from_user.id)
 
-            # Send random text
             await m.reply_text(selected_text)
 
             await app.send_animation(
                 chat_id=m.chat.id, 
-                animation=selected_gif,
+                animation=selected_gif,  
                 caption=gif_info["caption"], 
                 reply_markup=gif_info["button"]
             )
+
+            # 📌 Log user start event
+            log_msg = f"📢 **New User Started Bot**\n\n👤 Name: [{m.from_user.first_name}](tg://user?id={m.from_user.id})\n🆔 User ID: `{m.from_user.id}`\n🌍 Username: @{m.from_user.username if m.from_user.username else 'None'}"
+            await app.send_message(cfg.LOG_CHANNEL, log_msg)
 
         elif m.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
             add_group(m.chat.id)
@@ -113,8 +116,6 @@ async def op(_, m: Message):
     except Exception as err:
         print(f"Error: {err}")
 
-print("I'm Alive Now!")
-app.run()
 
 
 
