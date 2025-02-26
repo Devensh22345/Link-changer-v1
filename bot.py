@@ -37,12 +37,12 @@ async def start_message(client: Client, message: Message):
 
 @app.on_message(filters.command("editall") & filters.user(cfg.SUDO))
 async def edit_all_messages(client: Client, message: Message):
-    chat_id = message.chat.id
+    chat_id = message.chat.id  # Channel ID if running in a channel
     msg_count = 0
-    await message.reply_text("🔄 Editing all previous messages...")
+    await message.reply_text("🔄 Editing all previous messages in the channel...")
 
     try:
-        async for msg in user_app.get_chat_history(chat_id, limit=1000):
+        async for msg in user_app.get_chat_history(chat_id, limit=1000):  # Works for channels
             message_id = msg.id  # Corrected attribute
             
             try:
@@ -55,15 +55,24 @@ async def edit_all_messages(client: Client, message: Message):
                 else:
                     await user_app.edit_message_text(chat_id, message_id, NEW_TEXT)
 
-                edited_messages.insert_one({"chat_id": chat_id, "message_id": message_id, "new_content": NEW_TEXT if not msg.caption else NEW_CAPTION, "edited_by": message.from_user.id})
+                # Save edit history in MongoDB
+                edited_messages.insert_one({
+                    "chat_id": chat_id,
+                    "message_id": message_id,
+                    "new_content": NEW_TEXT if not msg.caption else NEW_CAPTION,
+                    "edited_by": message.from_user.id
+                })
 
                 msg_count += 1
-                await asyncio.sleep(1)  
+                await asyncio.sleep(1)  # Sleep to avoid rate limits
 
             except errors.MessageNotModified:
                 continue
             except errors.MessageEditTimeExpired:
                 continue
+            except errors.ChatAdminRequired:
+                await message.reply_text("❌ Error: The user session needs **Admin Rights** in the channel.")
+                return
             except Exception as e:
                 print(f"Error editing message {message_id}: {e}")
 
