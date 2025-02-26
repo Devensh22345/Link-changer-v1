@@ -74,8 +74,7 @@ async def approve(_, m: Message):
 async def op(_, m: Message):
     try:
         user = m.from_user
-        await app.get_chat_member(cfg.CHID, user.id) 
-        
+
         # Log the start event in the log channel
         log_message = (
             f"🚀 **#Bot_Started**\n"
@@ -85,21 +84,26 @@ async def op(_, m: Message):
         )
         await app.send_message(cfg.LOG_CHANNEL, log_message)
 
+        # Select random text, gif, and message
+        img = random.choice(gif)   # Select a random gif
+        text = random.choice(txt)  # Select a random message from txt
+        text1 = random.choice(txt1)  # Select a random message from txt1
+
         if m.chat.type == enums.ChatType.PRIVATE:
             keyboard = InlineKeyboardMarkup(
                 [
-                 [
+                    [
                         InlineKeyboardButton(" Download Now 💋", url="https://t.me/+BK7FdGsyHmk5N2Y9")
-                 ]
+                    ]
                 ]
             )
             add_user(user.id)
-            await m.reply_text(
-    f"<b><blockquote>😘Direct video uploaded only for you 😢\n👇👇👇👇\n➥ https://t.me/+BK7FdGsyHmk5N2Y9\n➥ https://t.me/+BK7FdGsyHmk5N2Y9\n\n𝐈𝐌𝐒𝐇𝐀 𝐑𝐄𝐇𝐌𝐀𝐍 𝐀𝐋𝐋 \n https://t.me/+BK7FdGsyHmk5N2Y9\n https://t.me/+BK7FdGsyHmk5N2Y9\n\n👉/start</blockquote></b>",
-    reply_markup=keyboard,
-    disable_web_page_preview=True  # This prevents link previews
-)
-    
+
+            # Send messages and gif
+            await m.reply_text(text, disable_web_page_preview=True)
+            await m.reply_text(text1, disable_web_page_preview=True)
+            await m.reply_video(video=img)
+        
         elif m.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
             keyboard = InlineKeyboardMarkup(
                 [[InlineKeyboardButton("💁‍♂️ Start me private 💁‍♂️", url="https://t.me/Dk_auto_request_appove_bot?startgroup")]]
@@ -109,10 +113,9 @@ async def op(_, m: Message):
 
         print(f"{user.first_name} started the bot!")
 
-    except UserNotParticipant:
-        keyboard = InlineKeyboardMarkup([[InlineKeyboardButton("🍀 Check Again 🍀", "chk")]])
-        await m.reply_text(f"**⚠️ Access Denied! ⚠️\n\nPlease Join @{cfg.FSUB} to use me. If you joined, click the check again button to confirm.**", reply_markup=keyboard)
-
+    except Exception as e:
+        print(f"Error: {e}")
+        
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ callback ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 @app.on_callback_query(filters.regex("chk"))
