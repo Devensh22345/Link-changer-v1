@@ -13,13 +13,13 @@ app = Client(
 )
 
 gif_data = {
-    'https://envs.sh/eWd.jpg': {
+    'https://envs.sh/eWY.mp4': {
         'caption': "🔥 Exclusive Anime Clip Just for You! 🔥",
         'button': InlineKeyboardMarkup(
             [[InlineKeyboardButton("💬 Join Anime Group", url="https://t.me/DKANIME_GROUP")]]
         )
     },
-    'https://envs.sh/eWt.jpg': {
+    'https://envs.sh/eWC.mp4': {
         'caption': "🚀 Don't Miss This Amazing Moment! 🚀",
         'button': InlineKeyboardMarkup(
             [[InlineKeyboardButton("🗯 Visit Our Channel", url="https://t.me/DK_ANIMES")]]
@@ -64,7 +64,7 @@ async def approve(_, m: Message):
         await asyncio.sleep(10)
         await app.send_message(kk.id, text1)
 
-        await app.send_photo(
+        await app.send_animation(
             chat_id=kk.id, 
             animation=selected_gif,
             caption=gif_info["caption"], 
@@ -97,7 +97,7 @@ async def op(_, m: Message):
             # Send random text
             await m.reply_text(selected_text)
 
-            await app.send_photo(
+            await app.send_animation(
                 chat_id=m.chat.id, 
                 animation=selected_gif,
                 caption=gif_info["caption"], 
