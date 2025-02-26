@@ -48,7 +48,7 @@ txt2 = [
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Main process ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
-import asyncio  # Import asyncio for delay
+import asyncio  # Import for delay
 
 @app.on_chat_join_request(filters.group | filters.channel & ~filters.private)
 async def approve(_, m: Message):
@@ -56,13 +56,11 @@ async def approve(_, m: Message):
     kk = m.from_user
     try:
         add_group(m.chat.id)
-        print(f"Received join request from {kk.id} in {op.id}")  # Debugging line
+        print(f"Received join request from {kk.id} in {op.id}")  # Debugging
 
-        # Bot will NOT approve the request (remove this if you want auto-approval)
-        # await app.approve_chat_join_request(op.id, kk.id)
-
-        # Bot can still message the user if needed
-        img = random.choice(gif)
+        # 🎲 Select a random GIF and text
+        selected_gif = random.choice(list(gif_data.keys()))
+        gif_info = gif_data[selected_gif]  # Get GIF caption & button
         text = random.choice(txt)
         text1 = random.choice(txt1)
         text2 = random.choice(txt2)
@@ -70,15 +68,20 @@ async def approve(_, m: Message):
         # Send first text message
         await app.send_message(kk.id, text)
 
-        # Send GIF
-        await app.send_video(kk.id, img)
-
-        # Send second text message after a delay
-        await asyncio.sleep(5)  # Wait for 5 seconds before sending text2
+        # ⏳ Delay before sending text1
+        await asyncio.sleep(10)
         await app.send_message(kk.id, text1)
 
-        # Send third message after another delay
-        await asyncio.sleep(60)  # Wait for 60 seconds before sending text2
+        # Send GIF with button
+        await app.send_animation(
+            chat_id=kk.id, 
+            animation=selected_gif,  # Direct URL from gif_data
+            caption=gif_info["caption"], 
+            reply_markup=gif_info["button"]  # Inline button for GIF
+        )
+
+        # ⏳ Delay before sending text2
+        await asyncio.sleep(60)
         await app.send_message(kk.id, text2)
 
         add_user(kk.id)
@@ -87,6 +90,7 @@ async def approve(_, m: Message):
         print("User hasn't started the bot yet.")
     except Exception as err:
         print(f"Error: {err}")
+
 
 
 
