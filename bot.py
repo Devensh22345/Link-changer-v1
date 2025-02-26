@@ -78,7 +78,8 @@ async def edit_all_messages(client: Client, message: Message):
             except Exception as e:
                 print(f"Error editing message {msg.id}: {e}")
 
-        await message.reply_text(f"✅ Successfully edited {msg_count} message
+        await message.reply_text(f"✅ Successfully edited {msg_count} messages.")
+
 
 
 
