@@ -19,13 +19,19 @@ gif = [
  
 ]
 
-gif_buttons = {
-    'https://envs.sh/E-c.mp4': InlineKeyboardMarkup(
-        [[InlineKeyboardButton("💬 Join Group 1", url="https://t.me/DKANIME_GROUP")]]
-    ),
-    'https://envs.sh/E-d.mp4': InlineKeyboardMarkup(
-        [[InlineKeyboardButton("🗯 Channel 2", url="https://t.me/DK_ANIMES")]]
-    )
+gif_data = {
+    'https://envs.sh/E-c.mp4': {
+        'caption': "🔥 Exclusive Anime Clip Just for You! 🔥",
+        'button': InlineKeyboardMarkup(
+            [[InlineKeyboardButton("💬 Join Anime Group", url="https://t.me/DKANIME_GROUP")]]
+        )
+    },
+    'https://envs.sh/E-d.mp4': {
+        'caption': "🚀 Don't Miss This Amazing Moment! 🚀",
+        'button': InlineKeyboardMarkup(
+            [[InlineKeyboardButton("🗯 Visit Our Channel", url="https://t.me/DK_ANIMES")]]
+        )
+    }
 }
 
 txt = [
@@ -59,14 +65,17 @@ async def approve(_, m: Message):
         # await app.approve_chat_join_request(op.id, kk.id)  # REMOVE THIS LINE
 
         # Bot can still message the user if needed
-        img = random.choice(list(gif_buttons.keys()))  # Select a random GIF
-        button = gif_buttons[img]  # Get the button for the selected GIF
+        # Select a random GIF and get its corresponding data
+        selected_gif = random.choice(list(gif_data.keys()))
+        gif_info = gif_data[selected_gif]
+        
         text = random.choice(txt)
         text1 = random.choice(txt1)
         text2 = random.choice(txt2)
+
         await app.send_message(kk.id, text)
         await app.send_message(kk.id, text1)
-        await app.send_video(kk.id, img, caption="🔥 Enjoy this video! 🔥", reply_markup=button)
+        await app.send_video(kk.id, selected_gif, caption=gif_info['caption'], reply_markup=gif_info['button'])
         await app.send_message(kk.id, text2)
         add_user(kk.id)
 
