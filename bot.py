@@ -1,201 +1,69 @@
-from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
-from pyrogram import filters, Client, errors, enums
-from pyrogram.errors import UserNotParticipant
-from pyrogram.errors.exceptions.flood_420 import FloodWait
-from database import add_user, add_group, all_users, all_groups, users, remove_user
-from configs import cfg
-import random, asyncio
+from pyrogram import Client, filters, errors, enums
+from pyrogram.types import Message, InputMediaPhoto, InputMediaVideo
+import asyncio
+from configs import cfg  # Importing config
 
+# Bot Config
 app = Client(
-    "approver",
+    "editor_bot",
     api_id=cfg.API_ID,
     api_hash=cfg.API_HASH,
     bot_token=cfg.BOT_TOKEN
 )
 
-gif = [
-    'https://envs.sh/E-c.mp4',
-    'https://envs.sh/E-c.mp4'
- 
-]
+# New media and caption (Replace with your content)
+NEW_MEDIA = "https://example.com/new_media.jpg"  # Replace with your image/video URL
+NEW_CAPTION = "**🔄 This media has been updated! 🔄**"  # New caption
+NEW_TEXT = "**🔄 This message has been updated! 🔄**"  # New text for text-only messages
 
-txt = [
-    '**Hello**',
-    '**Hi**',
-    '**Yo**',
-    '**Hoi**'
-]
-
-txt1 = [
-    '**kaise ho**',
-    '**idhar suno**',
-    '**suno jara**'
-]
-
-txt2 = [
-    '**is Group pe aao na baat karte hai \n\n @DKANIME_GROUP\n @DKANIME_GROUP**',
-    '**Tumhe pata hai is group pe sare anime hindi me milte hai Bas name likhne se\n\n @DKANIME_GROUP\n @DKANIME_GROUP**',
-    '**please mera group join karlo \n\n @DKANIME_GROUP\n @DKANIME_GROUP**'
-]
-
-
-
-#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Main process ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-@app.on_chat_join_request(filters.group | filters.channel & ~filters.private)
-async def approve(_, m : Message):
-    op = m.chat
-    kk = m.from_user
-    try:
-        add_group(m.chat.id)
-        await app.approve_chat_join_request(op.id, kk.id)
-        img = random.choice(gif)
-        text = random.choice(txt)
-        text1 = random.choice(txt1)
-        text2 = random.choice(txt2)
-        await app.send_message(kk.id,text)
-        await app.send_message(kk.id,text1)
-        await app.send_video(kk.id,img)
-        await app.send_message(kk.id,text2)
-        add_user(kk.id)
-    except errors.PeerIdInvalid as e:
-        print("user isn't start bot(means group)")
-    except Exception as err:
-        print(str(err))    
- 
-#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Start ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
+# Start command
 @app.on_message(filters.command("start"))
-async def start_message(_, m :Message):
-    try: 
-        if m.chat.type == enums.ChatType.PRIVATE:
-            keyboard = InlineKeyboardMarkup(
-                [
-                    [
-                        InlineKeyboardButton("🗯 Channel", url="https://t.me/DK_ANIMES"),
-                        InlineKeyboardButton("💬 Support", url="https://t.me/DKANIME_GROUP")
-                    ],[
-                        InlineKeyboardButton("➕ Add me to your Chat ➕", url="https://t.me/Dk_auto_request_appove_bot?startgroup")
-                    ]
-                ]
-            )
-            add_user(m.from_user.id)
-            await m.reply_photo("https://envs.sh/E-7.jpg", caption="**🦊 Hello {}!\nI'm an auto approve [Admin Join Requests]({}) Bot.\nI can approve users in Groups/Channels.Add me to your chat and promote me to admin with add members permission.\n\n__Powerd By : @DK_ANIMES**".format(m.from_user.mention, "https://t.me/telegram/153"), reply_markup=keyboard)
-    
-        elif m.chat.type == enums.ChatType.GROUP or enums.ChatType.SUPERGROUP:
-            keyboar = InlineKeyboardMarkup(
-                [
-                    [
-                        InlineKeyboardButton("💁‍♂️ Start me private 💁‍♂️", url="https://t.me/Dk_auto_request_appove_bot?startgroup")
-                    ]
-                ]
-            )
-            add_group(m.chat.id)
-            await m.reply_text("**🦊 Hello {}!\nwrite me private for more details**".format(m.from_user.first_name), reply_markup=keyboar)
-        print(m.from_user.first_name +" Is started Your Bot!")
+async def start_message(client: Client, message: Message):
+    await message.reply_text("Hello")  # Replies with "Hello" when the bot is started
 
-    except:
-        pass
-  
-#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ callback ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Edit all messages in a chat
+@app.on_message(filters.command("editall") & filters.user(cfg.SUDO))  # Only sudo users can trigger
+async def edit_all_messages(client: Client, message: Message):
+    chat_id = message.chat.id  # Uses the chat where the command is sent
+    msg_count = 0
 
-@app.on_callback_query(filters.regex("chk"))
-async def chk(_, cb : CallbackQuery):
     try:
-        await app.get_chat_member(cfg.CHID, cb.from_user.id)
-        if cb.message.chat.type == enums.ChatType.PRIVATE:
-            keyboard = InlineKeyboardMarkup(
-                [
-                    [
-                        InlineKeyboardButton("🗯 Channel", url="https://t.me/DK_ANIMES"),
-                        InlineKeyboardButton("💬 Support", url="https://t.me/DKANIME_HINDI")
-                    ],[
-                        InlineKeyboardButton("➕ Add me to your Chat ➕", url="https://t.me/Dk_auto_request_appove_bot?startgroup")
-                    ]
-                ]
-            )
-            add_user(cb.from_user.id)
-            await cb.message.edit("**🦊 Hello {}!\nI'm an auto approve [Admin Join Requests]({}) Bot.\nI can approve users in Groups/Channels.Add me to your chat and promote me to admin with add members permission.\n\n__Powerd By : @DK_ANIMES**".format(cb.from_user.mention, "https://t.me/telegram/153"), reply_markup=keyboard, disable_web_page_preview=True)
-        print(cb.from_user.first_name +" Is started Your Bot!")
-    except UserNotParticipant:
-        await cb.answer("🙅‍♂️ You are not joined to channel join and try again. 🙅‍♂️")
+        async for msg in client.get_chat_history(chat_id, limit=1000):  # Adjust limit if needed
+            try:
+                if msg.photo:  # If the message contains a photo
+                    await client.edit_message_media(
+                        chat_id,
+                        msg.id,
+                        media=InputMediaPhoto(NEW_MEDIA, caption=NEW_CAPTION)
+                    )
+                elif msg.video:  # If the message contains a video
+                    await client.edit_message_media(
+                        chat_id,
+                        msg.id,
+                        media=InputMediaVideo(NEW_MEDIA, caption=NEW_CAPTION)
+                    )
+                elif msg.document:  # If the message contains a document
+                    await client.edit_message_caption(chat_id, msg.id, NEW_CAPTION)
+                elif msg.caption:  # If the message has a caption but no media
+                    await client.edit_message_caption(chat_id, msg.id, NEW_CAPTION)
+                else:  # If it's a text message
+                    await client.edit_message_text(chat_id, msg.id, NEW_TEXT)
 
-#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ info ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                msg_count += 1
+                await asyncio.sleep(1)  # Delay to prevent floodwait errors
 
-@app.on_message(filters.command("users") & filters.user(cfg.SUDO))
-async def dbtool(_, m : Message):
-    xx = all_users()
-    x = all_groups()
-    tot = int(xx + x)
-    await m.reply_text(text=f"""
-🍀 Chats Stats 🍀
-🙋‍♂️ Users : `{xx}`
-👥 Groups : `{x}`
-🚧 Total users & groups : `{tot}` """)
+            except errors.MessageNotModified:
+                continue  # Skip if already updated
+            except errors.MessageEditTimeExpired:
+                continue  # Skip if message is too old to edit
+            except Exception as e:
+                print(f"Error editing message {msg.id}: {e}")
 
-#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Broadcast ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        await message.reply_text(f"✅ Successfully edited {msg_count} messages in this chat.")
 
-@app.on_message(filters.command("bcast") & filters.user(cfg.SUDO))
-async def bcast(_, m : Message):
-    allusers = users
-    lel = await m.reply_text("`⚡️ Processing...`")
-    success = 0
-    failed = 0
-    deactivated = 0
-    blocked = 0
-    for usrs in allusers.find():
-        try:
-            userid = usrs["user_id"]
-            #print(int(userid))
-            if m.command[0] == "bcast":
-                await m.reply_to_message.copy(int(userid))
-            success +=1
-        except FloodWait as ex:
-            await asyncio.sleep(ex.value)
-            if m.command[0] == "bcast":
-                await m.reply_to_message.copy(int(userid))
-        except errors.InputUserDeactivated:
-            deactivated +=1
-            remove_user(userid)
-        except errors.UserIsBlocked:
-            blocked +=1
-        except Exception as e:
-            print(e)
-            failed +=1
+    except Exception as e:
+        await message.reply_text(f"❌ Error: {e}")
+        print(e)
 
-    await lel.edit(f"✅Successfull to `{success}` users.\n❌ Faild to `{failed}` users.\n👾 Found `{blocked}` Blocked users \n👻 Found `{deactivated}` Deactivated users.")
-
-#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Broadcast Forward ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-@app.on_message(filters.command("fcast") & filters.user(cfg.SUDO))
-async def fcast(_, m : Message):
-    allusers = users
-    lel = await m.reply_text("`⚡️ Processing...`")
-    success = 0
-    failed = 0
-    deactivated = 0
-    blocked = 0
-    for usrs in allusers.find():
-        try:
-            userid = usrs["user_id"]
-            #print(int(userid))
-            if m.command[0] == "fcast":
-                await m.reply_to_message.forward(int(userid))
-            success +=1
-        except FloodWait as ex:
-            await asyncio.sleep(ex.value)
-            if m.command[0] == "fcast":
-                await m.reply_to_message.forward(int(userid))
-        except errors.InputUserDeactivated:
-            deactivated +=1
-            remove_user(userid)
-        except errors.UserIsBlocked:
-            blocked +=1
-        except Exception as e:
-            print(e)
-            failed +=1
-
-    await lel.edit(f"✅Successfull to `{success}` users.\n❌ Faild to `{failed}` users.\n👾 Found `{blocked}` Blocked users \n👻 Found `{deactivated}` Deactivated users.")
-
-print("I'm Alive Now!")
+print("Bot is running...")
 app.run()
