@@ -92,7 +92,7 @@ async def op(_, m: Message):
                         InlineKeyboardButton("𝐀𝐭𝐭𝐚𝐜𝐤 𝐨𝐧 𝐓𝐢𝐭𝐚𝐧", url="https://t.me/+bxKksmx6D5I5ZmNl")
                 ],[
                         InlineKeyboardButton("𝐃𝐞𝐚𝐭𝐡 𝐧𝐨𝐭𝐞", url="https://t.me/+llU_niDFQxwxYTJl")
-                    ] ]
+                    ] ] )
             add_user(user.id)
             await m.reply_photo(
                 "https://envs.sh/E-7.jpg",
