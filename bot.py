@@ -100,7 +100,7 @@ async def op(_, m: Message):
             await m.reply_text(selected_text)
 
             # Send random GIF with caption and button
-            await m.send_video(
+            await app.send_video(
                 chat_id=m.chat.id, 
                 video=selected_gif, 
                 caption=gif_info["caption"], 
