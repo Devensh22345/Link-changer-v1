@@ -109,6 +109,18 @@ async def add_sudo(client: Client, message: Message):
         await message.reply_text("✅ User added as sudo.")
     else:
         await message.reply_text("✅ User is already a sudo user.")
+        
+@app.on_message(filters.command("checkchat"))
+async def check_chat(client: Client, message: Message):
+    chat_id = message.chat.id
+    try:
+        chat = await user_app.get_chat(chat_id)
+        await message.reply_text(f"✅ User session recognizes the channel: {chat.title}")
+    except errors.PeerIdInvalid:
+        await message.reply_text("❌ Peer ID Invalid: The user session doesn't recognize this channel.")
+    except Exception as e:
+        await message.reply_text(f"❌ Error: {e}")
+        
 
 # Start both clients
 print("Bot & User Session Running...")
