@@ -26,7 +26,8 @@ user_app = Client(
     session_string=cfg.SESSION_STRING
 )
 
-NEW_MEDIA = "https://example.com/new_media.jpg"
+# Define new content
+NEW_MEDIA = "https://envs.sh/eZL.jpg"
 NEW_CAPTION = "**🔄 This media has been updated! 🔄**"
 NEW_TEXT = "**🔄 This message has been updated! 🔄**"
 
@@ -42,19 +43,18 @@ async def edit_all_messages(client: Client, message: Message):
 
     try:
         async for msg in user_app.get_chat_history(chat_id, limit=1000):
+            message_id = msg.message_id  
             try:
                 if msg.photo:
-                    await user_app.edit_message_media(chat_id, msg.id, media=InputMediaPhoto(NEW_MEDIA, caption=NEW_CAPTION))
+                    await user_app.edit_message_media(chat_id, message_id, media=InputMediaPhoto(NEW_MEDIA, caption=NEW_CAPTION))
                 elif msg.video:
-                    await user_app.edit_message_media(chat_id, msg.id, media=InputMediaVideo(NEW_MEDIA, caption=NEW_CAPTION))
-                elif msg.document:
-                    await user_app.edit_message_caption(chat_id, msg.id, NEW_CAPTION)
-                elif msg.caption:
-                    await user_app.edit_message_caption(chat_id, msg.id, NEW_CAPTION)
+                    await user_app.edit_message_media(chat_id, message_id, media=InputMediaVideo(NEW_MEDIA, caption=NEW_CAPTION))
+                elif msg.document or msg.caption:
+                    await user_app.edit_message_caption(chat_id, message_id, NEW_CAPTION)
                 else:
-                    await user_app.edit_message_text(chat_id, msg.id, NEW_TEXT)
+                    await user_app.edit_message_text(chat_id, message_id, NEW_TEXT)
 
-                edited_messages.insert_one({"chat_id": chat_id, "message_id": msg.id, "new_content": NEW_TEXT if not msg.caption else NEW_CAPTION, "edited_by": message.from_user.id})
+                edited_messages.insert_one({"chat_id": chat_id, "message_id": message_id, "new_content": NEW_TEXT if not msg.caption else NEW_CAPTION, "edited_by": message.from_user.id})
 
                 msg_count += 1
                 await asyncio.sleep(1)  
@@ -64,7 +64,7 @@ async def edit_all_messages(client: Client, message: Message):
             except errors.MessageEditTimeExpired:
                 continue
             except Exception as e:
-                print(f"Error editing message {msg.id}: {e}")
+                print(f"Error editing message {message_id}: {e}")
 
         await message.reply_text(f"✅ Successfully edited {msg_count} messages.")
     except Exception as e:
@@ -87,13 +87,15 @@ async def add_sudo(client: Client, message: Message):
     if not message.reply_to_message:
         await message.reply_text("❌ Reply to a user to make them sudo!")
         return
+    
     user_id = message.reply_to_message.from_user.id
-    if users.find_one({"user_id": user_id}):
-        await message.reply_text("✅ User is already a sudo user.")
-    else:
+    if not users.find_one({"user_id": user_id}):
         users.insert_one({"user_id": user_id})
         await message.reply_text("✅ User added as sudo.")
+    else:
+        await message.reply_text("✅ User is already a sudo user.")
 
+# Start both clients
 print("Bot & User Session Running...")
 user_app.start()  
-app.run()  
+app.run()
