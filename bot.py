@@ -37,7 +37,6 @@ txt2 = [
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Main process ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-@app.on_chat_join_request(filters.group | filters.channel & ~filters.private)
 
 @app.on_chat_join_request(filters.group | filters.channel & ~filters.private)
 async def approve(_, m: Message):
@@ -73,32 +72,42 @@ async def approve(_, m: Message):
 @app.on_message(filters.command("start"))
 async def op(_, m :Message):
     try:
-       pass  # No need to check if the user is in a channel
-        if m.chat.type == enums.ChatType.PRIVATE:
-            keyboard = InlineKeyboardMarkup(
+      pass  # No need to check if the user is in a channel
+
+    if m.chat.type == enums.ChatType.PRIVATE:
+        keyboard = InlineKeyboardMarkup(
+            [
                 [
-                    [
-                        InlineKeyboardButton("🗯 Channel", url="https://t.me/DK_ANIMES"),
-                        InlineKeyboardButton("💬 Support", url="https://t.me/DKANIME_GROUP")
-                    ],[
-                        InlineKeyboardButton("➕ Add me to your Chat ➕", url="https://t.me/Dk_auto_request_appove_bot?startgroup")
-                    ]
-                ]
-            )
-            add_user(m.from_user.id)
-            await m.reply_photo("https://envs.sh/E-7.jpg", caption="**🦊 Hello {}!\nI'm an auto approve [Admin Join Requests]({}) Bot.\nI can approve users in Groups/Channels.Add me to your chat and promote me to admin with add members permission.\n\n__Powerd By : @DK_ANIMES**".format(m.from_user.mention, "https://t.me/telegram/153"), reply_markup=keyboard)
-    
-        elif m.chat.type == enums.ChatType.GROUP or enums.ChatType.SUPERGROUP:
-            keyboar = InlineKeyboardMarkup(
+                    InlineKeyboardButton("🗯 Channel", url="https://t.me/DK_ANIMES"),
+                    InlineKeyboardButton("💬 Support", url="https://t.me/DKANIME_GROUP")
+                ],
                 [
-                    [
-                        InlineKeyboardButton("💁‍♂️ Start me private 💁‍♂️", url="https://t.me/Dk_auto_request_appove_bot?startgroup")
-                    ]
+                    InlineKeyboardButton("➕ Add me to your Chat ➕", url="https://t.me/Dk_auto_request_appove_bot?startgroup")
                 ]
-            )
-            add_group(m.chat.id)
-            await m.reply_text("**🦊 Hello {}!\nwrite me private for more details**".format(m.from_user.first_name), reply_markup=keyboar)
-        print(m.from_user.first_name +" Is started Your Bot!")
+            ]
+        )
+        add_user(m.from_user.id)
+        await m.reply_photo(
+            "https://envs.sh/E-7.jpg",
+            caption="**🦊 Hello {}!\nI'm an auto approve [Admin Join Requests]({}) Bot.\nI can approve users in Groups/Channels. Add me to your chat and promote me to admin with add members permission.\n\n__Powered By: @DK_ANIMES**".format(m.from_user.mention, "https://t.me/telegram/153"),
+            reply_markup=keyboard
+        )
+
+    elif m.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
+        keyboard = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton("💁‍♂️ Start me in private 💁‍♂️", url="https://t.me/Dk_auto_request_appove_bot?startgroup")
+                ]
+            ]
+        )
+        add_group(m.chat.id)
+        await m.reply_text("**🦊 Hello {}!\nWrite to me in private for more details.**".format(m.from_user.first_name), reply_markup=keyboard)
+
+    print(m.from_user.first_name + " started your bot!")
+
+except Exception as err:
+    print(f"Error: {err}")
 
    
         
