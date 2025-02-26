@@ -13,11 +13,6 @@ app = Client(
     bot_token=cfg.BOT_TOKEN
 )
 
-gif = [
-    'https://envs.sh/E-c.mp4',
-    'https://envs.sh/E-c.mp4'
- 
-]
 
 gif_data = {
     'https://envs.sh/E-c.mp4': {
@@ -92,37 +87,33 @@ async def approve(_, m: Message):
 
 @app.on_message(filters.command("start"))
 async def op(_, m: Message):
-    if m.chat.type == enums.ChatType.PRIVATE:
-        keyboard = InlineKeyboardMarkup(
-            [
-                [
-                    InlineKeyboardButton("🗯 Channel", url="https://t.me/DK_ANIMES"),
-                    InlineKeyboardButton("💬 Support", url="https://t.me/DKANIME_GROUP")
-                ],
-                [
-                    InlineKeyboardButton("➕ Add me to your Chat ➕", url="https://t.me/Dk_auto_request_appove_bot?startgroup")
-                ]
-            ]
-        )
-        add_user(m.from_user.id)
-        await m.reply_photo(
-            "https://envs.sh/E-7.jpg",
-            caption="**🦊 Hello {}!\nI'm an auto approve [Admin Join Requests]({}) Bot.\nI can approve users in Groups/Channels. Add me to your chat and promote me to admin with add members permission.\n\n__Powered By: @DK_ANIMES**".format(m.from_user.mention, "https://t.me/telegram/153"),
-            reply_markup=keyboard
-        )
+    try:
+        if m.chat.type == enums.ChatType.PRIVATE:
+            # 🎲 Randomly select a GIF and text
+            selected_gif = random.choice(list(gif_data.keys()))
+            gif_info = gif_data[selected_gif]  # Contains only 'caption'
+            selected_text = random.choice(txt1)
 
-    elif m.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
-        keyboard = InlineKeyboardMarkup(
-            [
-                [
-                    InlineKeyboardButton("💁‍♂️ Start me in private 💁‍♂️", url="https://t.me/Dk_auto_request_appove_bot?startgroup")
-                ]
-            ]
-        )
-        add_group(m.chat.id)
-        await m.reply_text("**🦊 Hello {}!\nWrite to me in private for more details.**".format(m.from_user.first_name), reply_markup=keyboard)
+            add_user(m.from_user.id)
 
-    print(m.from_user.first_name + " started your bot!")
+            # Send random text
+            await m.reply_text(selected_text)
+
+            # Send random GIF with only caption
+            await m.send_video(
+                chat_id=m.chat.id, 
+                video=selected_gif, 
+                caption=gif_info['caption']  # No buttons
+            )
+
+        elif m.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
+            add_group(m.chat.id)
+            await m.reply_text(f"**🦊 Hello {m.from_user.first_name}!\nWrite to me in private for more details**")
+
+        print(f"{m.from_user.first_name} started the bot!")
+
+    except Exception as err:
+        print(f"Error: {err}")
 
 
    
