@@ -27,7 +27,7 @@ user_app = Client(
 )
 
 # Define new content
-NEW_MEDIA = "https://envs.sh/eZL.jpg"
+NEW_MEDIA = "https://example.com/new_media.jpg"
 NEW_CAPTION = "**🔄 This media has been updated! 🔄**"
 NEW_TEXT = "**🔄 This message has been updated! 🔄**"
 
@@ -43,7 +43,8 @@ async def edit_all_messages(client: Client, message: Message):
 
     try:
         async for msg in user_app.get_chat_history(chat_id, limit=1000):
-            message_id = msg.message_id  
+            message_id = msg.id  # Corrected attribute
+            
             try:
                 if msg.photo:
                     await user_app.edit_message_media(chat_id, message_id, media=InputMediaPhoto(NEW_MEDIA, caption=NEW_CAPTION))
