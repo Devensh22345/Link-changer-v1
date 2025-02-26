@@ -81,13 +81,18 @@ async def op(_, m: Message):
             keyboard = InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton("🗯 Channel", url="https://t.me/DK_ANIMES"),
-                        InlineKeyboardButton("💬 Support", url="https://t.me/DKANIME_GROUP")
+                        InlineKeyboardButton("𝐀𝐧𝐢𝐦𝐞 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢", url="https://t.me/+2fsV4nzHvOs2OGNl")
                     ],[
-                        InlineKeyboardButton("➕ Add me to your Chat ➕", url="https://t.me/Dk_auto_request_appove_bot?startgroup")
-                    ]
-                ]
-            )
+                        InlineKeyboardButton("𝐒𝐨𝐥𝐨 𝐋𝐞𝐯𝐞𝐥𝐢𝐧𝐠", url="https://t.me/+BYFsBvSb8eM5ZTc1")
+                    ],[
+                        InlineKeyboardButton("𝐍𝐚𝐫𝐮𝐭𝐨 𝐬𝐡𝐢𝐩𝐩𝐮𝐝𝐞𝐧", url="https://t.me/+1Uqfi_EB69s3MDVl")
+                    ],[
+                        InlineKeyboardButton("𝐃𝐞𝐦𝐨𝐧 𝐬𝐥𝐚𝐲𝐞𝐫", url="https://t.me/+-Uh3oEL5NKBjMzZl")
+                    ],[
+                        InlineKeyboardButton("𝐀𝐭𝐭𝐚𝐜𝐤 𝐨𝐧 𝐓𝐢𝐭𝐚𝐧", url="https://t.me/+bxKksmx6D5I5ZmNl")
+                ],[
+                        InlineKeyboardButton("𝐃𝐞𝐚𝐭𝐡 𝐧𝐨𝐭𝐞", url="https://t.me/+llU_niDFQxwxYTJl")
+                    ] ]
             add_user(user.id)
             await m.reply_photo(
                 "https://envs.sh/E-7.jpg",
