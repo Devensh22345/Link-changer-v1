@@ -73,8 +73,7 @@ async def approve(_, m: Message):
 @app.on_message(filters.command("start"))
 async def op(_, m :Message):
     try:
-    pass  # No need to check if the user is in a channel
-
+       pass  # No need to check if the user is in a channel
         if m.chat.type == enums.ChatType.PRIVATE:
             keyboard = InlineKeyboardMarkup(
                 [
