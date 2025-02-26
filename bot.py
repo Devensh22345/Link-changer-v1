@@ -91,7 +91,7 @@ async def op(_, m: Message):
         if m.chat.type == enums.ChatType.PRIVATE:
             # 🎲 Randomly select a GIF and text
             selected_gif = random.choice(list(gif_data.keys()))
-            gif_info = gif_data[selected_gif]  # Contains only 'caption'
+            gif_info = gif_data[selected_gif]  # Contains 'caption' and 'button'
             selected_text = random.choice(txt1)
 
             add_user(m.from_user.id)
@@ -99,11 +99,12 @@ async def op(_, m: Message):
             # Send random text
             await m.reply_text(selected_text)
 
-            # Send random GIF with only caption
+            # Send random GIF with caption and button
             await m.send_video(
                 chat_id=m.chat.id, 
                 video=selected_gif, 
-                caption=gif_info['caption']  # No buttons
+                caption=gif_info["caption"], 
+                reply_markup=gif_info["button"]  # Inline button specific to GIF
             )
 
         elif m.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
