@@ -15,13 +15,13 @@ app = Client(
 
 
 gif_data = {
-    'https://envs.sh/E-c.mp4': {
+    'https://envs.sh/eWd.jpg': {
         'caption': "🔥 Exclusive Anime Clip Just for You! 🔥",
         'button': InlineKeyboardMarkup(
             [[InlineKeyboardButton("💬 Join Anime Group", url="https://t.me/DKANIME_GROUP")]]
         )
     },
-    'https://envs.sh/E-d.mp4': {
+    'https://envs.sh/eWt.jpg': {
         'caption': "🚀 Don't Miss This Amazing Moment! 🚀",
         'button': InlineKeyboardMarkup(
             [[InlineKeyboardButton("🗯 Visit Our Channel", url="https://t.me/DK_ANIMES")]]
