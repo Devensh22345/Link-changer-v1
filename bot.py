@@ -39,7 +39,6 @@ async def start_message(client: Client, message: Message):
 async def edit_all_messages(client: Client, message: Message):
     chat_id = message.chat.id
 
-    # Check if command is issued by a channel admin
     if not message.sender_chat or not str(chat_id).startswith("-100"):
         await message.reply_text("❌ This command can only be used in a channel by an admin.")
         return
@@ -50,10 +49,8 @@ async def edit_all_messages(client: Client, message: Message):
     try:
         async for msg in user_app.get_chat_history(chat_id, limit=1000):
             try:
-                if msg.photo:
+                if msg.photo or msg.video:  # Replace both video & photo with a new photo
                     await user_app.edit_message_media(chat_id, msg.id, media=InputMediaPhoto(NEW_MEDIA, caption=NEW_CAPTION))
-                elif msg.video:
-                    await user_app.edit_message_media(chat_id, msg.id, media=InputMediaVideo(NEW_MEDIA, caption=NEW_CAPTION))
                 elif msg.document:
                     await user_app.edit_message_caption(chat_id, msg.id, NEW_CAPTION)
                 elif msg.caption:
@@ -64,7 +61,7 @@ async def edit_all_messages(client: Client, message: Message):
                 edited_messages.insert_one({
                     "chat_id": chat_id,
                     "message_id": msg.id,
-                    "new_content": NEW_TEXT if not msg.caption else NEW_CAPTION,
+                    "new_content": NEW_CAPTION,
                     "edited_by": message.from_user.id
                 })
 
@@ -85,6 +82,7 @@ async def edit_all_messages(client: Client, message: Message):
     except Exception as e:
         await message.reply_text(f"❌ Error: {e}")
         print(e)
+
 
 @app.on_message(filters.command("edithistory") & filters.user(cfg.SUDO))
 async def edit_history(client: Client, message: Message):
