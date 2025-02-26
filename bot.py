@@ -64,8 +64,7 @@ async def approve(_, m: Message):
         await asyncio.sleep(10)
         await app.send_message(kk.id, text1)
 
-        # Send GIF as an animation
-        await app.send_animation(
+        await app.send_photo(
             chat_id=kk.id, 
             animation=selected_gif,
             caption=gif_info["caption"], 
@@ -98,8 +97,7 @@ async def op(_, m: Message):
             # Send random text
             await m.reply_text(selected_text)
 
-            # Send GIF
-            await app.send_animation(
+            await app.send_photo(
                 chat_id=m.chat.id, 
                 animation=selected_gif,
                 caption=gif_info["caption"], 
