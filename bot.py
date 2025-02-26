@@ -72,7 +72,7 @@ async def approve(_, m: Message):
         await asyncio.sleep(10)
         await app.send_message(kk.id, text1)
 
-        # Send GIF with button
+        # Send GIF as an animation (not as a file)
         await app.send_animation(
             chat_id=kk.id, 
             animation=selected_gif,  # Direct URL from gif_data
@@ -112,13 +112,13 @@ async def op(_, m: Message):
             # Send random text
             await m.reply_text(selected_text)
 
-            # Send GIF as an animation (no download)
-            await app.send_animation(
-                chat_id=m.chat.id, 
-                animation=selected_gif,  # Direct URL
-                caption=gif_info["caption"], 
-                reply_markup=gif_info["button"]  # Inline button for GIF
-            )
+            # Send GIF as an animation (not as a file)
+        await app.send_animation(
+            chat_id=kk.id, 
+            animation=selected_gif,  # Direct URL from gif_data
+            caption=gif_info["caption"], 
+            reply_markup=gif_info["button"]  # Inline button for GIF
+        )
 
         elif m.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
             add_group(m.chat.id)
