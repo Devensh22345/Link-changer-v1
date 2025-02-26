@@ -48,6 +48,8 @@ txt2 = [
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Main process ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
+import asyncio  # Import asyncio for delay
+
 @app.on_chat_join_request(filters.group | filters.channel & ~filters.private)
 async def approve(_, m: Message):
     op = m.chat
@@ -56,29 +58,36 @@ async def approve(_, m: Message):
         add_group(m.chat.id)
         print(f"Received join request from {kk.id} in {op.id}")  # Debugging line
 
-        # Bot will NOT approve the request
-        # await app.approve_chat_join_request(op.id, kk.id)  # REMOVE THIS LINE
+        # Bot will NOT approve the request (remove this if you want auto-approval)
+        # await app.approve_chat_join_request(op.id, kk.id)
 
         # Bot can still message the user if needed
-        # Select a random GIF and get its corresponding data
-        selected_gif = random.choice(list(gif_data.keys()))
-        gif_info = gif_data[selected_gif]
-        
+        img = random.choice(gif)
         text = random.choice(txt)
         text1 = random.choice(txt1)
         text2 = random.choice(txt2)
 
+        # Send first text message
         await app.send_message(kk.id, text)
-        await app.send_message(kk.id, text1)
-        await app.send_video(kk.id, selected_gif, caption=gif_info['caption'], reply_markup=gif_info['button'])
-        await app.send_message(kk.id, text2)
-        add_user(kk.id)
 
+        # Send GIF
+        await app.send_video(kk.id, img)
+
+        # Send second text message after a delay
+        await asyncio.sleep(5)  # Wait for 5 seconds before sending text2
+        await app.send_message(kk.id, text1)
+
+        # Send third message after another delay
+        await asyncio.sleep(60)  # Wait for 60 seconds before sending text2
+        await app.send_message(kk.id, text2)
+
+        add_user(kk.id)
 
     except errors.PeerIdInvalid:
         print("User hasn't started the bot yet.")
     except Exception as err:
         print(f"Error: {err}")
+
 
 
  
