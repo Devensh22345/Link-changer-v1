@@ -70,31 +70,6 @@ async def approve(_, m: Message):
         await app.send_message(kk.id, text2)
         add_user(kk.id)
 
-@app.on_chat_join_request(filters.group | filters.channel & ~filters.private)
-async def approve(_, m: Message):
-    op = m.chat
-    kk = m.from_user
-    try:
-        add_group(m.chat.id)
-        print(f"Received join request from {kk.id} in {op.id}")  
-
-        img = random.choice(list(gif_buttons.keys()))  # Select a random GIF
-        button = gif_buttons[img]  # Get the button for the selected GIF
-        text = random.choice(txt)
-        text1 = random.choice(txt1)
-        text2 = random.choice(txt2)
-
-        await app.send_message(kk.id, text)
-        await app.send_message(kk.id, text1)
-        await app.send_video(kk.id, img, caption="🔥 Enjoy this video! 🔥", reply_markup=button)
-        await app.send_message(kk.id, text2)
-        add_user(kk.id)
-
-    except errors.PeerIdInvalid:
-        print("User hasn't started the bot yet.")
-    except Exception as err:
-        print(f"Error: {err}")
-
 
     except errors.PeerIdInvalid:
         print("User hasn't started the bot yet.")
