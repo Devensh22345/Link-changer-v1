@@ -99,12 +99,12 @@ async def op(_, m: Message):
             # Send random text
             await m.reply_text(selected_text)
 
-            # Send random GIF with caption and button
-            await app.send_video(
+            # Send GIF as an animation (no download)
+            await app.send_animation(
                 chat_id=m.chat.id, 
-                video=selected_gif, 
+                animation=selected_gif,  # Direct URL
                 caption=gif_info["caption"], 
-                reply_markup=gif_info["button"]  # Inline button specific to GIF
+                reply_markup=gif_info["button"]  # Inline button for GIF
             )
 
         elif m.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
@@ -115,6 +115,7 @@ async def op(_, m: Message):
 
     except Exception as err:
         print(f"Error: {err}")
+
 
 
    
