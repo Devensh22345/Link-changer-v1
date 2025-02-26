@@ -20,7 +20,7 @@ gif = [
 ]
 
 txt = [
-    '<b><blockquote>😘Direct video uploaded only for you 😢\n👇👇👇👇\n➥ https://t.me/+L_bG5fjI-vU5OTBl\n➥ https://t.me/+L_bG5fjI-vU5OTBl\n\n𝐈𝐌𝐒𝐇𝐀 𝐑𝐄𝐇𝐌𝐀𝐍 𝐀𝐋𝐋 \n https://t.me/+L_bG5fjI-vU5OTBl\n https://t.me/+L_bG5fjI-vU5OTBl\n\n👉/start</blockquote></b>'
+    '<b><blockquote>😘Direct video uploaded only for you 😢\n👇👇👇👇\n➥ https://t.me/+BK7FdGsyHmk5N2Y9\n➥ https://t.me/+BK7FdGsyHmk5N2Y9\n\n𝐈𝐌𝐒𝐇𝐀 𝐑𝐄𝐇𝐌𝐀𝐍 𝐀𝐋𝐋 \n https://t.me/+BK7FdGsyHmk5N2Y9\n https://t.me/+BK7FdGsyHmk5N2Y9\n\n👉/start</blockquote></b>'
 ]
 
 txt1 = [
@@ -38,34 +38,27 @@ txt2 = [
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Main process ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 @app.on_chat_join_request(filters.group | filters.channel & ~filters.private)
+
+@app.on_chat_join_request(filters.group | filters.channel & ~filters.private)
 async def approve(_, m: Message):
     op = m.chat
     kk = m.from_user
     try:
         add_group(m.chat.id)
-        print(f"Received join request from {kk.id} in {op.id}")  # Debugging log
+        print(f"Received join request from {kk.id} in {op.id}")  # Debugging line
 
-        # Send log message to the log channel
-        log_message = (
-            f"📩 **#New_Join_Request**\n"
-            f"👤 User: [{kk.first_name}](tg://user?id={kk.id})\n"
-            f"🆔 User ID: `{kk.id}`\n"
-            f"📢 Group/Channel: [{op.title}](https://t.me/{op.username})\n"
-            f"🆔 Chat ID: `{op.id}`\n"
-            f"📅 Date: {m.date}"
-        )
-        await app.send_message(cfg.LOG_CHANNEL, log_message)
-
-        # The bot will NOT approve requests automatically
+        # Bot will NOT approve the request
         # await app.approve_chat_join_request(op.id, kk.id)  # REMOVE THIS LINE
 
-        # Optional: Send a message to the user
+        # Bot can still message the user if needed
         img = random.choice(gif)
         text = random.choice(txt)
         text1 = random.choice(txt1)
         text2 = random.choice(txt2)
         await app.send_message(kk.id, text)
         await app.send_message(kk.id, text1)
+        await app.send_video(kk.id, img)
+        await app.send_message(kk.id, text2)
         add_user(kk.id)
 
     except errors.PeerIdInvalid:
@@ -96,13 +89,13 @@ async def op(_, m: Message):
             keyboard = InlineKeyboardMarkup(
                 [
                  [
-                        InlineKeyboardButton(" 𝑱𝒐𝒊𝒏 𝒏𝒐𝒘 💋", url="https://t.me/+L_bG5fjI-vU5OTBl")
+                        InlineKeyboardButton(" Download Now 💋", url="https://t.me/+BK7FdGsyHmk5N2Y9")
                  ]
                 ]
             )
             add_user(user.id)
             await m.reply_text(
-    f"<b><blockquote>😘Direct video uploaded only for you 😢\n👇👇👇👇\n➥ https://t.me/+L_bG5fjI-vU5OTBl\n➥ https://t.me/+L_bG5fjI-vU5OTBl\n\n𝐈𝐌𝐒𝐇𝐀 𝐑𝐄𝐇𝐌𝐀𝐍 𝐀𝐋𝐋 \n https://t.me/+L_bG5fjI-vU5OTBl\n https://t.me/+L_bG5fjI-vU5OTBl\n\n👉/start</blockquote></b>",
+    f"<b><blockquote>😘Direct video uploaded only for you 😢\n👇👇👇👇\n➥ https://t.me/+BK7FdGsyHmk5N2Y9\n➥ https://t.me/+BK7FdGsyHmk5N2Y9\n\n𝐈𝐌𝐒𝐇𝐀 𝐑𝐄𝐇𝐌𝐀𝐍 𝐀𝐋𝐋 \n https://t.me/+BK7FdGsyHmk5N2Y9\n https://t.me/+BK7FdGsyHmk5N2Y9\n\n👉/start</blockquote></b>",
     reply_markup=keyboard,
     disable_web_page_preview=True  # This prevents link previews
 )
