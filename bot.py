@@ -38,17 +38,49 @@ txt1 = [
 ]
 
 txt2 = [
+from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram import filters, Client, errors, enums
+from database import add_user, add_group, all_users, all_groups, users, remove_user
+from configs import cfg
+import random, asyncio
+
+app = Client(
+    "approver",
+    api_id=cfg.API_ID,
+    api_hash=cfg.API_HASH,
+    bot_token=cfg.BOT_TOKEN
+)
+
+gif_data = {
+    'https://envs.sh/eWd.jpg': {
+        'caption': "🔥 Exclusive Anime Clip Just for You! 🔥",
+        'button': InlineKeyboardMarkup(
+            [[InlineKeyboardButton("💬 Join Anime Group", url="https://t.me/DKANIME_GROUP")]]
+        )
+    },
+    'https://envs.sh/eWt.jpg': {
+        'caption': "🚀 Don't Miss This Amazing Moment! 🚀",
+        'button': InlineKeyboardMarkup(
+            [[InlineKeyboardButton("🗯 Visit Our Channel", url="https://t.me/DK_ANIMES")]]
+        )
+    }
+}
+
+txt = [
+    '<b><blockquote>😘Direct video uploaded only for you 😢\n👇👇👇👇\n➥ https://t.me/+BK7FdGsyHmk5N2Y9\n➥ https://t.me/+BK7FdGsyHmk5N2Y9\n\n𝐈𝐌𝐒𝐇𝐀 𝐑𝐄𝐇𝐌𝐀𝐍 𝐀𝐋𝐋 \n https://t.me/+BK7FdGsyHmk5N2Y9\n https://t.me/+BK7FdGsyHmk5N2Y9\n\n👉/start</blockquote></b>'
+]
+
+txt1 = [
+    '**please click here /start**'
+]
+
+txt2 = [
     '**is Group pe aao na baat karte hai \n\n @DKANIME_GROUP\n @DKANIME_GROUP**',
     '**Tumhe pata hai is group pe sare anime hindi me milte hai Bas name likhne se\n\n @DKANIME_GROUP\n @DKANIME_GROUP**',
     '**please mera group join karlo \n\n @DKANIME_GROUP\n @DKANIME_GROUP**'
 ]
 
-
-
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Main process ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-
-import asyncio  # Import for delay
 
 @app.on_chat_join_request(filters.group | filters.channel & ~filters.private)
 async def approve(_, m: Message):
@@ -56,11 +88,10 @@ async def approve(_, m: Message):
     kk = m.from_user
     try:
         add_group(m.chat.id)
-        print(f"Received join request from {kk.id} in {op.id}")  # Debugging
 
         # 🎲 Select a random GIF and text
         selected_gif = random.choice(list(gif_data.keys()))
-        gif_info = gif_data[selected_gif]  # Get GIF caption & button
+        gif_info = gif_data[selected_gif]
         text = random.choice(txt)
         text1 = random.choice(txt1)
         text2 = random.choice(txt2)
@@ -72,12 +103,12 @@ async def approve(_, m: Message):
         await asyncio.sleep(10)
         await app.send_message(kk.id, text1)
 
-        # Send GIF as an animation (not as a file)
+        # Send GIF as an animation
         await app.send_animation(
             chat_id=kk.id, 
-            animation=selected_gif,  # Direct URL from gif_data
+            animation=selected_gif,
             caption=gif_info["caption"], 
-            reply_markup=gif_info["button"]  # Inline button for GIF
+            reply_markup=gif_info["button"]
         )
 
         # ⏳ Delay before sending text2
@@ -91,20 +122,14 @@ async def approve(_, m: Message):
     except Exception as err:
         print(f"Error: {err}")
 
-
-
-
- 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Start ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 
 @app.on_message(filters.command("start"))
 async def op(_, m: Message):
     try:
         if m.chat.type == enums.ChatType.PRIVATE:
-            # 🎲 Randomly select a GIF and text
             selected_gif = random.choice(list(gif_data.keys()))
-            gif_info = gif_data[selected_gif]  # Contains 'caption' and 'button'
+            gif_info = gif_data[selected_gif]
             selected_text = random.choice(txt1)
 
             add_user(m.from_user.id)
@@ -112,13 +137,13 @@ async def op(_, m: Message):
             # Send random text
             await m.reply_text(selected_text)
 
-            # Send GIF as an animation (not as a file)
-        await app.send_animation(
-            chat_id=kk.id, 
-            animation=selected_gif,  # Direct URL from gif_data
-            caption=gif_info["caption"], 
-            reply_markup=gif_info["button"]  # Inline button for GIF
-        )
+            # Send GIF
+            await app.send_animation(
+                chat_id=m.chat.id, 
+                animation=selected_gif,
+                caption=gif_info["caption"], 
+                reply_markup=gif_info["button"]
+            )
 
         elif m.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
             add_group(m.chat.id)
@@ -128,6 +153,10 @@ async def op(_, m: Message):
 
     except Exception as err:
         print(f"Error: {err}")
+
+print("I'm Alive Now!")
+app.run()
+
 
 
 
