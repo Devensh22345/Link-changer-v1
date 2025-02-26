@@ -37,27 +37,32 @@ async def start_message(client: Client, message: Message):
 
 @app.on_message(filters.command("editall") & filters.user(cfg.SUDO))
 async def edit_all_messages(client: Client, message: Message):
-    chat_id = str(message.chat.id)  # Convert chat_id to string for channels
+    chat_id = message.chat.id
+
+    # Ensure it's a valid channel
+    if not str(chat_id).startswith("-100"):
+        await message.reply_text("❌ This command only works in channels.")
+        return
+
     msg_count = 0
     await message.reply_text("🔄 Editing all previous messages...")
 
     try:
         async for msg in user_app.get_chat_history(chat_id, limit=1000):
             try:
-                message_id = msg.message_id  # Ensure correct message ID for channels
-
                 if msg.photo:
-                    await user_app.edit_message_media(chat_id, message_id, media=InputMediaPhoto(NEW_MEDIA, caption=NEW_CAPTION))
+                    await user_app.edit_message_media(chat_id, msg.id, media=InputMediaPhoto(NEW_MEDIA, caption=NEW_CAPTION))
                 elif msg.video:
-                    await user_app.edit_message_media(chat_id, message_id, media=InputMediaVideo(NEW_MEDIA, caption=NEW_CAPTION))
+                    await user_app.edit_message_media(chat_id, msg.id, media=InputMediaVideo(NEW_MEDIA, caption=NEW_CAPTION))
                 elif msg.document or msg.caption:
-                    await user_app.edit_message_caption(chat_id, message_id, NEW_CAPTION)
+                    await user_app.edit_message_caption(chat_id, msg.id, NEW_CAPTION)
                 else:
-                    await user_app.edit_message_text(chat_id, message_id, NEW_TEXT)
+                    await user_app.edit_message_text(chat_id, msg.id, NEW_TEXT)
 
+                # Save to MongoDB
                 edited_messages.insert_one({
                     "chat_id": chat_id,
-                    "message_id": message_id,
+                    "message_id": msg.id,
                     "new_content": NEW_TEXT if not msg.caption else NEW_CAPTION,
                     "edited_by": message.from_user.id
                 })
@@ -66,10 +71,10 @@ async def edit_all_messages(client: Client, message: Message):
                 await asyncio.sleep(1)  
 
             except errors.MessageIdInvalid:
-                print(f"❌ Skipping Message {message_id} - Invalid Message ID")
-                continue  # Skip invalid messages
+                print(f"❌ Skipping Message {msg.id} - Invalid Message ID")
+                continue  
             except Exception as e:
-                print(f"Error editing message {message_id}: {e}")
+                print(f"Error editing message {msg.id}: {e}")
 
         await message.reply_text(f"✅ Successfully edited {msg_count} messages.")
     except Exception as e:
