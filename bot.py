@@ -1,43 +1,4 @@
-from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
-from pyrogram import filters, Client, errors, enums
-from pyrogram.errors import UserNotParticipant
-from pyrogram.errors.exceptions.flood_420 import FloodWait
-from database import add_user, add_group, all_users, all_groups, users, remove_user
-from configs import cfg 
-import random, asyncio
 
-app = Client(
-    "approver",
-    api_id=cfg.API_ID,
-    api_hash=cfg.API_HASH,
-    bot_token=cfg.BOT_TOKEN
-)
-
-
-gif_data = {
-    'https://envs.sh/eWd.jpg': {
-        'caption': "🔥 Exclusive Anime Clip Just for You! 🔥",
-        'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💬 Join Anime Group", url="https://t.me/DKANIME_GROUP")]]
-        )
-    },
-    'https://envs.sh/eWt.jpg': {
-        'caption': "🚀 Don't Miss This Amazing Moment! 🚀",
-        'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("🗯 Visit Our Channel", url="https://t.me/DK_ANIMES")]]
-        )
-    }
-}
-
-txt = [
-    '<b><blockquote>😘Direct video uploaded only for you 😢\n👇👇👇👇\n➥ https://t.me/+BK7FdGsyHmk5N2Y9\n➥ https://t.me/+BK7FdGsyHmk5N2Y9\n\n𝐈𝐌𝐒𝐇𝐀 𝐑𝐄𝐇𝐌𝐀𝐍 𝐀𝐋𝐋 \n https://t.me/+BK7FdGsyHmk5N2Y9\n https://t.me/+BK7FdGsyHmk5N2Y9\n\n👉/start</blockquote></b>'
-]
-
-txt1 = [
-    '**please click here /start**'
-]
-
-txt2 = [
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram import filters, Client, errors, enums
 from database import add_user, add_group, all_users, all_groups, users, remove_user
@@ -156,7 +117,6 @@ async def op(_, m: Message):
 
 print("I'm Alive Now!")
 app.run()
-
 
 
 
