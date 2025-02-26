@@ -69,11 +69,9 @@ async def approve(_, m: Message):
  
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Start ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-@app.on_message(filters.command("start"))
-async def op(_, m :Message):
-    try:
-      pass  # No need to check if the user is in a channel
 
+@app.on_message(filters.command("start"))
+async def op(_, m: Message):
     if m.chat.type == enums.ChatType.PRIVATE:
         keyboard = InlineKeyboardMarkup(
             [
@@ -106,8 +104,6 @@ async def op(_, m :Message):
 
     print(m.from_user.first_name + " started your bot!")
 
-except Exception as err:
-    print(f"Error: {err}")
 
    
         
