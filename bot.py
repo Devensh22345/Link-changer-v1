@@ -76,7 +76,7 @@ async def start(_, m: Message):
                     f"🆔 User ID: `{m.from_user.id}`\n"
                     f"🌍 Username: @{m.from_user.username if m.from_user.username else 'None'}"
                 )
-        await app.send_message(cfg.LOG_CHANNEL, log_text)
+        await app.send_message(cfg.LOG_CHANNEL, log_msg)
         
         if m.chat.type == enums.ChatType.PRIVATE:
             keyboard = InlineKeyboardMarkup(
