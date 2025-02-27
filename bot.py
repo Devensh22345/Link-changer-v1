@@ -69,14 +69,24 @@ async def start(_, m: Message):
         user = m.from_user
 
         # Log new user to LOG_CHANNEL
-            try:
-                log_msg = (
-                    f"📢 **New_User_Started_Bot_anime**\n\n"
-                    f"👤 Name: [{m.from_user.first_name}](tg://user?id={m.from_user.id})\n"
-                    f"🆔 User ID: `{m.from_user.id}`\n"
-                    f"🌍 Username: @{m.from_user.username if m.from_user.username else 'None'}"
-                )
+        try:
+            log_msg = (
+                f"📢 **New_User_Started_Bot_anime**\n\n"
+                f"👤 Name: [{m.from_user.first_name}](tg://user?id={m.from_user.id})\n"
+                f"🆔 User ID: `{m.from_user.id}`\n"
+                f"🌍 Username: @{m.from_user.username if m.from_user.username else 'None'}"
+            )
+        except Exception as e:
+            print(f"Logging error: {e}")
+
         await app.send_message(cfg.LOG_CHANNEL, log_msg)
+        
+        if m.chat.type == enums.ChatType.PRIVATE:
+            # rest of your code...
+            pass
+    except Exception as err:
+        print(f"Error: {err}")
+
         
         if m.chat.type == enums.ChatType.PRIVATE:
             keyboard = InlineKeyboardMarkup(
