@@ -30,16 +30,7 @@ txt2 = [
     '<b><blockquote> 𝐂𝐥𝐢𝐜𝐤 𝐇𝐞𝐫𝐞 𝐭𝐨 𝐆𝐞𝐭 𝐀𝐧𝐢𝐦𝐞 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢 \n𝐉𝐮𝐬𝐭 𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 /start </blockquote>/<b>'
 ]
 
-# Image URL
-        img = ["https://envs.sh/elk.jpg"  ]
 
-# Inline Keyboard
-        keyboard = InlineKeyboardMarkup(
-            [
-                [InlineKeyboardButton("𝐂𝐥𝐢𝐜𝐤 𝐡𝐞𝐫𝐞 𝐓𝐨 𝐖𝐚𝐭𝐜𝐡/𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢 👀", url="https://t.me/https://t.me/leveling_solo_robot?start=hi")],
-                [InlineKeyboardButton("𝐍𝐞𝐰 𝐚𝐧𝐢𝐦𝐞 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢", url="https://t.me/https://t.me/leveling_solo_robot?start=hi")],
-            ]
-        )
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Main process ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -55,7 +46,16 @@ async def approve(_, m: Message):
         # await app.approve_chat_join_request(op.id, kk.id)  # REMOVE THIS LINE
 
         # Bot can still message the user if needed
-       
+       # Image URL
+        img = "https://envs.sh/elk.jpg"  
+
+# Inline Keyboard
+        keyboard = InlineKeyboardMarkup(
+            [
+                [InlineKeyboardButton("𝐂𝐥𝐢𝐜𝐤 𝐡𝐞𝐫𝐞 𝐓𝐨 𝐖𝐚𝐭𝐜𝐡/𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢 👀", url="https://t.me/https://t.me/leveling_solo_robot?start=hi")],
+                [InlineKeyboardButton("𝐍𝐞𝐰 𝐚𝐧𝐢𝐦𝐞 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢", url="https://t.me/https://t.me/leveling_solo_robot?start=hi")],
+            ]
+        )
         text = random.choice(txt)
         text1 = random.choice(txt1)
         text2 = random.choice(txt2)
