@@ -135,13 +135,15 @@ async def check_last_msg(client: Client, message: Message):
 @app.on_message(filters.command("join"))
 async def join_and_promote(client: Client, message: Message):
     chat_id = message.chat.id
-    
     try:
+        # Get full chat details (ensure chat exists)
+        chat = await app.get_chat(chat_id)
+
         # User session joins the channel
         await user_app.join_chat(chat_id)
-        await asyncio.sleep(2)  # Give time for joining to reflect
-        
-        # Promote the user session to admin using bot client
+        await asyncio.sleep(2)  # Allow time for joining
+
+        # Promote the user session to admin
         await app.promote_chat_member(
             chat_id, user_app.me.id, 
             can_post_messages=True,
@@ -152,7 +154,7 @@ async def join_and_promote(client: Client, message: Message):
             can_pin_messages=True
         )
         
-        await message.reply_text("✅ User session joined and promoted to admin!")
+        await message.reply_text(f"✅ Joined and promoted user session in {chat.title}")
     
     except errors.ChatAdminRequired:
         await message.reply_text("❌ Bot needs admin rights to promote the user session.")
@@ -160,8 +162,15 @@ async def join_and_promote(client: Client, message: Message):
     except errors.UserAlreadyParticipant:
         await message.reply_text("✅ User session is already in the channel.")
     
+    except errors.PeerIdInvalid:
+        await message.reply_text("❌ Invalid Chat ID or Bot not in the channel.")
+    
+    except errors.InviteRequestSent:
+        await message.reply_text("❌ User session needs to accept an invite request manually.")
+    
     except Exception as e:
         await message.reply_text(f"❌ Error: {e}")
+
         
 
 @app.on_message(filters.command("fetchmessages"))
