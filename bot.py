@@ -10,9 +10,7 @@ app = Client(
     "approver",
     api_id=cfg.API_ID,
     api_hash=cfg.API_HASH,
-    bot_token=cfg.BOT_TOKEN,
-    
-    LOG_CHANNEL=cfg.LOG_CHANNEL
+    bot_token=cfg.BOT_TOKEN
 )
 
 gif = [
@@ -76,7 +74,7 @@ async def start(_, m: Message):
                    f"👤 Name: {user.full_name}\n" \
                    f"🔗 Username: @{user.username}" if user.username else "N/A"
 
-        await app.send_message(LOG_CHANNEL, log_text)
+        await app.send_message(cfg.LOG_CHANNEL, log_text)
         
         if m.chat.type == enums.ChatType.PRIVATE:
             keyboard = InlineKeyboardMarkup(
