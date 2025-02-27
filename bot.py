@@ -72,7 +72,7 @@ async def start(_, m: Message):
         log_text = f"👤 <b>User Started Bot</b>\n" \
                    f"🆔 ID: <code>{user.id}</code>\n" \
                    f"👤 Name: {user.full_name}\n" \
-                   f"🔗 Username: @{user.username}" if user.username else "N/A"
+                   f"🔗 Username: @{user.username}" if m.from_user.username else 'None'
 
         await app.send_message(cfg.LOG_CHANNEL, log_text)
         
