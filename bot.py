@@ -144,7 +144,7 @@ async def fetch_messages(client: Client, message: Message):
             await message.reply_text(f"📩 Found Message ID: {msg.id}")
         await message.reply_text("✅ Successfully fetched messages!")
     except errors.PeerIdInvalid:
-        await message.reply_text("❌ Peer ID Invalid:@app.on_message(filters.command("join"))
+        await message.reply_text("❌ Peer ID Invalid")
 async def join_channel(client, message: Message):
     chat_id = message.chat.id
     try:
