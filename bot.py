@@ -134,18 +134,21 @@ async def check_last_msg(client: Client, message: Message):
         
 @app.on_message(filters.command("join"))
 async def join_and_promote(client: Client, message: Message):
+@app.on_message(filters.command("join"))
+async def join_and_promote(client: Client, message: Message):
     chat_id = message.chat.id
+    
     try:
-        # Get full chat details (ensure chat exists)
-        chat = await app.get_chat(chat_id)
-
-        # User session joins the channel
+        # Step 1: User session joins the channel
         await user_app.join_chat(chat_id)
-        await asyncio.sleep(2)  # Allow time for joining
+        await message.reply_text("✅ User session has joined the channel!")
 
-        # Promote the user session to admin
+        # Step 2: Wait until the user session is in the channel
+        await asyncio.sleep(3)
+
+        # Step 3: Bot promotes the user session to admin
         await app.promote_chat_member(
-            chat_id, user_app.me.id, 
+            chat_id, user_app.me.id,
             can_post_messages=True,
             can_edit_messages=True,
             can_delete_messages=True,
@@ -153,23 +156,24 @@ async def join_and_promote(client: Client, message: Message):
             can_change_info=True,
             can_pin_messages=True
         )
-        
-        await message.reply_text(f"✅ Joined and promoted user session in {chat.title}")
-    
+
+        await message.reply_text("✅ User session has been promoted to admin!")
+
     except errors.ChatAdminRequired:
         await message.reply_text("❌ Bot needs admin rights to promote the user session.")
-    
+
     except errors.UserAlreadyParticipant:
         await message.reply_text("✅ User session is already in the channel.")
-    
+
     except errors.PeerIdInvalid:
-        await message.reply_text("❌ Invalid Chat ID or Bot not in the channel.")
-    
+        await message.reply_text("❌ Invalid Chat ID or bot is not in the channel.")
+
     except errors.InviteRequestSent:
-        await message.reply_text("❌ User session needs to accept an invite request manually.")
-    
+        await message.reply_text("❌ User session needs to manually accept an invite request.")
+
     except Exception as e:
         await message.reply_text(f"❌ Error: {e}")
+
 
         
 
