@@ -132,8 +132,7 @@ async def check_last_msg(client: Client, message: Message):
     except Exception as e:
         await message.reply_text(f"❌ Error: {e}")
         
-@app.on_message(filters.command("join"))
-async def join_and_promote(client: Client, message: Message):
+
 @app.on_message(filters.command("join"))
 async def join_and_promote(client: Client, message: Message):
     chat_id = message.chat.id
