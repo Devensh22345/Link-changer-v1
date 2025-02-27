@@ -20,17 +20,14 @@ gif = [
 ]
 
 txt = [
-    '<b><blockquote>😘Direct video uploaded only for you 😢\n👇👇👇👇\n➥ https://t.me/+L_bG5fjI-vU5OTBl\n➥ https://t.me/+L_bG5fjI-vU5OTBl\n\n𝐈𝐌𝐒𝐇𝐀 𝐑𝐄𝐇𝐌𝐀𝐍 𝐀𝐋𝐋 \n https://t.me/+L_bG5fjI-vU5OTBl\n https://t.me/+L_bG5fjI-vU5OTBl\n\n👉/start</blockquote></b>'
-]
+    'hello']
 
 txt1 = [
-    '**please click here /start**'
+    '**𝐇𝐞𝐥𝐥𝐨 𝐈 𝐚𝐦 𝐚 𝐀𝐧𝐢𝐦𝐞 𝐏𝐫𝐨𝐯𝐢𝐝𝐞𝐫 𝐁𝐨𝐭 𝐛𝐲 [@DK_ANIMES]**'
 ]
 
 txt2 = [
-    '**is Group pe aao na baat karte hai \n\n @DKANIME_GROUP\n @DKANIME_GROUP**',
-    '**Tumhe pata hai is group pe sare anime hindi me milte hai Bas name likhne se\n\n @DKANIME_GROUP\n @DKANIME_GROUP**',
-    '**please mera group join karlo \n\n @DKANIME_GROUP\n @DKANIME_GROUP**'
+    '<b><blockquote> 𝐂𝐥𝐢𝐜𝐤 𝐇𝐞𝐫𝐞 𝐭𝐨 𝐆𝐞𝐭 𝐀𝐧𝐢𝐦𝐞 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢 \n𝐉𝐮𝐬𝐭 𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 /start </blockquote>/<b>'
 ]
 
 # Image URL
@@ -39,8 +36,8 @@ txt2 = [
 # Inline Keyboard
         keyboard = InlineKeyboardMarkup(
             [
-                [InlineKeyboardButton("💬 Join Group", url="https://t.me/DKANIME_GROUP")],
-                [InlineKeyboardButton("🎥 Watch Anime", url="https://t.me/DK_ANIMES")],
+                [InlineKeyboardButton("𝐂𝐥𝐢𝐜𝐤 𝐡𝐞𝐫𝐞 𝐓𝐨 𝐖𝐚𝐭𝐜𝐡/𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢 👀", url="https://t.me/https://t.me/leveling_solo_robot?start=hi")],
+                [InlineKeyboardButton("𝐍𝐞𝐰 𝐚𝐧𝐢𝐦𝐞 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢", url="https://t.me/https://t.me/leveling_solo_robot?start=hi")],
             ]
         )
 
@@ -58,20 +55,19 @@ async def approve(_, m: Message):
         # await app.approve_chat_join_request(op.id, kk.id)  # REMOVE THIS LINE
 
         # Bot can still message the user if needed
-        img = random.choice(gif)
+       
         text = random.choice(txt)
         text1 = random.choice(txt1)
         text2 = random.choice(txt2)
         # Send Messages and Image with Caption
-        await app.send_message(kk.id, text)
         await app.send_message(kk.id, text1)
+        await app.send_message(kk.id, text2)
         await app.send_photo(
             kk.id,
             img,
-            caption="🔥 **Welcome to DK Anime Community!**\n\nJoin the best Anime community and get all anime in Hindi! 💖",
+            caption="**𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 𝐁𝐞𝐥𝐨𝐰 𝐁𝐮𝐭𝐭𝐨𝐧 𝐓𝐨 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐘𝐨𝐮𝐫 𝐄𝐩𝐢𝐬𝐨𝐝𝐞 👇👇👇👇**",
             reply_markup=keyboard
         )
-        await app.send_message(kk.id, text2)
         add_user(kk.id)
 
     except errors.PeerIdInvalid:
@@ -111,7 +107,7 @@ async def op(_, m: Message):
             add_user(user.id)
             await m.reply_photo(
                 "https://envs.sh/elk.jpg",
-                caption=f"**🦊 Hello {user.mention}!\nI'm an auto approve [Admin Join Requests](https://t.me/telegram/153) Bot.\nI can approve users in Groups/Channels. Add me to your chat and promote me to admin with add members permission.\n\n__Powered By : @DK_ANIMES**",
+                caption=f"<b><blockquote>𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 𝐓𝐡𝐞 𝐚𝐧𝐢𝐦𝐞 𝐍𝐚𝐦𝐞 \n𝐓𝐨 𝐃𝐢𝐫𝐞𝐜𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐘𝐨𝐮𝐫 𝐀𝐧𝐢𝐦𝐞.🔥🔥</blockquote></b>\n\n<b><blockquote𝐈𝐅 𝐲𝐨𝐮 𝐃𝐢𝐝𝐧'𝐭 𝐅𝐢𝐧𝐝 𝐲𝐨𝐮𝐫 𝐚𝐧𝐢𝐦𝐞 𝐢𝐧 𝐓𝐡𝐢𝐬 𝐥𝐢𝐬𝐭 𝐓𝐡𝐞𝐧 𝐉𝐨𝐢𝐧 [@DK_ANIME_GROUP] 𝐚𝐧𝐝 𝐉𝐮𝐬𝐭 𝐓𝐲𝐩𝐞 𝐲𝐨𝐮𝐫 𝐚𝐧𝐢𝐦𝐞 𝐍𝐚𝐦𝐞 𝐇𝐞𝐫𝐞.</blockquote></b>",
                 reply_markup=keyboard
             )
     
