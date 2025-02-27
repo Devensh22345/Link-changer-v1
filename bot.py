@@ -63,11 +63,19 @@ async def approve(_, m: Message):
         print(f"Error: {err}")
 
 
+
 @app.on_message(filters.command("start"))
 async def start(_, m: Message):
     try:
         user = m.from_user
-             
+        log_msg = (
+            f"📢 **New User Started Bot**\n\n"
+            f"👤 Name: [{user.first_name}](tg://user?id={user.id})\n"
+            f"🆔 User ID: `{user.id}`\n"
+            f"🌍 Username: @{user.username if user.username else 'None'}"
+        )
+        await app.send_message(cfg.LOG_CHANNEL, log_msg)
+
         if m.chat.type == enums.ChatType.PRIVATE:
             keyboard = InlineKeyboardMarkup(
                 [
