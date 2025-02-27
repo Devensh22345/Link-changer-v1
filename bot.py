@@ -10,7 +10,7 @@ app = Client(
     "approver",
     api_id=cfg.API_ID,
     api_hash=cfg.API_HASH,
-    bot_token=cfg.BOT_TOKEN
+    bot_token=cfg.BOT_TOKEN,
     LOG_CHANNEL = cfg.LOG_CHANNEL
 )
 
