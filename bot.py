@@ -31,7 +31,7 @@ txt2 = [
 ]
 
 # Image URL
-        img = "https://envs.sh/elk.jpg"  # Replace with a valid image URL
+        img = "https://envs.sh/elk.jpg"  
 
 # Inline Keyboard
         keyboard = InlineKeyboardMarkup(
