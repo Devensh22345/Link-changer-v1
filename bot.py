@@ -133,46 +133,6 @@ async def check_last_msg(client: Client, message: Message):
         await message.reply_text(f"❌ Error: {e}")
         
 
-@app.on_message(filters.command("join"))
-async def join_and_promote(client: Client, message: Message):
-    chat_id = message.chat.id
-    
-    try:
-        # Step 1: User session joins the channel
-        await user_app.join_chat(chat_id)
-        await message.reply_text("✅ User session has joined the channel!")
-
-        # Step 2: Wait until the user session is in the channel
-        await asyncio.sleep(3)
-
-        # Step 3: Bot promotes the user session to admin
-        await app.promote_chat_member(
-            chat_id, user_app.me.id,
-            can_post_messages=True,
-            can_edit_messages=True,
-            can_delete_messages=True,
-            can_invite_users=True,
-            can_change_info=True,
-            can_pin_messages=True
-        )
-
-        await message.reply_text("✅ User session has been promoted to admin!")
-
-    except errors.ChatAdminRequired:
-        await message.reply_text("❌ Bot needs admin rights to promote the user session.")
-
-    except errors.UserAlreadyParticipant:
-        await message.reply_text("✅ User session is already in the channel.")
-
-    except errors.PeerIdInvalid:
-        await message.reply_text("❌ Invalid Chat ID or bot is not in the channel.")
-
-    except errors.InviteRequestSent:
-        await message.reply_text("❌ User session needs to manually accept an invite request.")
-
-    except Exception as e:
-        await message.reply_text(f"❌ Error: {e}")
-
 
         
 
@@ -184,7 +144,20 @@ async def fetch_messages(client: Client, message: Message):
             await message.reply_text(f"📩 Found Message ID: {msg.id}")
         await message.reply_text("✅ Successfully fetched messages!")
     except errors.PeerIdInvalid:
-        await message.reply_text("❌ Peer ID Invalid: The user session doesn't recognize this channel.")
+        await message.reply_text("❌ Peer ID Invalid:@app.on_message(filters.command("join"))
+async def join_channel(client, message: Message):
+    chat_id = message.chat.id
+    try:
+        # Have the assistant join the channel
+        await assistant.join_chat(chat_id)
+        await asyncio.sleep(2)  # Give time for the join to process
+
+        # Confirm the join by fetching the chat details with the assistant
+        chat = await assistant.get_chat(chat_id)
+        await message.reply_text(f"✅ Assistant joined the channel: {chat.title}")
+    except Exception as e:
+        await message.reply_text(f"❌ Error: {e}")
+ The user session doesn't recognize this channel.")
     except Exception as e:
         await message.reply_text(f"❌ Error: {e}")
 
@@ -197,6 +170,20 @@ async def check_session(client: Client, message: Message):
         await message.reply_text("❌ Peer ID Invalid: The user session does not recognize this chat.")
     except errors.ChatAdminRequired:
         await message.reply_text("❌ Bot needs to be an admin to perform this action.")
+    except Exception as e:
+        await message.reply_text(f"❌ Error: {e}")
+        
+@app.on_message(filters.command("join"))
+async def join_channel(client, message: Message):
+    chat_id = message.chat.id
+    try:
+        # Have the assistant join the channel
+        await assistant.join_chat(chat_id)
+        await asyncio.sleep(2)  # Give time for the join to process
+
+        # Confirm the join by fetching the chat details with the assistant
+        chat = await assistant.get_chat(chat_id)
+        await message.reply_text(f"✅ Assistant joined the channel: {chat.title}")
     except Exception as e:
         await message.reply_text(f"❌ Error: {e}")
         
