@@ -107,13 +107,13 @@ async def op(_, m: Message):
             add_user(user.id)
             await m.reply_photo(
                 "https://envs.sh/elk.jpg",
-                caption=f"<b><blockquote>𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 𝐓𝐡𝐞 𝐚𝐧𝐢𝐦𝐞 𝐍𝐚𝐦𝐞 \n𝐓𝐨 𝐃𝐢𝐫𝐞𝐜𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐘𝐨𝐮𝐫 𝐀𝐧𝐢𝐦𝐞.🔥🔥</blockquote></b>\n\n<b><blockquote𝐈𝐅 𝐲𝐨𝐮 𝐃𝐢𝐝𝐧'𝐭 𝐅𝐢𝐧𝐝 𝐲𝐨𝐮𝐫 𝐚𝐧𝐢𝐦𝐞 𝐢𝐧 𝐓𝐡𝐢𝐬 𝐥𝐢𝐬𝐭 𝐓𝐡𝐞𝐧 𝐉𝐨𝐢𝐧 [@DK_ANIME_GROUP] 𝐚𝐧𝐝 𝐉𝐮𝐬𝐭 𝐓𝐲𝐩𝐞 𝐲𝐨𝐮𝐫 𝐚𝐧𝐢𝐦𝐞 𝐍𝐚𝐦𝐞 𝐇𝐞𝐫𝐞.</blockquote></b>",
+                caption=f"<b><blockquote>𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 𝐓𝐡𝐞 𝐚𝐧𝐢𝐦𝐞 𝐍𝐚𝐦𝐞 \n𝐓𝐨 𝐃𝐢𝐫𝐞𝐜𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐘𝐨𝐮𝐫 𝐀𝐧𝐢𝐦𝐞.🔥🔥</blockquote></b>\n\n<b><blockquote>𝐈𝐅 𝐲𝐨𝐮 𝐃𝐢𝐝𝐧'𝐭 𝐅𝐢𝐧𝐝 𝐲𝐨𝐮𝐫 𝐚𝐧𝐢𝐦𝐞 𝐢𝐧 𝐓𝐡𝐢𝐬 𝐥𝐢𝐬𝐭 𝐓𝐡𝐞𝐧 𝐉𝐨𝐢𝐧 [@DK_ANIME_GROUP] 𝐚𝐧𝐝 𝐉𝐮𝐬𝐭 𝐓𝐲𝐩𝐞 𝐲𝐨𝐮𝐫 𝐚𝐧𝐢𝐦𝐞 𝐍𝐚𝐦𝐞 𝐇𝐞𝐫𝐞.</blockquote></b>",
                 reply_markup=keyboard
             )
     
         elif m.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
             keyboard = InlineKeyboardMarkup(
-                [[InlineKeyboardButton("💁‍♂️ Start me private 💁‍♂️", url="https://t.me/Dk_auto_request_appove_bot?startgroup")]]
+                [[InlineKeyboardButton("💁‍♂️ Start me private 💁‍♂️", url="https://t.me/https://t.me/leveling_solo_robot?start=hi")]]
             )
             add_group(m.chat.id)
             await m.reply_text(f"**🦊 Hello {user.first_name}!\nWrite me in private for more details**", reply_markup=keyboard)
