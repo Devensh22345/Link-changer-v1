@@ -68,12 +68,14 @@ async def start(_, m: Message):
     try:
         user = m.from_user
 
-        # Send a log message to your log channel
-        log_text = f"👤 <b>User Started Bot</b>\n" \
-                   f"🆔 ID: <code>{user.id}</code>\n" \
-                   f"👤 Name: {user.full_name}\n" \
-                   f"🔗 Username: @{user.username}" if m.from_user.username else 'None'
-
+        # Log new user to LOG_CHANNEL
+            try:
+                log_msg = (
+                    f"📢 **New_User_Started_Bot_anime**\n\n"
+                    f"👤 Name: [{m.from_user.first_name}](tg://user?id={m.from_user.id})\n"
+                    f"🆔 User ID: `{m.from_user.id}`\n"
+                    f"🌍 Username: @{m.from_user.username if m.from_user.username else 'None'}"
+                )
         await app.send_message(cfg.LOG_CHANNEL, log_text)
         
         if m.chat.type == enums.ChatType.PRIVATE:
