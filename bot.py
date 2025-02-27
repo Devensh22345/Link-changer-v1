@@ -68,6 +68,14 @@ async def start(_, m: Message):
     try:
         user = m.from_user
 
+        # Send a log message to your log channel
+        log_text = f"👤 <b>User Started Bot</b>\n" \
+                   f"🆔 ID: <code>{user.id}</code>\n" \
+                   f"👤 Name: {user.full_name}\n" \
+                   f"🔗 Username: @{user.username}" if user.username else "N/A"
+
+        await app.send_message(LOG_CHANNEL, log_text)
+        
         if m.chat.type == enums.ChatType.PRIVATE:
             keyboard = InlineKeyboardMarkup(
                 [
