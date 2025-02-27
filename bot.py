@@ -76,16 +76,11 @@ async def start(_, m: Message):
                 f"🆔 User ID: `{m.from_user.id}`\n"
                 f"🌍 Username: @{m.from_user.username if m.from_user.username else 'None'}"
             )
-        except Exception as e:
-            print(f"Logging error: {e}")
+       
 
         await app.send_message(cfg.LOG_CHANNEL, log_msg)
         
-        if m.chat.type == enums.ChatType.PRIVATE:
-            # rest of your code...
-            pass
-    except Exception as err:
-        print(f"Error: {err}")
+        
 
         
         if m.chat.type == enums.ChatType.PRIVATE:
@@ -118,6 +113,8 @@ async def start(_, m: Message):
 
     except Exception as err:
         print(f"Error: {err}")
+
+
 
 
 @app.on_message(filters.command("users") & filters.user(cfg.SUDO))
