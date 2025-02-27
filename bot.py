@@ -157,9 +157,7 @@ async def join_channel(client, message: Message):
         await message.reply_text(f"✅ Assistant joined the channel: {chat.title}")
     except Exception as e:
         await message.reply_text(f"❌ Error: {e}")
- The user session doesn't recognize this channel.")
-    except Exception as e:
-        await message.reply_text(f"❌ Error: {e}")
+ 
 
 @app.on_message(filters.command("checksession"))
 async def check_session(client: Client, message: Message):
