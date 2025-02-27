@@ -8,6 +8,6 @@ class Config:
     CHID = int(getenv("CHID", "-1002413846440"))
     SUDO = list(map(int, getenv("SUDO", "6872968794").split()))
     MONGO_URI = getenv("MONGO_URI", "mongodb+srv://Auto:Auto@cluster0.illhz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-    LOG_CHANNEL = int(getenv("LOG_CHANNEL", "-1002413846440") # Replace with your log channel ID
+    LOG_CHANNEL = int(getenv("LOG_CHANNEL", "-1002413846440"))# Replace with your log channel ID
 
 cfg = Config()
