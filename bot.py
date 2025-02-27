@@ -69,7 +69,7 @@ async def start(_, m: Message):
         user = m.from_user
 
         # Log new user to LOG_CHANNEL
-        try:
+       
             log_msg = (
                 f"📢 **New_User_Started_Bot_anime**\n\n"
                 f"👤 Name: [{m.from_user.first_name}](tg://user?id={m.from_user.id})\n"
