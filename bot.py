@@ -64,7 +64,7 @@ txt = [
     '<b><blockquote> 𝐂𝐥𝐢𝐜𝐤 𝐇𝐞𝐫𝐞 𝐭𝐨 𝐆𝐞𝐭 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 \n𝐉𝐮𝐬𝐭 𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 👇👇 </blockquote>\n /START</b>'
 ]
 
-txt = [
+txt1 = [
     '<b><blockquote> 𝐂𝐥𝐢𝐜𝐤 𝐇𝐞𝐫𝐞 𝐭𝐨 𝐆𝐞𝐭 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 \n𝐉𝐮𝐬𝐭 𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 👇👇\nhttps://t.me/+QN3ive_lL1RjZGE1\nhttps://t.me/+QN3ive_lL1RjZGE1 </blockquote></b>'
 ]
 
