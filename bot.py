@@ -181,23 +181,24 @@ async def op(_, m: Message):
                 caption=gif_info["caption"],
                 reply_markup=gif_info["button"]
             )
-             await asyncio.sleep(720)
-            await m.send_message(selected_text)
-
+             
             await asyncio.sleep(7200)
+                await app.send_animation(
                 chat_id=m.from_user.id,  # Use from_user.id for private chat
                 animation=selected_gif,
                 caption=gif_info["caption"],
                 reply_markup=gif_info["button"]
-)
+            )
             await asyncio.sleep(72000)
-            chat_id=m.from_user.id,  # Use from_user.id for private chat
+            await app.send_animation(
+                chat_id=m.from_user.id,  # Use from_user.id for private chat
                 animation=selected_gif,
                 caption=gif_info["caption"],
                 reply_markup=gif_info["button"]
             )
             await asyncio.sleep(140000)
-            chat_id=m.from_user.id,  # Use from_user.id for private chat
+            await app.send_animation(
+                chat_id=m.from_user.id,  # Use from_user.id for private chat
                 animation=selected_gif,
                 caption=gif_info["caption"],
                 reply_markup=gif_info["button"]
