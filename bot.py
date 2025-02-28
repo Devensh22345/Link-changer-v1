@@ -13,25 +13,46 @@ app = Client(
 )
 
 gif_data = {
-    'https://envs.sh/eWY.mp4': {
-        'caption': "🔥 Exclusive Anime Clip Just for You! 🔥",
+    'https://envs.sh/iGM.mp4': {
+        'caption': "𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n 𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇 𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💬 Join Anime Group", url="https://t.me/DKANIME_GROUP")]]
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
         )
     },
-    'https://envs.sh/eWC.mp4': {
-        'caption': "🚀 Don't Miss This Amazing Moment! 🚀",
+    'https://envs.sh/iGX.mp4': {
+        'caption': "𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n 𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇 𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("🗯 Visit Our Channel", url="https://t.me/DK_ANIMES")]]
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
+        )
+    },
+    'https://envs.sh/iG6.mp4': {
+        'caption': "𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n 𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇 𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋",
+        'button': InlineKeyboardMarkup(
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
+        )
+    },
+    'https://envs.sh/iKh.mp4': {
+        'caption': "𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n 𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇 𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋",
+        'button': InlineKeyboardMarkup(
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
+        )
+    },
+    'https://envs.sh/iK2.mp4': {
+        'caption': "𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n 𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇 𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋",
+        'button': InlineKeyboardMarkup(
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
+        )
+    },
+    'https://envs.sh/iKF.mp4': {
+        'caption': "𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n 𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇 𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋",
+        'button': InlineKeyboardMarkup(
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
         )
     }
 }
 
-txt = [
-    '<b><blockquote>😘Direct video uploaded only for you 😢\n👇👇👇👇\n➥ https://t.me/+BK7FdGsyHmk5N2Y9\n➥ https://t.me/+BK7FdGsyHmk5N2Y9\n\n𝐈𝐌𝐒𝐇𝐀 𝐑𝐄𝐇𝐌𝐀𝐍 𝐀𝐋𝐋 \n https://t.me/+BK7FdGsyHmk5N2Y9\n https://t.me/+BK7FdGsyHmk5N2Y9\n\n👉/start</blockquote></b>'
-]
 
-txt1 = [
+txt = [
     '**please click here /start**'
 ]
 
@@ -53,7 +74,6 @@ async def approve(_, m: Message):
         # 🎲 Select a random GIF and text
         selected_gif = random.choice(list(gif_data.keys()))
         gif_info = gif_data[selected_gif]
-        text = random.choice(txt)
         text1 = random.choice(txt1)
         text2 = random.choice(txt2)
 
