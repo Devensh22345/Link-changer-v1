@@ -15,25 +15,18 @@ app = Client(
     bot_token=cfg.BOT_TOKEN
 )
 
-replacement_username = "**DK_ANIMES**"  # Set your replacement username
+replacement_username = "DK_ANIMES"  # Set your replacement username
 
-@app.on_message(filters.chat & (filters.photo | filters.video | filters.document))
+@app.on_message(filters.channel & (filters.photo | filters.video | filters.document))
 async def edit_caption(_, message):
     """Detect media posts in a channel and edit only the caption."""
-    chat_id = message.chat.id
-
-    # Check if the bot is an admin before proceeding
-    bot_member = await app.get_chat_member(chat_id, (await app.get_me()).id)
-    if bot_member.status not in ["administrator", "creator"]:
-        return
-
     if message.caption:  # Only modify if there's a caption
-        new_caption = re.sub(r"@([\w_]+)", lambda m: f"@{replacement_username}", message.caption)
+        new_caption = re.sub(r"@([\w_]+)", lambda m: f"<b>@{replacement_username}</b>", message.caption)
 
         try:
             await message.edit_caption(new_caption)  # Edit the caption instead of reposting
         except Exception as e:
-            print(f"Failed to edit caption in {chat_id}: {e}")
+            print(f"Failed to edit caption in {message.chat.id}: {e}")
 
 async def main():
     await app.start()
