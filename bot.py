@@ -1,13 +1,7 @@
 from pyrogram import Client, filters
 import re
-from motor.motor_asyncio import AsyncIOMotorClient
 import asyncio
 from configs import cfg
-
-# Initialize MongoDB Client
-mongo_client = AsyncIOMotorClient(cfg.MONGO_URL)
-db = mongo_client["autoposter_db"]
-channels_collection = db["channels"]
 
 app = Client(
     "autoposter",
@@ -16,16 +10,26 @@ app = Client(
     bot_token=cfg.BOT_TOKEN
 )
 
-replacement_username = "**@DK_ANIMES**"  # Bold username in Markdown
+replacement_username = "**[@DK_ANIMES](https://t.me/DK_ANIMES)**"  # Bold and clickable username
 
-@app.on_message(filters.channel & (filters.photo | filters.video | filters.animation | filters.document))
+@app.on_message(filters.channel & filters.video)  # Only for videos
 async def edit_caption(_, message):
-    """Detect media posts (image, video, GIF, document) in a channel and edit only the caption."""
-    if message.caption:  # Only modify if there's a caption
-        new_caption = re.sub(r"@([\w_]+)", lambda m: replacement_username, message.caption)
+    """Edit video captions if posted by another admin."""
+    chat_id = message.chat.id
+    sender_id = message.from_user.id if message.from_user else None
 
+    # Get bot's own ID
+    bot_id = (await app.get_me()).id  
+
+    if sender_id and sender_id != bot_id:
         try:
-            await message.edit_caption(new_caption, parse_mode="Markdown")  # Edit caption with Markdown format
+            # Fetch admin list
+            admins = [admin.user.id async for admin in app.get_chat_members(chat_id, filter="administrators")]
+
+            if sender_id in admins:  # If the sender is an admin (but not the bot)
+                if message.caption:
+                    new_caption = re.sub(r"@[\w_]+", replacement_username, message.caption)
+                    await message.edit_caption(new_caption, parse_mode="Markdown")
         except Exception as e:
             print(f"Failed to edit caption in {message.chat.id}: {e}")
 
