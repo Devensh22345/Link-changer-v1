@@ -79,9 +79,7 @@ gif_data1 = {
     'https://envs.sh/iGX.mp4': {
         'caption': "<b><blockquote>𝒀𝒐𝒖𝒓 𝑽𝒊𝒅𝒆𝒐 𝒊𝒔 𝑹𝒆𝒂𝒅𝒚. 𝑪𝒍𝒊𝒄𝒌 𝒉𝒆𝒓𝒆 𝑻𝒐 𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 👇👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐯𝐢𝐝𝐞𝐨", url="txt = [
-    '<b><blockquote> 𝐂𝐥𝐢𝐜𝐤 𝐇𝐞𝐫𝐞 𝐭𝐨 𝐆𝐞𝐭 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 \n𝐉𝐮𝐬𝐭 𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 👇👇 </blockquote>\n /START</b>'
-]")]
+            [[InlineKeyboardButton("𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐯𝐢𝐝𝐞𝐨", url="https://t.me/+QN3ive_lL1RjZGE1")]
             ,[InlineKeyboardButton(" 𝐆𝐞𝐭 𝐌𝐨𝐫𝐞 𝐕𝐢𝐝𝐞𝐨𝐬", url="https://t.me/+QN3ive_lL1RjZGE1")]]
      )
     },
