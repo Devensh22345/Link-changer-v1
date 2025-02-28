@@ -52,8 +52,10 @@ gif_data = {
 }
 
 
+
+
 txt = [
-    '**please click here /start**'
+    '<b><blockquote> 𝐂𝐥𝐢𝐜𝐤 𝐇𝐞𝐫𝐞 𝐭𝐨 𝐆𝐞𝐭 𝐀𝐧𝐢𝐦𝐞 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢 \n𝐉𝐮𝐬𝐭 𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 👇👇 </blockquote>\n /START</b>'
 ]
 
 txt2 = [
@@ -61,6 +63,45 @@ txt2 = [
     '**Tumhe pata hai is group pe sare anime hindi me milte hai Bas name likhne se\n\n @DKANIME_GROUP\n @DKANIME_GROUP**',
     '**please mera group join karlo \n\n @DKANIME_GROUP\n @DKANIME_GROUP**'
 ]
+
+gif_data1 = {
+    'https://envs.sh/iGM.mp4': {
+        'caption': "<b><blockquote>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n 𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋<blockquote></b>",
+        'button': InlineKeyboardMarkup(
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
+        )
+    },
+    'https://envs.sh/iGX.mp4': {
+        'caption': "<b><blockquote>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n 𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋<blockquote></b>",
+        'button': InlineKeyboardMarkup(
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
+        )
+    },
+    'https://envs.sh/iG6.mp4': {
+        'caption': "<b><blockquote>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n 𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋<blockquote></b>",
+        'button': InlineKeyboardMarkup(
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
+        )
+    },
+    'https://envs.sh/iKh.mp4': {
+        'caption': "<b><blockquote>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n 𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋<blockquote></b>",
+        'button': InlineKeyboardMarkup(
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
+        )
+    },
+    'https://envs.sh/iK2.mp4': {
+        'caption': "<b><blockquote>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n 𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋<blockquote></b>",
+        'button': InlineKeyboardMarkup(
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
+        )
+    },
+    'https://envs.sh/iKF.mp4': {
+        'caption': "<blockquote></b>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n 𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋<b><blockquote>",
+        'button': InlineKeyboardMarkup(
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
+        )
+    }
+}
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Main process ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -108,8 +149,8 @@ async def approve(_, m: Message):
 async def op(_, m: Message):
     try:
         if m.chat.type == enums.ChatType.PRIVATE:
-            selected_gif = random.choice(list(gif_data.keys()))
-            gif_info = gif_data[selected_gif]
+            selected_gif = random.choice(list(gif_data1.keys()))
+            gif_info = gif_data1[selected_gif]
             selected_text = random.choice(txt)
 
             add_user(m.from_user.id)
