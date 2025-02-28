@@ -182,7 +182,7 @@ async def op(_, m: Message):
                 reply_markup=gif_info["button"]
             )
              await asyncio.sleep(720)
-            await m.reply_text(selected_text)
+            await m.send_message(selected_text)
 
             await asyncio.sleep(7200)
                 chat_id=m.from_user.id,  # Use from_user.id for private chat
