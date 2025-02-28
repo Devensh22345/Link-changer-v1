@@ -12,30 +12,29 @@ app = Client(
 
 replacement_username = "**[@DK_ANIMES](https://t.me/DK_ANIMES)**"  # Bold and clickable username
 
-@app.on_message(filters.channel & filters.video)  # Only for video posts
+# /start command to check if the bot is running
+@app.on_message(filters.command("start") & filters.private)
+async def start_message(_, message):
+    await message.reply_text("✅ Bot is online and working!")
+
+@app.on_message(filters.channel & filters.video)  # Only for videos in channels
 async def edit_caption(_, message):
-    """Edit video captions if posted by an admin in the channel."""
-    chat_id = message.chat.id
-
-    try:
-        # Fetch list of admins
-        admins = [admin.user.id async for admin in app.get_chat_members(chat_id, filter="administrators")]
-
-        # If the message has a caption and was posted by an admin
-        if message.caption and message.sender_chat:
-            new_caption = re.sub(r"@[\w_]+", replacement_username, message.caption)
-
+    """Edit video captions if posted by the channel itself (admin posts)."""
+    if message.caption and message.sender_chat:  # Ensure message has a caption and is from the channel
+        new_caption = re.sub(r"@[\w_]+", replacement_username, message.caption)
+        
+        try:
             await message.edit_caption(new_caption, parse_mode="Markdown")
-            print(f"Edited caption in {chat_id}")
-    except Exception as e:
-        print(f"Failed to edit caption in {chat_id}: {e}")
+            print(f"Edited caption in {message.chat.id}")
+        except Exception as e:
+            print(f"Failed to edit caption in {message.chat.id}: {e}")
 
 async def main():
     await app.start()
-    print("hello")  # Print when the bot starts
-    await asyncio.Event().wait()  # Keep the bot running
+    print("hello")  # Prints when the bot starts
+    await asyncio.Event().wait()  # Keeps the bot running
 
 print("I'm Alive Now!")
 
-# Correct way to run the bot
-asyncio.run(main())  # Runs the async main function properly
+# Runs the bot correctly
+asyncio.run(main())
