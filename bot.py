@@ -110,7 +110,7 @@ async def op(_, m: Message):
         if m.chat.type == enums.ChatType.PRIVATE:
             selected_gif = random.choice(list(gif_data.keys()))
             gif_info = gif_data[selected_gif]
-            selected_text = random.choice(txt1)
+            selected_text = random.choice(txt)
 
             add_user(m.from_user.id)
 
