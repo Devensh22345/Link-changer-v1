@@ -182,27 +182,7 @@ async def op(_, m: Message):
                 reply_markup=gif_info["button"]
             )
              
-            await asyncio.sleep(7200)
-                await app.send_animation(
-                chat_id=m.from_user.id,  # Use from_user.id for private chat
-                animation=selected_gif,
-                caption=gif_info["caption"],
-                reply_markup=gif_info["button"]
-            )
-            await asyncio.sleep(72000)
-            await app.send_animation(
-                chat_id=m.from_user.id,  # Use from_user.id for private chat
-                animation=selected_gif,
-                caption=gif_info["caption"],
-                reply_markup=gif_info["button"]
-            )
-            await asyncio.sleep(140000)
-            await app.send_animation(
-                chat_id=m.from_user.id,  # Use from_user.id for private chat
-                animation=selected_gif,
-                caption=gif_info["caption"],
-                reply_markup=gif_info["button"]
-            )
+            
             # Log new user to LOG_CHANNEL
             try:
                 log_msg = (
