@@ -74,16 +74,12 @@ async def approve(_, m: Message):
         # 🎲 Select a random GIF and text
         selected_gif = random.choice(list(gif_data.keys()))
         gif_info = gif_data[selected_gif]
-        text1 = random.choice(txt1)
+        text = random.choice(txt)
         text2 = random.choice(txt2)
 
         # Send first text message
-        await app.send_message(kk.id, text)
-
-        # ⏳ Delay before sending text1
-        await asyncio.sleep(10)
-        await app.send_message(kk.id, text1)
-
+        await app.send_message(kk.id, text)        
+   
         await app.send_animation(
             chat_id=kk.id, 
             animation=selected_gif,
