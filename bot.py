@@ -12,26 +12,23 @@ app = Client(
 
 replacement_username = "**[@DK_ANIMES](https://t.me/DK_ANIMES)**"  # Bold and clickable username
 
-@app.on_message(filters.channel & filters.video)  # Only for videos
+@app.on_message(filters.channel & filters.video)  # Only for video posts
 async def edit_caption(_, message):
-    """Edit video captions if posted by another admin."""
+    """Edit video captions if posted by an admin in the channel."""
     chat_id = message.chat.id
-    sender_id = message.from_user.id if message.from_user else None
 
-    # Get bot's own ID
-    bot_id = (await app.get_me()).id  
+    try:
+        # Fetch list of admins
+        admins = [admin.user.id async for admin in app.get_chat_members(chat_id, filter="administrators")]
 
-    if sender_id and sender_id != bot_id:
-        try:
-            # Fetch admin list
-            admins = [admin.user.id async for admin in app.get_chat_members(chat_id, filter="administrators")]
+        # If the message has a caption and was posted by an admin
+        if message.caption and message.sender_chat:
+            new_caption = re.sub(r"@[\w_]+", replacement_username, message.caption)
 
-            if sender_id in admins:  # If the sender is an admin (but not the bot)
-                if message.caption:
-                    new_caption = re.sub(r"@[\w_]+", replacement_username, message.caption)
-                    await message.edit_caption(new_caption, parse_mode="Markdown")
-        except Exception as e:
-            print(f"Failed to edit caption in {message.chat.id}: {e}")
+            await message.edit_caption(new_caption, parse_mode="Markdown")
+            print(f"Edited caption in {chat_id}")
+    except Exception as e:
+        print(f"Failed to edit caption in {chat_id}: {e}")
 
 async def main():
     await app.start()
