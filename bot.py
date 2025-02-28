@@ -52,7 +52,7 @@ async def main():
     await app.start()
     print("hello")  # Print "hello" when the bot starts
     asyncio.create_task(auto_post())  # Start the auto-posting task
-    await app.idle()  # Keep the bot running
+    await asyncio.Event().wait()  # Keep the bot running
 
 print("I'm Alive Now!")
 app.run(main())
