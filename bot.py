@@ -16,11 +16,11 @@ app = Client(
     bot_token=cfg.BOT_TOKEN
 )
 
-image_url = "https://envs.sh/E-7.jpg"  # Replace with your image URL
+image_url = "https://envs.sh/i0o.jpg"  # Replace with your image URL
 
 async def post_message(chat_id):
     """Send an image with a caption to a given channel."""
-    caption = f"🦊 **Automatic Post!**\n\n📅 Date: {datetime.datetime.now().strftime('%Y-%m-%d')}\n🕒 Time: {datetime.datetime.now().strftime('%H:%M:%S')}\n\nJoin us: @DK_ANIMES"
+    caption = f"🦊 **join -[@DK_ANIMES]**"
     try:
         await app.send_photo(chat_id, image_url, caption=caption)
     except Exception as e:
