@@ -1,47 +1,64 @@
-from pymongo import MongoClient
-from configs import cfg
+import re
+import logging
+from pyrogram import Client, filters
+from pyrogram.types import Message
+from motor.motor_asyncio import AsyncIOMotorClient
 
-client = MongoClient(cfg.MONGO_URI)
+# Bot Configuration
+API_ID = "29308061"
+API_HASH = "462de3dfc98fd938ef9c6ee31a72d099"
+BOT_TOKEN = "6963634345:AAEcvFr_rg3133R5BVZOiD35Kz09fNfYkfk"
+MONGO_URI = "mongodb+srv://Test:Test@cluster0.pcpx5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+REPLACEMENT_CHANNEL = "@DK_ANIME"
 
-users = client['main']['users']
-groups = client['main']['groups']
+# Initialize Logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def already_db(user_id):
-        user = users.find_one({"user_id" : str(user_id)})
-        if not user:
-            return False
-        return True
+# Initialize Pyrogram Client
+bot = Client("CaptionEditorBot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
-def already_dbg(chat_id):
-        group = groups.find_one({"chat_id" : str(chat_id)})
-        if not group:
-            return False
-        return True
+# Initialize MongoDB
+mongo_client = AsyncIOMotorClient(MONGO_URI)
+db = mongo_client["telegram_bot"]
+channels_collection = db["channels"]
 
-def add_user(user_id):
-    in_db = already_db(user_id)
-    if in_db:
-        return
-    return users.insert_one({"user_id": str(user_id)}) 
+async def add_channel(channel_id):
+    """ Add channel to MongoDB if not exists """
+    existing = await channels_collection.find_one({"channel_id": channel_id})
+    if not existing:
+        await channels_collection.insert_one({"channel_id": channel_id})
+        logger.info(f"Added new channel to DB: {channel_id}")
 
-def remove_user(user_id):
-    in_db = already_db(user_id)
-    if not in_db:
-        return 
-    return users.delete_one({"user_id": str(user_id)})
-    
-def add_group(chat_id):
-    in_db = already_dbg(chat_id)
-    if in_db:
-        return
-    return groups.insert_one({"chat_id": str(chat_id)})
+@bot.on_message(filters.chat([]) & (filters.video | filters.document))
+async def edit_caption(client: Client, message: Message):
+    """ Edit captions to replace any channel mentions with @DK_ANIME """
+    chat_id = message.chat.id
 
-def all_users():
-    user = users.find({})
-    usrs = len(list(user))
-    return usrs
+    # Ensure bot is tracking the channel
+    await add_channel(chat_id)
 
-def all_groups():
-    group = groups.find({})
-    grps = len(list(group))
-    return grps
+    if message.caption:
+        updated_caption = re.sub(r"@[\w_]+|t\.me/[\w_]+", REPLACEMENT_CHANNEL, message.caption)
+
+        if updated_caption != message.caption:
+            try:
+                await message.edit_caption(updated_caption)
+                logger.info(f"Edited caption in {chat_id}: {updated_caption}")
+            except Exception as e:
+                logger.error(f"Failed to edit caption in {chat_id}: {e}")
+
+@bot.on_chat_member_updated
+async def track_channels(client: Client, event):
+    """ Track when the bot is added to a new channel """
+    if event.new_chat_member and event.new_chat_member.user.id == bot.me.id:
+        await add_channel(event.chat.id)
+        logger.info(f"Bot added to channel: {event.chat.id}")
+
+@bot.on_message(filters.command("start"))
+async def start_message(client: Client, message: Message):
+    """ Send a start message """
+    await message.reply("Hello! I'm a bot that automatically edits captions in channels.")
+
+# Run the bot
+bot.run()
