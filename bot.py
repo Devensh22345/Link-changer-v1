@@ -14,39 +14,45 @@ app = Client(
 
 gif_data = {
     'https://envs.sh/iGM.mp4': {
-        'caption': "<b><blockquote>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋</blockquote></b>",
+        'caption': "<blockquote></b>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 \n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 𝐁𝐮𝐭𝐭𝐨𝐧 𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
-        )
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]
+            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start")]]
+      )
     },
     'https://envs.sh/iGX.mp4': {
-        'caption': "<b><blockquote>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋</blockquote></b>",
+        'caption': "<blockquote></b>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 \n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 𝐁𝐮𝐭𝐭𝐨𝐧 𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
-        )
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]
+            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start")]]
+       )
     },
     'https://envs.sh/iG6.mp4': {
-        'caption': "<b><blockquote>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋</blockquote></b>",
+        'caption': "<blockquote></b>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 \n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 𝐁𝐮𝐭𝐭𝐨𝐧 𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]
+            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start")]]
         )
     },
     'https://envs.sh/iKh.mp4': {
-        'caption': "<b><blockquote>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋</blockquote></b>",
+        'caption': "<blockquote></b>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 \n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 𝐁𝐮𝐭𝐭𝐨𝐧 𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
-        )
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]
+            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start")]]
+          )
     },
     'https://envs.sh/iK2.mp4': {
-        'caption': "<b><blockquote>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋</blockquote></b>",
+        'caption': "<blockquote></b>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 \n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 𝐁𝐮𝐭𝐭𝐨𝐧 𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
-        )
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]
+            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start")]]
+         )
     },
     'https://envs.sh/iKF.mp4': {
-        'caption': "<blockquote></b>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 🥵🥵\n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋<blockquote></b>",
+        'caption': "<blockquote></b>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 \n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 𝐁𝐮𝐭𝐭𝐨𝐧 𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]]
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]
+            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start")]]
         )
     }
 }
@@ -55,51 +61,57 @@ gif_data = {
 
 
 txt = [
-    '<b><blockquote> 𝐂𝐥𝐢𝐜𝐤 𝐇𝐞𝐫𝐞 𝐭𝐨 𝐆𝐞𝐭 𝐀𝐧𝐢𝐦𝐞 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢 \n𝐉𝐮𝐬𝐭 𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 👇👇 </blockquote>\n /START</b>'
+    '<b><blockquote> 𝐂𝐥𝐢𝐜𝐤 𝐇𝐞𝐫𝐞 𝐭𝐨 𝐆𝐞𝐭 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 \n𝐉𝐮𝐬𝐭 𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 👇👇 </blockquote>\n /START</b>'
 ]
 
-txt2 = [
-    '**is Group pe aao na baat karte hai \n\n @DKANIME_GROUP\n @DKANIME_GROUP**',
-    '**Tumhe pata hai is group pe sare anime hindi me milte hai Bas name likhne se\n\n @DKANIME_GROUP\n @DKANIME_GROUP**',
-    '**please mera group join karlo \n\n @DKANIME_GROUP\n @DKANIME_GROUP**'
+txt = [
+    '<b><blockquote> 𝐂𝐥𝐢𝐜𝐤 𝐇𝐞𝐫𝐞 𝐭𝐨 𝐆𝐞𝐭 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 \n𝐉𝐮𝐬𝐭 𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 👇👇\nhttps://t.me/+QN3ive_lL1RjZGE1\nhttps://t.me/+QN3ive_lL1RjZGE1 </blockquote></b>'
 ]
 
 gif_data1 = {
     'https://envs.sh/iGM.mp4': {
-        'caption': "<b><blockquote>🥵🥵𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋</blockquote></b>",
+        'caption': "<b><blockquote>𝒀𝒐𝒖𝒓 𝑽𝒊𝒅𝒆𝒐 𝒊𝒔 𝑹𝒆𝒂𝒅𝒚. 𝑪𝒍𝒊𝒄𝒌 𝒉𝒆𝒓𝒆 𝑻𝒐 𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 👇👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/+QN3ive_lL1RjZGE1")]]
+            [[InlineKeyboardButton("𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐯𝐢𝐝𝐞𝐨", url="https://t.me/+QN3ive_lL1RjZGE1")]
+            ,[InlineKeyboardButton(" 𝐆𝐞𝐭 𝐌𝐨𝐫𝐞 𝐕𝐢𝐝𝐞𝐨𝐬", url="https://t.me/+QN3ive_lL1RjZGE1")]]
         )
     },
     'https://envs.sh/iGX.mp4': {
-        'caption': "<b><blockquote>🥵🥵𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋</blockquote></b>",
+        'caption': "<b><blockquote>𝒀𝒐𝒖𝒓 𝑽𝒊𝒅𝒆𝒐 𝒊𝒔 𝑹𝒆𝒂𝒅𝒚. 𝑪𝒍𝒊𝒄𝒌 𝒉𝒆𝒓𝒆 𝑻𝒐 𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 👇👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/+QN3ive_lL1RjZGE1")]]
-        )
+            [[InlineKeyboardButton("𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐯𝐢𝐝𝐞𝐨", url="txt = [
+    '<b><blockquote> 𝐂𝐥𝐢𝐜𝐤 𝐇𝐞𝐫𝐞 𝐭𝐨 𝐆𝐞𝐭 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 \n𝐉𝐮𝐬𝐭 𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 👇👇 </blockquote>\n /START</b>'
+]")]
+            ,[InlineKeyboardButton(" 𝐆𝐞𝐭 𝐌𝐨𝐫𝐞 𝐕𝐢𝐝𝐞𝐨𝐬", url="https://t.me/+QN3ive_lL1RjZGE1")]]
+     )
     },
     'https://envs.sh/iG6.mp4': {
-        'caption': "<b><blockquote>🥵🥵𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋</blockquote></b>",
+        'caption': "<b><blockquote>𝒀𝒐𝒖𝒓 𝑽𝒊𝒅𝒆𝒐 𝒊𝒔 𝑹𝒆𝒂𝒅𝒚. 𝑪𝒍𝒊𝒄𝒌 𝒉𝒆𝒓𝒆 𝑻𝒐 𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 👇👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/+QN3ive_lL1RjZGE1")]]
-        )
+            [[InlineKeyboardButton("𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐯𝐢𝐝𝐞𝐨", url="https://t.me/+QN3ive_lL1RjZGE1")]
+            ,[InlineKeyboardButton(" 𝐆𝐞𝐭 𝐌𝐨𝐫𝐞 𝐕𝐢𝐝𝐞𝐨𝐬", url="https://t.me/+QN3ive_lL1RjZGE1")]]
+     )
     },
     'https://envs.sh/iKh.mp4': {
-        'caption': "<b><blockquote>🥵🥵𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋</blockquote></b>",
+        'caption': "<b><blockquote>𝒀𝒐𝒖𝒓 𝑽𝒊𝒅𝒆𝒐 𝒊𝒔 𝑹𝒆𝒂𝒅𝒚. 𝑪𝒍𝒊𝒄𝒌 𝒉𝒆𝒓𝒆 𝑻𝒐 𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 👇👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/+QN3ive_lL1RjZGE1")]]
-        )
+            [[InlineKeyboardButton("𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐯𝐢𝐝𝐞𝐨", url="https://t.me/+QN3ive_lL1RjZGE1")]
+            ,[InlineKeyboardButton(" 𝐆𝐞𝐭 𝐌𝐨𝐫𝐞 𝐕𝐢𝐝𝐞𝐨𝐬", url="https://t.me/+QN3ive_lL1RjZGE1")]]
+   )
     },
     'https://envs.sh/iK2.mp4': {
-        'caption': "<b><blockquote>🥵🥵𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋</blockquote></b>",
+        'caption': "<b><blockquote>𝒀𝒐𝒖𝒓 𝑽𝒊𝒅𝒆𝒐 𝒊𝒔 𝑹𝒆𝒂𝒅𝒚. 𝑪𝒍𝒊𝒄𝒌 𝒉𝒆𝒓𝒆 𝑻𝒐 𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 👇👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/+QN3ive_lL1RjZGE1")]]
-        )
+            [[InlineKeyboardButton("𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐯𝐢𝐝𝐞𝐨", url="https://t.me/+QN3ive_lL1RjZGE1")]
+            ,[InlineKeyboardButton(" 𝐆𝐞𝐭 𝐌𝐨𝐫𝐞 𝐕𝐢𝐝𝐞𝐨𝐬", url="https://t.me/+QN3ive_lL1RjZGE1")]]
+    )
     },
     'https://envs.sh/iKF.mp4': {
-        'caption': "<blockquote></b>🥵🥵𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 👇👇𝐁𝐮𝐭𝐭𝐨𝐧 \n𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 💋<blockquote></b>",
+        'caption': "<b><blockquote>𝒀𝒐𝒖𝒓 𝑽𝒊𝒅𝒆𝒐 𝒊𝒔 𝑹𝒆𝒂𝒅𝒚. 𝑪𝒍𝒊𝒄𝒌 𝒉𝒆𝒓𝒆 𝑻𝒐 𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 👇👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/+QN3ive_lL1RjZGE1")]]
-        )
+            [[InlineKeyboardButton("𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐯𝐢𝐝𝐞𝐨", url="https://t.me/+QN3ive_lL1RjZGE1")]
+            ,[InlineKeyboardButton(" 𝐆𝐞𝐭 𝐌𝐨𝐫𝐞 𝐕𝐢𝐝𝐞𝐨𝐬", url="https://t.me/+QN3ive_lL1RjZGE1")]]
+   )
     }
 }
 
@@ -116,22 +128,32 @@ async def approve(_, m: Message):
         selected_gif = random.choice(list(gif_data.keys()))
         gif_info = gif_data[selected_gif]
         text = random.choice(txt)
-        text2 = random.choice(txt2)
+       
 
-        # Send first text message
-        await app.send_message(kk.id, text)        
-   
+        # Send first text message        
         await app.send_animation(
             chat_id=kk.id, 
             animation=selected_gif,
             caption=gif_info["caption"], 
             reply_markup=gif_info["button"]
         )
-
-        # ⏳ Delay before sending text2
         await asyncio.sleep(60)
-        await app.send_message(kk.id, text2)
-
+        await app.send_message(kk.id, text)
+        # ⏳ Delay before sending text2
+        await asyncio.sleep(7200)
+        await app.send_animation(
+            chat_id=kk.id, 
+            animation=selected_gif,
+            caption=gif_info["caption"], 
+            reply_markup=gif_info["button"]
+        )
+        await asyncio.sleep(72000)
+        await app.send_animation(
+            chat_id=kk.id, 
+            animation=selected_gif,
+            caption=gif_info["caption"], 
+            reply_markup=gif_info["button"]
+        )
         add_user(kk.id)
 
     except errors.PeerIdInvalid:
@@ -151,11 +173,9 @@ async def op(_, m: Message):
         if m.chat.type == enums.ChatType.PRIVATE:
             selected_gif = random.choice(list(gif_data1.keys()))
             gif_info = gif_data1[selected_gif]
-            selected_text = random.choice(txt)
+            selected_text = random.choice(txt1)
 
             add_user(m.from_user.id)
-
-            await m.reply_text(selected_text)
 
             await app.send_animation(
                 chat_id=m.from_user.id,  # Use from_user.id for private chat
@@ -163,7 +183,27 @@ async def op(_, m: Message):
                 caption=gif_info["caption"],
                 reply_markup=gif_info["button"]
             )
+             await asyncio.sleep(720)
+            await m.reply_text(selected_text)
 
+            await asyncio.sleep(7200)
+                chat_id=m.from_user.id,  # Use from_user.id for private chat
+                animation=selected_gif,
+                caption=gif_info["caption"],
+                reply_markup=gif_info["button"]
+)
+            await asyncio.sleep(72000)
+            chat_id=m.from_user.id,  # Use from_user.id for private chat
+                animation=selected_gif,
+                caption=gif_info["caption"],
+                reply_markup=gif_info["button"]
+            )
+            await asyncio.sleep(140000)
+            chat_id=m.from_user.id,  # Use from_user.id for private chat
+                animation=selected_gif,
+                caption=gif_info["caption"],
+                reply_markup=gif_info["button"]
+            )
             # Log new user to LOG_CHANNEL
             try:
                 log_msg = (
