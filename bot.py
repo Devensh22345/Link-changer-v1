@@ -16,43 +16,43 @@ gif_data = {
     'https://envs.sh/iGM.mp4': {
         'caption': "<blockquote></b>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 \n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 𝐁𝐮𝐭𝐭𝐨𝐧 𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]
-            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start")]]
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start=1")]
+            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start=1")]]
       )
     },
     'https://envs.sh/iGX.mp4': {
         'caption': "<blockquote></b>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 \n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 𝐁𝐮𝐭𝐭𝐨𝐧 𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]
-            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start")]]
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start=1")]
+            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start=1")]]
        )
     },
     'https://envs.sh/iG6.mp4': {
         'caption': "<blockquote></b>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 \n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 𝐁𝐮𝐭𝐭𝐨𝐧 𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]
-            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start")]]
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start=1")]
+            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start=1")]]
         )
     },
     'https://envs.sh/iKh.mp4': {
         'caption': "<blockquote></b>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 \n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 𝐁𝐮𝐭𝐭𝐨𝐧 𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]
-            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start")]]
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start=1")]
+            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start=1")]]
           )
     },
     'https://envs.sh/iK2.mp4': {
         'caption': "<blockquote></b>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 \n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 𝐁𝐮𝐭𝐭𝐨𝐧 𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]
-            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start")]]
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start=1")]
+            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start=1")]]
          )
     },
     'https://envs.sh/iKF.mp4': {
         'caption': "<blockquote></b>𝐈𝐧𝐬𝐭𝐚𝐧𝐭 𝐕𝐢𝐫𝐚𝐥 𝐌𝐨𝐝𝐞𝐥 𝐕𝐢𝐝𝐞𝐨 \n\n𝐂𝐥𝐢𝐜𝐤 𝐎𝐧 𝐁𝐞𝐥𝐨𝐰 𝐁𝐮𝐭𝐭𝐨𝐧 𝐓𝐨 𝐆𝐞𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐋𝐢𝐧𝐤 👇👇</blockquote></b>",
         'button': InlineKeyboardMarkup(
-            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start")]
-            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start")]]
+            [[InlineKeyboardButton("💦 𝐆𝐄𝐓 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐋𝐈𝐍𝐊🍑", url="https://t.me/video_call_robot?start=1")]
+            ,[InlineKeyboardButton(" 𝐕𝐢𝐫𝐚𝐥 𝐯𝐢𝐝𝐞𝐨 𝐌𝐒𝐒", url="https://t.me/video_call_robot?start=1")]]
         )
     }
 }
