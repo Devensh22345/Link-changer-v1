@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, InputTextMessageContent, CallbackQuery
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from configs import cfg
 from database import (
     add_created_channel, 
@@ -35,7 +35,6 @@ user_app = Client(
 
 LOG_CHANNEL = cfg.LOG_CHANNEL
 change_all_active = False
-pending_channel_name = {}
 
 # Function to log messages in the log channel
 async def log_to_channel(text: str):
@@ -55,39 +54,7 @@ async def start_message(client: Client, message: Message):
     await message.reply_text("Hello! Use /create to create a private channel.\nUse /change1 to change a channel link.\nUse /changeall to change all channel usernames.")
     await log_to_channel(f"👋 Bot started by {message.from_user.mention} (ID: {message.from_user.id})")
 
-# Create a new private channel
-@app.on_message(filters.command("create"))
-async def create_channel(client: Client, message: Message):
-    pending_channel_name[message.from_user.id] = None
-    await message.reply_text("Please send me the name for the new private channel.")
-    await log_to_channel(f"🆕 Channel creation initiated by {message.from_user.mention} (ID: {message.from_user.id})")
-
-@app.on_message(filters.text & filters.private)
-async def receive_channel_name(client: Client, message: Message):
-    user_id = message.from_user.id
-    if user_id in pending_channel_name and pending_channel_name[user_id] is None:
-        pending_channel_name[user_id] = message.text
-        await message.reply_text(f"Creating a private channel with the name: {message.text}...")
-        
-        try:
-            new_channel = await user_app.create_channel(
-                title=message.text,
-                description="This is a private channel created by the bot.",
-                megagroup=False
-            )
-            await user_app.set_chat_username(new_channel.id, generate_random_string())
-
-            add_created_channel(new_channel.id, message.text, message.from_user.mention)
-            await message.reply_text(f"✅ Channel '{message.text}' created successfully!")
-            await log_to_channel(f"✅ Created private channel '{message.text}' (ID: {new_channel.id})")
-
-        except Exception as e:
-            await message.reply_text(f"❌ Error creating channel: {e}")
-            await log_to_channel(f"❌ Error creating channel: {e}")
-
-        del pending_channel_name[user_id]
-
-# Change the channel link for a specific channel
+# Change the channel link for channels with a username
 @app.on_message(filters.command("change1"))
 async def change_channel_link(client: Client, message: Message):
     sudo_users = cfg.SUDO
@@ -121,9 +88,9 @@ async def change_channel_link(client: Client, message: Message):
         await message.reply_text(error_msg)
         await log_to_channel(error_msg)
 
-# Handle button press and change the link
+# Handle the button press and change the link
 @app.on_callback_query(filters.regex(r"^change_"))
-async def on_callback_query(client, callback_query: CallbackQuery):
+async def on_callback_query(client, callback_query):
     try:
         channel_id = int(callback_query.data.split("_")[1])
         channel = await user_app.get_chat(channel_id)
@@ -152,7 +119,7 @@ async def on_callback_query(client, callback_query: CallbackQuery):
         await callback_query.message.reply_text(error_msg)
         await log_to_channel(error_msg)
 
-# Infinite loop to change all channel usernames
+# Change all channel usernames in an infinite loop
 @app.on_message(filters.command("changeall"))
 async def change_all_usernames(client: Client, message: Message):
     global change_all_active
@@ -171,16 +138,36 @@ async def change_all_usernames(client: Client, message: Message):
                     new_username = f"{old_username[:-3]}{new_suffix}"
 
                     await user_app.set_chat_username(dialog.chat.id, new_username)
-                    await log_to_channel(f"✅ Channel link changed to: https://t.me/{new_username}")
+
+                    await log_to_channel(
+                        f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username}"
+                    )
 
                     log_channel_username_change(old_username, new_username, message.from_user.mention)
+
+                    # Create a new temporary channel with the old username
+                    new_channel = await user_app.create_channel(
+                        title="Temporary Channel",
+                        description="Temporary channel for old username reuse"
+                    )
+                    await user_app.set_chat_username(new_channel.id, old_username)
+
+                    add_temporary_channel(new_channel.id, old_username, message.from_user.mention)
+                    log_new_channel_creation(new_channel.id, old_username, message.from_user.mention)
+                    
+                    await log_to_channel(f"✅ Created temporary channel with username: https://t.me/{old_username}")
+
+                    await asyncio.sleep(10800)  # Wait 3 hours before deleting the channel
+                    await user_app.delete_channel(new_channel.id)
+                    delete_temporary_channel(new_channel.id)
+                    await log_to_channel(f"🗑️ Deleted temporary channel with ID: {new_channel.id}")
 
                 except Exception as e:
                     await log_to_channel(f"❌ Error: {e}")
 
-            await asyncio.sleep(3600)
+            await asyncio.sleep(3600)  # Wait 1 hour before changing the next channel
 
-# Stop the infinite loop
+# Stop the infinite loop of changeall command
 @app.on_message(filters.command("stopchangeall"))
 async def stop_change_all(client: Client, message: Message):
     global change_all_active
