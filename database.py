@@ -2,41 +2,68 @@ from pymongo import MongoClient
 from configs import cfg
 from datetime import datetime
 
-# Initialize MongoDB client
+# Connect to MongoDB
 client = MongoClient(cfg.MONGO_URI)
+db = client[cfg.MONGO_DB_NAME]
 
-# Database and collections
-db = client['main']
-channels = db['channels']
-temp_channels = db['temp_channels']
+# Collection for storing created channels and logs
+created_channels = db['created_channels']
+channel_logs = db['channel_logs']
 
 # Add a created channel to the database
-def add_created_channel(channel_id: int, old_username: str = None, new_username: str = None) -> None:
-    if not channels.find_one({"channel_id": channel_id}):
-        channels.insert_one({
-            "channel_id": channel_id,
-            "old_username": old_username,
-            "new_username": new_username,
-            "created_at": datetime.utcnow()
-        })
-
-# Get all created channels
-def get_all_created_channels() -> list:
-    return [channel['channel_id'] for channel in channels.find({})]
-
-# Add a temporary channel to the database
-def add_temp_channel(channel_id: int, old_username: str, delete_at: datetime) -> None:
-    temp_channels.insert_one({
-        "channel_id": channel_id,
-        "old_username": old_username,
-        "delete_at": delete_at,
-        "created_at": datetime.utcnow()
+def add_created_channel(channel_id: int, channel_name: str = None, created_by: str = None, username: str = None):
+    created_channels.insert_one({
+        'channel_id': channel_id,
+        'channel_name': channel_name,
+        'created_by': created_by,
+        'username': username,
+        'created_at': datetime.utcnow()
     })
 
-# Get all temporary channels scheduled for deletion
-def get_temp_channels_to_delete(current_time: datetime) -> list:
-    return list(temp_channels.find({"delete_at": {"$lte": current_time}}))
+# Get all created channels from the database
+def get_created_channels():
+    return list(created_channels.find())
 
-# Remove a temporary channel from the database
-def remove_temp_channel(channel_id: int) -> None:
-    temp_channels.delete_one({"channel_id": channel_id})
+# Delete a created channel from the database
+def delete_created_channel(channel_id: int):
+    created_channels.delete_one({'channel_id': channel_id})
+
+# Check if a channel exists in the database
+def channel_exists(channel_id: int) -> bool:
+    return created_channels.find_one({'channel_id': channel_id}) is not None
+
+# Store old and new usernames when the channel username changes
+def log_channel_username_change(old_username: str, new_username: str, changed_by: str):
+    channel_logs.insert_one({
+        'old_username': old_username,
+        'new_username': new_username,
+        'changed_by': changed_by,
+        'changed_at': datetime.utcnow()
+    })
+
+# Add temporary channel details to the database, including username
+def add_temporary_channel(channel_id: int, old_username: str, created_by: str):
+    created_channels.insert_one({
+        'channel_id': channel_id,
+        'temporary': True,
+        'old_username': old_username,
+        'created_by': created_by,
+        'created_at': datetime.utcnow()
+    })
+
+# Get all temporary channels
+def get_temporary_channels():
+    return list(created_channels.find({'temporary': True}))
+
+# Delete a temporary channel from the database
+def delete_temporary_channel(channel_id: int):
+    created_channels.delete_one({'channel_id': channel_id})
+
+# Log creation of a new channel with a specific username
+def log_new_channel_creation(channel_id: int, old_username: str, created_by: str):
+    channel_logs.insert_one({
+        'channel_id': channel_id,
+        'username': old_username,
+        'created_by': created_by,
+        'created_at': datetime.utcnow()
+    })
