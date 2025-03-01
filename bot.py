@@ -37,19 +37,23 @@ async def add_sudo(client: Client, message: Message):
         return
     
     user_id = message.reply_to_message.from_user.id
-    if not users.find_one({"user_id": user_id}):
-        users.insert_one({"user_id": user_id})
-        await message.reply_text("✅ User added as sudo.")
-    else:
+    
+    # Check if the user is already a sudo user
+    if users.find_one({"user_id": user_id}):
         await message.reply_text("✅ User is already a sudo user.")
+        return
+    
+    # Add the user to the sudo list
+    users.insert_one({"user_id": user_id})
+    await message.reply_text(f"✅ User {user_id} added as sudo.")
 
 # Create a private channel named "hi" (Only for sudo users)
 @app.on_message(filters.command("create"))
 async def create_private_channel(client: Client, message: Message):
     user_id = message.from_user.id
 
-    # Check if the user is a sudo user
-    is_sudo = user_id == cfg.SUDO or users.find_one({"user_id": user_id})
+    # Check if the user is the main sudo or a stored sudo user
+    is_sudo = (user_id == cfg.SUDO) or bool(users.find_one({"user_id": user_id}))
 
     if not is_sudo:
         await message.reply_text("❌ You are not authorized to use this command.")
@@ -63,6 +67,7 @@ async def create_private_channel(client: Client, message: Message):
         await message.reply_text(f"✅ Private channel created: {chat.title}\nChannel ID: `{chat.id}`")
     except Exception as e:
         await message.reply_text(f"❌ Error: {e}")
+        print(f"❌ Error creating channel: {e}")
 
 # Start both clients
 print("Bot & User Session Running...")
