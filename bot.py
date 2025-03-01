@@ -81,6 +81,7 @@ async def change_channel_link(client: Client, message: Message):
         async for dialog in user_app.get_dialogs():
             if dialog.chat.type == "channel" and dialog.chat.username:
                 channels.append(dialog.chat)
+                await log_to_channel(f"✅ Found public channel: {dialog.chat.title} (Username: @{dialog.chat.username})")
 
         if not channels:
             await message.reply_text("❌ No public channels found in the session account.")
@@ -102,7 +103,6 @@ async def change_channel_link(client: Client, message: Message):
         error_msg = f"❌ Error while changing link: {e}"
         await message.reply_text(error_msg)
         await log_to_channel(error_msg)
-
 
 # Start both clients
 print("Bot & User Session Running...")
