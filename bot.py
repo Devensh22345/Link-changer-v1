@@ -1,12 +1,9 @@
-from pyrogram import Client, filters, errors
+from pyrogram import Client, filters
 from pyrogram.types import Message
-from pymongo import MongoClient
-from configs import cfg  
-
-# Connect to MongoDB
-mongo_client = MongoClient(cfg.MONGO_URI)
-db = mongo_client["EditBotDB"]
-users = db["users"]
+from pyrogram.errors import ChatAdminRequired, PeerIdInvalid, FloodWait
+from configs import cfg
+from database import is_sudo_user, add_sudo_user, get_all_sudo_users, add_created_channel
+import asyncio
 
 # Initialize Bot Client
 app = Client(
@@ -16,7 +13,7 @@ app = Client(
     bot_token=cfg.BOT_TOKEN
 )
 
-# Initialize User Client
+# Initialize User Client (for creating channels)
 user_app = Client(
     "user_session",
     api_id=cfg.API_ID,
@@ -24,50 +21,36 @@ user_app = Client(
     session_string=cfg.SESSION_STRING
 )
 
-# Start message
 @app.on_message(filters.command("start"))
 async def start_message(client: Client, message: Message):
-    await message.reply_text("Hello! Bot is running.")
+    await message.reply_text("Hello! Use /create to create a private channel.")
 
-# Add a user as a sudo
-@app.on_message(filters.command("addsudo") & filters.user(cfg.SUDO))
+@app.on_message(filters.command("addsudo"))
 async def add_sudo(client: Client, message: Message):
     if not message.reply_to_message:
         await message.reply_text("❌ Reply to a user to make them sudo!")
         return
     
     user_id = message.reply_to_message.from_user.id
-    
-    # Check if the user is already a sudo user
-    if users.find_one({"user_id": user_id}):
-        await message.reply_text("✅ User is already a sudo user.")
-        return
-    
-    # Add the user to the sudo list
-    users.insert_one({"user_id": user_id})
+    add_sudo_user(user_id)
     await message.reply_text(f"✅ User {user_id} added as sudo.")
 
-# Create a private channel named "hi" (Only for sudo users)
 @app.on_message(filters.command("create"))
-async def create_private_channel(client: Client, message: Message):
-    user_id = message.from_user.id
-
-    # Check if the user is the main sudo or a stored sudo user
-    is_sudo = (user_id == cfg.SUDO) or bool(users.find_one({"user_id": user_id}))
-
-    if not is_sudo:
-        await message.reply_text("❌ You are not authorized to use this command.")
+async def create_channel(client: Client, message: Message):
+    sudo_users = get_all_sudo_users()
+    if message.from_user.id not in sudo_users:
+        await message.reply_text("❌ Only sudo users can create channels.")
         return
-
+    
     try:
-        chat = await user_app.create_channel(
+        channel = await user_app.create_channel(
             title="hi",
-            description="This is a private channel.",
+            description="A private channel created by the bot."
         )
-        await message.reply_text(f"✅ Private channel created: {chat.title}\nChannel ID: `{chat.id}`")
+        add_created_channel(channel.id)
+        await message.reply_text(f"✅ Private channel created: {channel.title}")
     except Exception as e:
         await message.reply_text(f"❌ Error: {e}")
-        print(f"❌ Error creating channel: {e}")
 
 # Start both clients
 print("Bot & User Session Running...")
