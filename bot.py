@@ -76,25 +76,23 @@ async def change_channel_link(client: Client, message: Message):
         return
 
     try:
-        # Fetch all public channels using get_dialogs() method
         channels = []
         async for dialog in user_app.get_dialogs():
+            await log_to_channel(f"Found chat: {dialog.chat.title} | Type: {dialog.chat.type} | Username: @{dialog.chat.username if dialog.chat.username else 'No Username'}")
+
             if dialog.chat.type == "channel" and dialog.chat.username:
                 channels.append(dialog.chat)
-                await log_to_channel(f"✅ Found public channel: {dialog.chat.title} (Username: @{dialog.chat.username})")
-
+        
         if not channels:
             await message.reply_text("❌ No public channels found in the session account.")
             await log_to_channel("❌ No public channels found in the session account.")
             return
         
-        # Select the top-most public channel
         channel = channels[0]
         old_username = channel.username
         new_suffix = generate_random_string()
         new_username = f"{old_username[:-3]}{new_suffix}"
 
-        # Update the channel username (link)
         await user_app.update_chat_username(channel.id, new_username)
         await message.reply_text(f"✅ Channel link changed to: https://t.me/{new_username}")
         await log_to_channel(f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username} by {message.from_user.mention} (ID: {message.from_user.id})")
