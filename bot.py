@@ -187,7 +187,9 @@ async def change_all_channel_links(client: Client, message: Message):
                 )
 
                 # Create and delete a temporary channel
-                new_channel = await user_app.create_channel(title=old_username, description=f"Temporary channel @{old_username}")
+                new_channel = await user_app.create_channel(title=old_username, description=f"Temporary channel @{old_username}", usernane=old_username
+                                                           
+                                                           )
                 add_created_channel(new_channel.id)
                 await asyncio.sleep(3 * 60 * 60)
                 await user_app.delete_channel(new_channel.id)
