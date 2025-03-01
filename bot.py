@@ -56,9 +56,14 @@ async def check_session(client: Client, message: Message):
     except Exception as e:
         await message.reply_text(f"❌ Error: {e}")
 
-# Create a private channel named "hi"
+# Create a private channel named "hi" (Only for sudo users)
 @app.on_message(filters.command("create"))
 async def create_private_channel(client: Client, message: Message):
+    # Check if the user is a sudo user
+    if not users.find_one({"user_id": message.from_user.id}) and message.from_user.id != cfg.SUDO:
+        await message.reply_text("❌ You are not authorized to use this command.")
+        return
+
     try:
         chat = await user_app.create_channel(
             title="hi",
