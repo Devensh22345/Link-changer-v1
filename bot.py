@@ -138,14 +138,14 @@ async def approve(_, m: Message):
         await asyncio.sleep(60)
         await app.send_message(kk.id, text)
         # ⏳ Delay before sending text2
-        await asyncio.sleep(7200)
+        await asyncio.sleep(720)
         await app.send_animation(
             chat_id=kk.id, 
             animation=selected_gif,
             caption=gif_info["caption"], 
             reply_markup=gif_info["button"]
         )
-        await asyncio.sleep(72000)
+        await asyncio.sleep(1000)
         await app.send_animation(
             chat_id=kk.id, 
             animation=selected_gif,
