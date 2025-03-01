@@ -11,6 +11,7 @@ app = Client(
     api_id=cfg.API_ID,
     api_hash=cfg.API_HASH,
     bot_token=cfg.BOT_TOKEN
+    sudo=cfg.SUDO
 )
 
 # Initialize User Client (for creating channels)
@@ -37,7 +38,7 @@ async def add_sudo(client: Client, message: Message):
 
 @app.on_message(filters.command("create"))
 async def create_channel(client: Client, message: Message):
-    sudo_users = get_all_sudo_users()
+    sudo_users = sudo
     if message.from_user.id not in sudo_users:
         await message.reply_text("❌ Only sudo users can create channels.")
         return
