@@ -119,7 +119,9 @@ async def on_callback_query(client, callback_query):
         new_suffix = generate_random_string()
         new_username = f"{old_username[:-3]}{new_suffix}"
 
-        await user_app.update_chat_username(channel_id, new_username)
+        # Update the channel username using the correct method
+        await user_app.update_username(channel.username, new_username)
+
         await callback_query.message.reply_text(f"✅ Channel link changed to: https://t.me/{new_username}")
         
         await log_to_channel(
