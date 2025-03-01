@@ -7,6 +7,6 @@ class Config:
     SESSION_STRING = getenv("SESSION_STRING", "BQFP5NMAb8Grng6oPBGtvmy3oAwgFL8hxIlxK8ehWE-oFnTwtr29EvsVCyY_W-c5uaCVcORW2ccH39YHyFK__ghhHAdyM2cCTqcnn19BEchjROJ9HGIRSZMJ8ZOMsTUBWEVFV9NonW_eljo8b3g-x4SEmYRnmXmjqWNG15N1CguBMfnFRpkez5dg-eSsgEQLq9Rqj2Pf7YUqlxmhR_BQZKOmBrsDPIl85XSY5wGcX4_PYPvT8bfcuzCYZ_m1hjs67KS0-SYkC78eVRs_GAA6cCKUvKAkiIrpHZSJQjwrTReJjpRbPUkp-Hkj1IUroOr1q1pdboPwtSh-DUGJGwzs3ZHqKagj9AAAAAHObFO5AA")  
     SUDO = list(map(int, getenv("SUDO", "6872968794").split()))  
     MONGO_URI = getenv("MONGO_URI", "mongodb+srv://Test:Test@cluster0.pcpx5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")  
-    LOG_CHANNEL = int(os.getenv("LOG_CHANNEL", "-1002392460433"))  # Default is a placeholder
+    LOG_CHANNEL = int(getenv("LOG_CHANNEL", "-1002392460433"))  # Default is a placeholder
 
 cfg = Config()
