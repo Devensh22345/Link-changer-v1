@@ -43,24 +43,15 @@ async def add_sudo(client: Client, message: Message):
     else:
         await message.reply_text("✅ User is already a sudo user.")
 
-# Check if the user session is valid
-@app.on_message(filters.command("checksession"))
-async def check_session(client: Client, message: Message):
-    try:
-        chat = await user_app.get_chat(message.chat.id)
-        await message.reply_text(f"✅ User session is in the chat: {chat.title}")
-    except errors.PeerIdInvalid:
-        await message.reply_text("❌ Peer ID Invalid: The user session does not recognize this chat.")
-    except errors.ChatAdminRequired:
-        await message.reply_text("❌ Bot needs to be an admin to perform this action.")
-    except Exception as e:
-        await message.reply_text(f"❌ Error: {e}")
-
 # Create a private channel named "hi" (Only for sudo users)
 @app.on_message(filters.command("create"))
 async def create_private_channel(client: Client, message: Message):
+    user_id = message.from_user.id
+
     # Check if the user is a sudo user
-    if not users.find_one({"user_id": message.from_user.id}) and message.from_user.id != cfg.SUDO:
+    is_sudo = user_id == cfg.SUDO or users.find_one({"user_id": user_id})
+
+    if not is_sudo:
         await message.reply_text("❌ You are not authorized to use this command.")
         return
 
