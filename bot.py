@@ -1,8 +1,7 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message
-from pyrogram.errors import ChatAdminRequired, PeerIdInvalid, FloodWait
 from configs import cfg
-from database import is_sudo_user, add_sudo_user, get_all_sudo_users, add_created_channel
+from database import add_created_channel
 import asyncio
 
 # Initialize Bot Client
@@ -11,7 +10,6 @@ app = Client(
     api_id=cfg.API_ID,
     api_hash=cfg.API_HASH,
     bot_token=cfg.BOT_TOKEN
-    
 )
 
 # Initialize User Client (for creating channels)
@@ -25,16 +23,6 @@ user_app = Client(
 @app.on_message(filters.command("start"))
 async def start_message(client: Client, message: Message):
     await message.reply_text("Hello! Use /create to create a private channel.")
-
-@app.on_message(filters.command("addsudo"))
-async def add_sudo(client: Client, message: Message):
-    if not message.reply_to_message:
-        await message.reply_text("❌ Reply to a user to make them sudo!")
-        return
-    
-    user_id = message.reply_to_message.from_user.id
-    add_sudo_user(user_id)
-    await message.reply_text(f"✅ User {user_id} added as sudo.")
 
 @app.on_message(filters.command("create"))
 async def create_channel(client: Client, message: Message):
