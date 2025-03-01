@@ -60,7 +60,10 @@ async def check_session(client: Client, message: Message):
 @app.on_message(filters.command("create"))
 async def create_private_channel(client: Client, message: Message):
     try:
-        chat = await user_app.create_channel("hi", "This is a private channel.", megagroup=False)
+        chat = await user_app.create_channel(
+            title="hi",
+            description="This is a private channel.",
+        )
         await message.reply_text(f"✅ Private channel created: {chat.title}\nChannel ID: `{chat.id}`")
     except Exception as e:
         await message.reply_text(f"❌ Error: {e}")
