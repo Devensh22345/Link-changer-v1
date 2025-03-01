@@ -76,7 +76,7 @@ async def change_channel_link(client: Client, message: Message):
         return
 
     try:
-        # Fetch all channels from the session account asynchronously
+        # Fetch all public channels using get_dialogs() method
         channels = []
         async for dialog in user_app.get_dialogs():
             if dialog.chat.type == "channel" and dialog.chat.username:
@@ -95,7 +95,7 @@ async def change_channel_link(client: Client, message: Message):
         new_username = f"{old_username[:-3]}{new_suffix}"
 
         # Update the channel username (link)
-        await user_app.update_username(channel.id, new_username)
+        await user_app.update_chat_username(channel.id, new_username)
         await message.reply_text(f"✅ Channel link changed to: https://t.me/{new_username}")
         await log_to_channel(f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username} by {message.from_user.mention} (ID: {message.from_user.id})")
     
