@@ -20,15 +20,23 @@ user_app = Client(
     session_string=cfg.SESSION_STRING
 )
 
+LOG_CHANNEL = cfg.LOG_CHANNEL
+
+# Function to log messages in the log channel
+async def log_to_channel(text: str):
+    await app.send_message(LOG_CHANNEL, text)
+
 @app.on_message(filters.command("start"))
 async def start_message(client: Client, message: Message):
     await message.reply_text("Hello! Use /create to create a private channel.")
+    await log_to_channel(f"👋 Bot started by {message.from_user.mention} (ID: {message.from_user.id})")
 
 @app.on_message(filters.command("create"))
 async def create_channel(client: Client, message: Message):
     sudo_users = cfg.SUDO
     if message.from_user.id not in sudo_users:
         await message.reply_text("❌ Only sudo users can create channels.")
+        await log_to_channel(f"❌ Unauthorized attempt to create a channel by {message.from_user.mention} (ID: {message.from_user.id})")
         return
     
     try:
@@ -38,8 +46,11 @@ async def create_channel(client: Client, message: Message):
         )
         add_created_channel(channel.id)
         await message.reply_text(f"✅ Private channel created: {channel.title}")
+        await log_to_channel(f"✅ Channel '{channel.title}' created by {message.from_user.mention} (ID: {message.from_user.id})")
     except Exception as e:
-        await message.reply_text(f"❌ Error: {e}")
+        error_msg = f"❌ Error: {e}"
+        await message.reply_text(error_msg)
+        await log_to_channel(error_msg)
 
 # Start both clients
 print("Bot & User Session Running...")
