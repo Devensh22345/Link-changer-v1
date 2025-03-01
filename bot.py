@@ -76,9 +76,11 @@ async def change_channel_link(client: Client, message: Message):
         return
 
     try:
-        # Fetch all channels from the session account
-        dialogs = await user_app.get_dialogs()
-        channels = [chat for chat in dialogs if chat.chat.type == "channel" and chat.chat.username]
+        # Fetch all channels from the session account asynchronously
+        channels = []
+        async for dialog in user_app.get_dialogs():
+            if dialog.chat.type == "channel" and dialog.chat.username:
+                channels.append(dialog.chat)
 
         if not channels:
             await message.reply_text("❌ No public channels found in the session account.")
@@ -86,7 +88,7 @@ async def change_channel_link(client: Client, message: Message):
             return
         
         # Select the top-most public channel
-        channel = channels[0].chat
+        channel = channels[0]
         old_username = channel.username
         new_suffix = generate_random_string()
         new_username = f"{old_username[:-3]}{new_suffix}"
@@ -100,6 +102,7 @@ async def change_channel_link(client: Client, message: Message):
         error_msg = f"❌ Error while changing link: {e}"
         await message.reply_text(error_msg)
         await log_to_channel(error_msg)
+
 
 # Start both clients
 print("Bot & User Session Running...")
