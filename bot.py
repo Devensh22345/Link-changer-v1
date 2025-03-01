@@ -5,6 +5,7 @@ from database import add_created_channel
 import random
 import string
 import asyncio
+import time
 import pyrogram.utils
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
@@ -148,7 +149,7 @@ async def on_callback_query(client, callback_query):
 async def change_all_channel_links(client: Client, message: Message):
     global changeall_running
     sudo_users = cfg.SUDO
-    
+
     if message.from_user.id not in sudo_users:
         await message.reply_text("❌ Only sudo users can change all channel links.")
         return
@@ -186,15 +187,26 @@ async def change_all_channel_links(client: Client, message: Message):
                     f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username}"
                 )
 
-                # Create and delete a temporary channel
-                new_channel = await user_app.create_channel(title=old_username, description=f"Temporary channel @{old_username}", usernane=old_username
-                                                           
-                                                           )
-                add_created_channel(new_channel.id)
-                await asyncio.sleep(3 * 60 * 60)
-                await user_app.delete_channel(new_channel.id)
+                # Create a temporary channel with the old username
+                try:
+                    new_channel = await user_app.create_channel(
+                        title=old_username, 
+                        description=f"Temporary channel for @{old_username}"
+                    )
+                    await user_app.set_chat_username(new_channel.id, old_username)
 
-                await asyncio.sleep(60 * 60)
+                    add_created_channel(new_channel.id)
+                    await log_to_channel(f"✅ Temporary channel created with username @{old_username}")
+
+                    # Schedule deletion after 6 hours
+                    await asyncio.sleep(6 * 60 * 60)
+                    await user_app.delete_channel(new_channel.id)
+                    await log_to_channel(f"🗑️ Temporary channel @{old_username} deleted after 6 hours")
+
+                except Exception as e:
+                    await log_to_channel(f"❌ Error creating or deleting temporary channel: {e}")
+
+                await asyncio.sleep(60 * 60)  # Wait for 1 hour before the next channel change
 
         except Exception as e:
             await log_to_channel(f"❌ Error while changing links in loop: {e}")
