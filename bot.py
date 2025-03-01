@@ -54,6 +54,29 @@ async def start_message(client: Client, message: Message):
     await message.reply_text("Hello! Use /create to create a private channel.\nUse /change1 to change a channel link.\nUse /changeall to change all channel usernames.")
     await log_to_channel(f"👋 Bot started by {message.from_user.mention} (ID: {message.from_user.id})")
 
+
+# Create a private channel
+@app.on_message(filters.command("create"))
+async def create_channel(client: Client, message: Message):
+    sudo_users = cfg.SUDO
+    if message.from_user.id not in sudo_users:
+        await message.reply_text("❌ Only sudo users can create channels.")
+        await log_to_channel(f"❌ Unauthorized attempt to create a channel by {message.from_user.mention} (ID: {message.from_user.id})")
+        return
+        
+    try:
+        channel = await user_app.create_channel(
+            title="hi",
+            description="A private channel created by the bot."
+        )
+        add_created_channel(channel.id)
+        await message.reply_text(f"✅ Private channel created: {channel.title}")
+        await log_to_channel(f"✅ Channel '{channel.title}' created by {message.from_user.mention} (ID: {message.from_user.id})")
+    except Exception as e:
+        error_msg = f"❌ Error: {e}"
+        await message.reply_text(error_msg)
+        await log_to_channel(error_msg)
+
 # Change the channel link for channels with a username
 @app.on_message(filters.command("change1"))
 async def change_channel_link(client: Client, message: Message):
