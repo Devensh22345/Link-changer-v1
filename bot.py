@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from pyrogram.types import Message
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from configs import cfg
 from database import add_created_channel
 import random
@@ -41,7 +41,7 @@ def generate_random_string():
 # Start message
 @app.on_message(filters.command("start"))
 async def start_message(client: Client, message: Message):
-    await message.reply_text("Hello! Use /create to create a private channel.\nUse /change1 to change a public channel link.")
+    await message.reply_text("Hello! Use /create to create a private channel.\nUse /change1 to change a channel link.")
     await log_to_channel(f"👋 Bot started by {message.from_user.mention} (ID: {message.from_user.id})")
 
 # Create a private channel
@@ -66,7 +66,7 @@ async def create_channel(client: Client, message: Message):
         await message.reply_text(error_msg)
         await log_to_channel(error_msg)
 
-# Change the last 3 characters of the public channel link
+# Change the channel link for channels with a username
 @app.on_message(filters.command("change1"))
 async def change_channel_link(client: Client, message: Message):
     sudo_users = cfg.SUDO
@@ -80,26 +80,56 @@ async def change_channel_link(client: Client, message: Message):
         async for dialog in user_app.get_dialogs():
             await log_to_channel(f"Found chat: {dialog.chat.title} | Type: {dialog.chat.type} | Username: @{dialog.chat.username if dialog.chat.username else 'No Username'}")
 
-            if dialog.chat.type == "channel" and dialog.chat.username:
+            # Check if the chat has a valid username
+            if dialog.chat.username:
                 channels.append(dialog.chat)
         
         if not channels:
-            await message.reply_text("❌ No public channels found in the session account.")
-            await log_to_channel("❌ No public channels found in the session account.")
+            await message.reply_text("❌ No channels with a username found in the session account.")
+            await log_to_channel("❌ No channels with a username found in the session account.")
             return
-        
-        channel = channels[0]
+
+        # Display available channels as inline buttons
+        buttons = [
+            [InlineKeyboardButton(text=channel.title, callback_data=f"change_{channel.id}")]
+            for channel in channels
+        ]
+        await message.reply_text(
+            "Select a channel to change its link:",
+            reply_markup=InlineKeyboardMarkup(buttons)
+        )
+
+    except Exception as e:
+        error_msg = f"❌ Error while fetching channels: {e}"
+        await message.reply_text(error_msg)
+        await log_to_channel(error_msg)
+
+# Handle the button press and change the link
+@app.on_callback_query(filters.regex(r"^change_"))
+async def on_callback_query(client, callback_query):
+    try:
+        channel_id = int(callback_query.data.split("_")[1])
+        channel = await user_app.get_chat(channel_id)
+
+        if not channel.username:
+            await callback_query.answer("❌ This channel does not have a username!", show_alert=True)
+            return
+
         old_username = channel.username
         new_suffix = generate_random_string()
         new_username = f"{old_username[:-3]}{new_suffix}"
 
-        await user_app.update_chat_username(channel.id, new_username)
-        await message.reply_text(f"✅ Channel link changed to: https://t.me/{new_username}")
-        await log_to_channel(f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username} by {message.from_user.mention} (ID: {message.from_user.id})")
-    
+        await user_app.update_chat_username(channel_id, new_username)
+        await callback_query.message.reply_text(f"✅ Channel link changed to: https://t.me/{new_username}")
+        
+        await log_to_channel(
+            f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username} "
+            f"by {callback_query.from_user.mention} (ID: {callback_query.from_user.id})"
+        )
+
     except Exception as e:
         error_msg = f"❌ Error while changing link: {e}"
-        await message.reply_text(error_msg)
+        await callback_query.message.reply_text(error_msg)
         await log_to_channel(error_msg)
 
 # Start both clients
