@@ -3,7 +3,9 @@ from pyrogram.types import Message
 from configs import cfg
 from database import add_created_channel
 import asyncio
+import pyrogram.utils
 
+pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
 # Initialize Bot Client
 app = Client(
     "bot",
