@@ -1,10 +1,13 @@
-from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
-from pyrogram import filters, Client, errors, enums
-from pyrogram.errors import UserNotParticipant
-from pyrogram.errors.exceptions.flood_420 import FloodWait
-from database import add_user, add_group, all_users, all_groups, users, remove_user
-from configs import cfg 
-import random, asyncio
+from pyrogram import Client, filters, enums
+from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.errors import FloodWait, UserIsBlocked, InputUserDeactivated
+from database import (
+    add_user, remove_user, add_group, all_users, all_groups, 
+    add_sudo_user, remove_sudo_user, is_sudo_user, get_sudo_users, 
+    authorize_user, unauthorize_user, is_authorized_user
+)
+from configs import cfg
+import asyncio
 
 app = Client(
     "approver",
@@ -13,177 +16,159 @@ app = Client(
     bot_token=cfg.BOT_TOKEN
 )
 
-gif = [
-    'https://envs.sh/E-c.mp4',
-    'https://envs.sh/E-c.mp4'
-]
+LOG_CHANNEL = cfg.LOG_CHANNEL
 
-txt = ['hello']
-txt1 = ['**𝐇𝐞𝐥𝐥𝐨 𝐈 𝐚𝐦 𝐚 𝐀𝐧𝐢𝐦𝐞 𝐏𝐫𝐨𝐯𝐢𝐝𝐞𝐫 𝐁𝐨𝐭 𝐛𝐲 [@DK_ANIMES]**']
-txt2 = [
-    '<b><blockquote> 𝐂𝐥𝐢𝐜𝐤 𝐇𝐞𝐫𝐞 𝐭𝐨 𝐆𝐞𝐭 𝐀𝐧𝐢𝐦𝐞 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢 \n𝐉𝐮𝐬𝐭 𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 👇👇 </blockquote>\n /START</b>'
-]
-
-@app.on_chat_join_request(filters.group | filters.channel & ~filters.private)
-async def approve(_, m: Message):
-    op = m.chat
-    kk = m.from_user
-    try:
-        add_group(m.chat.id)
-        print(f"Received join request from {kk.id} in {op.id}")
-
-        # Image URL
-        img = "https://envs.sh/elk.jpg"
-
-        # Inline Keyboard
-        keyboard = InlineKeyboardMarkup(
-            [
-                [InlineKeyboardButton("𝐂𝐥𝐢𝐜𝐤 𝐡𝐞𝐫𝐞 𝐓𝐨 𝐖𝐚𝐭𝐜𝐡/𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢 👀", url="https://t.me/leveling_solo_robot?start=hi")],
-                [InlineKeyboardButton("𝐍𝐞𝐰 𝐚𝐧𝐢𝐦𝐞 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢", url="https://t.me/leveling_solo_robot?start=hi")],
-            ]
-        )
-
-        text1 = random.choice(txt1)
-        text2 = random.choice(txt2)
-
-        await app.send_message(kk.id, text1)
-        await app.send_message(kk.id, text2)
-        await app.send_photo(
-            kk.id,
-            img,
-            caption="<b><blockquote>𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 𝐁𝐞𝐥𝐨𝐰 𝐁𝐮𝐭𝐭𝐨𝐧 𝐓𝐨 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐘𝐨𝐮𝐫 𝐄𝐩𝐢𝐬𝐨𝐝𝐞 👇👇👇👇</blockquote></b>",
-            reply_markup=keyboard
-        )
-
-        add_user(kk.id)
-
-    except errors.PeerIdInvalid:
-        print("User hasn't started the bot yet.")
-    except Exception as err:
-        print(f"Error: {err}")
-
-
-
+# Start Command
 @app.on_message(filters.command("start"))
 async def start(_, m: Message):
-    try:
-        user = m.from_user
-        log_msg = (
-            f"📢 **New User Started Bot**\n\n"
-            f"👤 Name: [{user.first_name}](tg://user?id={user.id})\n"
-            f"🆔 User ID: `{user.id}`\n"
-            f"🌍 Username: @{user.username if user.username else 'None'}"
-        )
-        await app.send_message(cfg.LOG_CHANNEL, log_msg)
+    user = m.from_user
+    await app.send_message(LOG_CHANNEL, f"📢 **User Started Bot:** {user.first_name} (`{user.id}`)")
+    
+    keyboard = InlineKeyboardMarkup(
+        [[InlineKeyboardButton("Click Here", url="https://t.me/yourbot?start=start")]]
+    )
 
-        if m.chat.type == enums.ChatType.PRIVATE:
-            keyboard = InlineKeyboardMarkup(
-                [
-                    [InlineKeyboardButton("𝐀𝐧𝐢𝐦𝐞 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢", url="https://t.me/+2fsV4nzHvOs2OGNl")],
-                    [InlineKeyboardButton("𝐒𝐨𝐥𝐨 𝐋𝐞𝐯𝐞𝐥𝐢𝐧𝐠", url="https://t.me/+BYFsBvSb8eM5ZTc1")],
-                    [InlineKeyboardButton("𝐍𝐚𝐫𝐮𝐭𝐨 𝐬𝐡𝐢𝐩𝐩𝐮𝐝𝐞𝐧", url="https://t.me/+1Uqfi_EB69s3MDVl")],
-                    [InlineKeyboardButton("𝐒𝐚𝐤𝐚𝐦𝐨𝐭𝐨 𝐃𝐚𝐲𝐬", url="https://t.me/+KwzdqOCMeVVhMjJl")],
-                    [InlineKeyboardButton("𝐃𝐞𝐦𝐨𝐧 𝐬𝐥𝐚𝐲𝐞𝐫", url="https://t.me/+-Uh3oEL5NKBjMzZl")],
-                    [InlineKeyboardButton("𝐀𝐭𝐭𝐚𝐜𝐤 𝐨𝐧 𝐓𝐢𝐭𝐚𝐧", url="https://t.me/+bxKksmx6D5I5ZmNl")],
-                    [InlineKeyboardButton("𝐉𝐮𝐣𝐮𝐭𝐬𝐮 𝐤𝐚𝐢𝐬𝐞𝐧", url="https://t.me/+ItHYxazxuI1lOWZl")],
-                    [InlineKeyboardButton("𝐃𝐞𝐚𝐭𝐡 𝐧𝐨𝐭𝐞", url="https://t.me/+z3ZvLLx1ZRUwYzRl")]
-                ]
-            )
+    await m.reply_text(
+        "Hello! I am your bot.",
+        reply_markup=keyboard
+    )
+    add_user(user.id)
 
-            add_user(user.id)
-            await m.reply_photo(
-                "https://envs.sh/elk.jpg",
-                caption=f"<b><blockquote>𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 𝐓𝐡𝐞 𝐚𝐧𝐢𝐦𝐞 𝐍𝐚𝐦𝐞 \n𝐓𝐨 𝐃𝐢𝐫𝐞𝐜𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐘𝐨𝐮𝐫 𝐀𝐧𝐢𝐦𝐞.🔥🔥</blockquote></b>\n\n<b><blockquote>𝐈𝐅 𝐲𝐨𝐮 𝐃𝐢𝐝𝐧'𝐭 𝐅𝐢𝐧𝐝 𝐲𝐨𝐮𝐫 𝐚𝐧𝐢𝐦𝐞 𝐢𝐧 𝐓𝐡𝐢𝐬 𝐥𝐢𝐬𝐭 𝐓𝐡𝐞𝐧 𝐉𝐨𝐢𝐧 [@DKANIME_GROUP] 𝐚𝐧𝐝 𝐉𝐮𝐬𝐭 𝐓𝐲𝐩𝐞 𝐲𝐨𝐮𝐫 𝐚𝐧𝐢𝐦𝐞 𝐍𝐚𝐦𝐞 𝐇𝐞𝐫𝐞.</blockquote></b>",
-                reply_markup=keyboard
-            )
+# Add Sudo User
+@app.on_message(filters.command("addsudo") & filters.user(cfg.OWNER_ID))
+async def add_sudo(_, m: Message):
+    if not m.reply_to_message:
+        await m.reply_text("Reply to a user to add as sudo.")
+        return
+    
+    sudo_id = m.reply_to_message.from_user.id
+    add_sudo_user(sudo_id)
+    await m.reply_text(f"User `{sudo_id}` added as sudo.")
+    await app.send_message(LOG_CHANNEL, f"✅ **Sudo User Added:** `{sudo_id}`")
 
-        elif m.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
-            keyboard = InlineKeyboardMarkup(
-                [[InlineKeyboardButton("💁‍♂️ Start me private 💁‍♂️", url="https://t.me/leveling_solo_robot?start=hi")]]
-            )
-            add_group(m.chat.id)
-            await m.reply_text(f"**🦊 Hello {user.first_name}!\nWrite me in private for more details**", reply_markup=keyboard)
+# Remove Sudo User
+@app.on_message(filters.command("rsudo") & filters.user(cfg.OWNER_ID))
+async def remove_sudo(_, m: Message):
+    if not m.reply_to_message:
+        await m.reply_text("Reply to a user to remove from sudo.")
+        return
+    
+    sudo_id = m.reply_to_message.from_user.id
+    remove_sudo_user(sudo_id)
+    await m.reply_text(f"User `{sudo_id}` removed from sudo.")
+    await app.send_message(LOG_CHANNEL, f"❌ **Sudo User Removed:** `{sudo_id}`")
 
-        print(f"{user.first_name} started the bot!")
+# List Sudo Users
+@app.on_message(filters.command("sudo") & filters.user(cfg.OWNER_ID))
+async def list_sudo(_, m: Message):
+    sudo_list = get_sudo_users()
+    if sudo_list:
+        msg = "👑 **Sudo Users:**\n" + "\n".join([f"`{user}`" for user in sudo_list])
+    else:
+        msg = "No sudo users found."
+    
+    await m.reply_text(msg)
+    await app.send_message(LOG_CHANNEL, f"📋 **Sudo Users Listed:**\n{msg}")
 
-    except Exception as err:
-        print(f"Error: {err}")
+# Authorize User
+@app.on_message(filters.command("auth") & (filters.user(cfg.OWNER_ID) | filters.user(get_sudo_users())))
+async def authorize(_, m: Message):
+    if not m.reply_to_message:
+        await m.reply_text("Reply to a user to authorize them.")
+        return
+    
+    user_id = m.reply_to_message.from_user.id
+    authorize_user(user_id)
+    await m.reply_text(f"User `{user_id}` authorized.")
+    await app.send_message(LOG_CHANNEL, f"🔑 **User Authorized:** `{user_id}`")
 
+# Unauthorize User
+@app.on_message(filters.command("unauth") & (filters.user(cfg.OWNER_ID) | filters.user(get_sudo_users())))
+async def unauthorize(_, m: Message):
+    if not m.reply_to_message:
+        await m.reply_text("Reply to a user to unauthorize them.")
+        return
+    
+    user_id = m.reply_to_message.from_user.id
+    unauthorize_user(user_id)
+    await m.reply_text(f"User `{user_id}` unauthorized.")
+    await app.send_message(LOG_CHANNEL, f"🚫 **User Unauthorized:** `{user_id}`")
 
+# List Authorized Users
+@app.on_message(filters.command("auths") & (filters.user(cfg.OWNER_ID) | filters.user(get_sudo_users())))
+async def list_auths(_, m: Message):
+    group_members = await app.get_chat_members(m.chat.id)
+    auth_list = [member.user.id for member in group_members if is_authorized_user(member.user.id)]
 
+    if auth_list:
+        msg = "✅ **Authorized Users:**\n" + "\n".join([f"`{user}`" for user in auth_list])
+    else:
+        msg = "No authorized users found in this group."
+    
+    await m.reply_text(msg)
+    await app.send_message(LOG_CHANNEL, f"📋 **Authorized Users Listed:**\n{msg}")
 
-@app.on_message(filters.command("users") & filters.user(cfg.SUDO))
-async def dbtool(_, m: Message):
-    xx = all_users()
-    x = all_groups()
-    tot = int(xx + x)
-    await m.reply_text(text=f"""
-🍀 Chats Stats 🍀
-🙋‍♂️ Users : `{xx}`
-👥 Groups : `{x}`
-🚧 Total users & groups : `{tot}` """)
-
-
-@app.on_message(filters.command("bcast") & filters.user(cfg.SUDO))
-async def bcast(_, m: Message):
-    allusers = users
-    lel = await m.reply_text("`⚡️ Processing...`")
-    success = 0
-    failed = 0
-    deactivated = 0
-    blocked = 0
-
-    for usrs in allusers.find():
+# Broadcast to All Users
+@app.on_message(filters.command("ucast") & filters.user(cfg.OWNER_ID))
+async def ucast(_, m: Message):
+    allusers = [user["user_id"] for user in users.find()]
+    success, failed = 0, 0
+    
+    for user_id in allusers:
         try:
-            userid = usrs["user_id"]
-            await m.reply_to_message.copy(int(userid))
+            await m.reply_to_message.copy(int(user_id))
             success += 1
-        except FloodWait as ex:
-            await asyncio.sleep(ex.value)
-            await m.reply_to_message.copy(int(userid))
-        except errors.InputUserDeactivated:
-            deactivated += 1
-            remove_user(userid)
-        except errors.UserIsBlocked:
-            blocked += 1
-        except Exception as e:
-            print(e)
+        except Exception:
             failed += 1
+    
+    await m.reply_text(f"✅ Success: {success}\n❌ Failed: {failed}")
+    await app.send_message(LOG_CHANNEL, f"📢 **Ucast:** Success `{success}`, Failed `{failed}`")
 
-    await lel.edit(f"✅Successfull to `{success}` users.\n❌ Faild to `{failed}` users.\n👾 Found `{blocked}` Blocked users \n👻 Found `{deactivated}` Deactivated users.")
-
-
-#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Broadcast Forward ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-@app.on_message(filters.command("fcast") & filters.user(cfg.SUDO))
-async def fcast(_, m : Message):
-    allusers = users
-    lel = await m.reply_text("`⚡️ Processing...`")
-    success = 0
-    failed = 0
-    deactivated = 0
-    blocked = 0
-    for usrs in allusers.find():
+# Broadcast to All Groups
+@app.on_message(filters.command("gcast") & filters.user(cfg.OWNER_ID))
+async def gcast(_, m: Message):
+    allgroups = [group["chat_id"] for group in groups.find()]
+    success, failed = 0, 0
+    
+    for chat_id in allgroups:
         try:
-            userid = usrs["user_id"]
-            #print(int(userid))
-            if m.command[0] == "fcast":
-                await m.reply_to_message.forward(int(userid))
-            success +=1
-        except FloodWait as ex:
-            await asyncio.sleep(ex.value)
-            if m.command[0] == "fcast":
-                await m.reply_to_message.forward(int(userid))
-        except errors.InputUserDeactivated:
-            deactivated +=1
-            remove_user(userid)
-        except errors.UserIsBlocked:
-            blocked +=1
-        except Exception as e:
-            print(e)
-            failed +=1
+            await m.reply_to_message.copy(int(chat_id))
+            success += 1
+        except Exception:
+            failed += 1
+    
+    await m.reply_text(f"✅ Success: {success}\n❌ Failed: {failed}")
+    await app.send_message(LOG_CHANNEL, f"📢 **Gcast:** Success `{success}`, Failed `{failed}`")
 
-    await lel.edit(f"✅Successfull to `{success}` users.\n❌ Faild to `{failed}` users.\n👾 Found `{blocked}` Blocked users \n👻 Found `{deactivated}` Deactivated users.")
+# User & Group Stats
+@app.on_message(filters.command("users"))
+async def users_stats(_, m: Message):
+    user_count = all_users()
+    group_count = all_groups()
+    total = user_count + group_count
 
-print("I'm Alive Now!")
+    msg = f"""
+    📊 **Bot Stats:**
+    👤 **Users:** `{user_count}`
+    👥 **Groups:** `{group_count}`
+    🌐 **Total:** `{total}`
+    """
+    await m.reply_text(msg)
+    await app.send_message(LOG_CHANNEL, f"📈 **Stats Command Used:**\n{msg}")
+
+# Delete Edited Messages
+@app.on_message(filters.edited & filters.group)
+async def delete_edited(_, m: Message):
+    user_id = m.from_user.id
+    if is_authorized_user(user_id) or is_sudo_user(user_id) or user_id == cfg.OWNER_ID:
+        return
+    
+    old_message = m.text or "Media Message"
+    await m.delete()
+    msg = f"[{m.from_user.mention}] your message '{old_message}' was deleted due to editing."
+    await m.chat.send_message(msg)
+    await app.send_message(LOG_CHANNEL, f"🗑 **Message Deleted:**\nUser: `{user_id}`\nMessage: `{old_message}`")
+
+# Bot Running
+print("🤖 Bot is running...")
 app.run()
