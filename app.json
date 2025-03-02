@@ -31,7 +31,7 @@
       "description": "Enter your Force Subscribe channel Username without @",
       "required": true
     },
-    "SUDO": {
+    "OWNER_ID": {
       "description": "Enter Bot Owners IDS",
       "required": true
     }
