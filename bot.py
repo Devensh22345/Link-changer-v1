@@ -6,6 +6,9 @@ from database import (
     add_auth, remove_auth, get_auth, 
     add_sudo, remove_sudo, get_sudo
 )
+import pyrogram.utils
+
+pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
 
 app = Client(
     "bot",
