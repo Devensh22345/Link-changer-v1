@@ -1,16 +1,14 @@
-from pyrogram import Client, filters, enums
-from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
-from pyrogram.errors import FloodWait, UserIsBlocked, InputUserDeactivated
-from database import (
-    add_user, remove_user, add_group, all_users, all_groups, 
-    add_sudo_user, remove_sudo_user, is_sudo_user, get_sudo_users, 
-    authorize_user, unauthorize_user, is_authorized_user
-)
+from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from configs import cfg
-import asyncio
+from database import (
+    add_user, add_group, all_users, all_groups, 
+    add_auth, remove_auth, get_auth, 
+    add_sudo, remove_sudo, get_sudo
+)
 
 app = Client(
-    "approver",
+    "bot",
     api_id=cfg.API_ID,
     api_hash=cfg.API_HASH,
     bot_token=cfg.BOT_TOKEN
@@ -19,172 +17,150 @@ app = Client(
 LOG_CHANNEL = cfg.LOG_CHANNEL
 
 # Start Command
-@app.on_message(filters.command("start"))
-async def start(_, m: Message):
-    user = m.from_user
-    await app.send_message(LOG_CHANNEL, f"📢 **User Started Bot:** {user.first_name} (`{user.id}`)")
-    
-    keyboard = InlineKeyboardMarkup(
-        [[InlineKeyboardButton("Click Here", url="https://t.me/yourbot?start=start")]]
+@app.on_message(filters.command("start") & filters.private)
+async def start_command(client, message):
+    add_user(message.from_user.id)
+    buttons = [[InlineKeyboardButton("Help", callback_data="help")]]
+    await message.reply_text(
+        "Hello!",
+        reply_markup=InlineKeyboardMarkup(buttons)
     )
+    await app.send_message(LOG_CHANNEL, f"User started bot: {message.from_user.mention} (ID: {message.from_user.id})")
 
-    await m.reply_text(
-        "Hello! I am your bot.",
-        reply_markup=keyboard
-    )
-    add_user(user.id)
+# Add Group to Database
+@app.on_message(filters.group)
+async def group_handler(client, message):
+    add_group(message.chat.id)
+    await app.send_message(LOG_CHANNEL, f"Bot added to group: {message.chat.title} (ID: {message.chat.id})")
 
-# Add Sudo User
-@app.on_message(filters.command("addsudo") & filters.user(cfg.OWNER_ID))
-async def add_sudo(_, m: Message):
-    if not m.reply_to_message:
-        await m.reply_text("Reply to a user to add as sudo.")
-        return
-    
-    sudo_id = m.reply_to_message.from_user.id
-    add_sudo_user(sudo_id)
-    await m.reply_text(f"User `{sudo_id}` added as sudo.")
-    await app.send_message(LOG_CHANNEL, f"✅ **Sudo User Added:** `{sudo_id}`")
-
-# Remove Sudo User
-@app.on_message(filters.command("rsudo") & filters.user(cfg.OWNER_ID))
-async def remove_sudo(_, m: Message):
-    if not m.reply_to_message:
-        await m.reply_text("Reply to a user to remove from sudo.")
-        return
-    
-    sudo_id = m.reply_to_message.from_user.id
-    remove_sudo_user(sudo_id)
-    await m.reply_text(f"User `{sudo_id}` removed from sudo.")
-    await app.send_message(LOG_CHANNEL, f"❌ **Sudo User Removed:** `{sudo_id}`")
-
-# List Sudo Users
-@app.on_message(filters.command("sudo") & filters.user(cfg.OWNER_ID))
-async def list_sudo(_, m: Message):
-    sudo_list = get_sudo_users()
-    if sudo_list:
-        msg = "👑 **Sudo Users:**\n" + "\n".join([f"`{user}`" for user in sudo_list])
-    else:
-        msg = "No sudo users found."
-    
-    await m.reply_text(msg)
-    await app.send_message(LOG_CHANNEL, f"📋 **Sudo Users Listed:**\n{msg}")
-
-# Authorize User
-@app.on_message(filters.command("auth") & (filters.user(cfg.OWNER_ID) | filters.user(get_sudo_users())))
-async def authorize(_, m: Message):
-    if not m.reply_to_message:
-        await m.reply_text("Reply to a user to authorize them.")
-        return
-    
-    user_id = m.reply_to_message.from_user.id
-    authorize_user(user_id)
-    await m.reply_text(f"User `{user_id}` authorized.")
-    await app.send_message(LOG_CHANNEL, f"🔑 **User Authorized:** `{user_id}`")
-
-# Unauthorize User
-@app.on_message(filters.command("unauth") & (filters.user(cfg.OWNER_ID) | filters.user(get_sudo_users())))
-async def unauthorize(_, m: Message):
-    if not m.reply_to_message:
-        await m.reply_text("Reply to a user to unauthorize them.")
-        return
-    
-    user_id = m.reply_to_message.from_user.id
-    unauthorize_user(user_id)
-    await m.reply_text(f"User `{user_id}` unauthorized.")
-    await app.send_message(LOG_CHANNEL, f"🚫 **User Unauthorized:** `{user_id}`")
-
-# List Authorized Users
-@app.on_message(filters.command("auths") & (filters.user(cfg.OWNER_ID) | filters.user(get_sudo_users())))
-async def list_auths(_, m: Message):
-    group_members = await app.get_chat_members(m.chat.id)
-    auth_list = [member.user.id for member in group_members if is_authorized_user(member.user.id)]
-
-    if auth_list:
-        msg = "✅ **Authorized Users:**\n" + "\n".join([f"`{user}`" for user in auth_list])
-    else:
-        msg = "No authorized users found in this group."
-    
-    await m.reply_text(msg)
-    await app.send_message(LOG_CHANNEL, f"📋 **Authorized Users Listed:**\n{msg}")
-
-# Broadcast to All Users
-@app.on_message(filters.command("ucast") & filters.user(cfg.OWNER_ID))
-async def ucast(_, m: Message):
-    allusers = [user["user_id"] for user in users.find()]
-    success, failed = 0, 0
-    
-    for user_id in allusers:
-        try:
-            await m.reply_to_message.copy(int(user_id))
-            success += 1
-        except Exception:
-            failed += 1
-    
-    await m.reply_text(f"✅ Success: {success}\n❌ Failed: {failed}")
-    await app.send_message(LOG_CHANNEL, f"📢 **Ucast:** Success `{success}`, Failed `{failed}`")
-
-# Broadcast to All Groups
+# Broadcast to Groups (/gcast)
 @app.on_message(filters.command("gcast") & filters.user(cfg.OWNER_ID))
-async def gcast(_, m: Message):
-    allgroups = [group["chat_id"] for group in groups.find()]
-    success, failed = 0, 0
-    
-    for chat_id in allgroups:
+async def gcast(client, message):
+    if not message.reply_to_message:
+        await message.reply_text("Reply to a message to broadcast in groups.")
+        return
+
+    msg = message.reply_to_message
+    sent = 0
+    for group_id in await all_groups():
         try:
-            await m.reply_to_message.copy(int(chat_id))
-            success += 1
-        except Exception:
-            failed += 1
-    
-    await m.reply_text(f"✅ Success: {success}\n❌ Failed: {failed}")
-    await app.send_message(LOG_CHANNEL, f"📢 **Gcast:** Success `{success}`, Failed `{failed}`")
+            await msg.copy(group_id['chat_id'])
+            sent += 1
+        except Exception as e:
+            print(f"Failed to send in group {group_id['chat_id']}: {e}")
+    await message.reply_text(f"Message sent to {sent} groups.")
+    await app.send_message(LOG_CHANNEL, f"Broadcast to {sent} groups by {message.from_user.mention}")
 
-# User & Group Stats
-@app.on_message(filters.command("users"))
-async def users_stats(_, m: Message):
-    user_count = all_users()
-    group_count = all_groups()
-    total = user_count + group_count
+# Broadcast to Users (/ucast)
+@app.on_message(filters.command("ucast") & filters.user(cfg.OWNER_ID))
+async def ucast(client, message):
+    if not message.reply_to_message:
+        await message.reply_text("Reply to a message to broadcast to users.")
+        return
 
-    msg = f"""
-    📊 **Bot Stats:**
-    👤 **Users:** `{user_count}`
-    👥 **Groups:** `{group_count}`
-    🌐 **Total:** `{total}`
-    """
-    await m.reply_text(msg)
-    await app.send_message(LOG_CHANNEL, f"📈 **Stats Command Used:**\n{msg}")
+    msg = message.reply_to_message
+    sent = 0
+    for user_id in await all_users():
+        try:
+            await msg.copy(user_id['user_id'])
+            sent += 1
+        except Exception as e:
+            print(f"Failed to send to user {user_id['user_id']}: {e}")
+    await message.reply_text(f"Message sent to {sent} users.")
+    await app.send_message(LOG_CHANNEL, f"Broadcast to {sent} users by {message.from_user.mention}")
 
-# Delete Edited Messages
-@app.on_edited_message(filters.group)
+# Command to see total groups and users (/users)
+@app.on_message(filters.command("users") & filters.user(cfg.OWNER_ID))
+async def users_command(client, message):
+    total_users = all_users()
+    total_groups = all_groups()
+    await message.reply_text(f"Total Users: {total_users}\nTotal Groups: {total_groups}")
+    await app.send_message(LOG_CHANNEL, f"Checked total users and groups: {message.from_user.mention}")
+
+# Add Sudo User (/addsudo)
+@app.on_message(filters.command("addsudo") & filters.user(cfg.OWNER_ID))
+async def add_sudo_command(client, message):
+    if len(message.command) < 2:
+        await message.reply_text("Usage: /addsudo <user_id>")
+        return
+
+    user_id = message.command[1]
+    add_sudo(user_id)
+    await message.reply_text(f"Added {user_id} as sudo user.")
+    await app.send_message(LOG_CHANNEL, f"Added sudo user: {user_id} by {message.from_user.mention}")
+
+# Remove Sudo User (/rsudo)
+@app.on_message(filters.command("rsudo") & filters.user(cfg.OWNER_ID))
+async def remove_sudo_command(client, message):
+    if len(message.command) < 2:
+        await message.reply_text("Usage: /rsudo <user_id>")
+        return
+
+    user_id = message.command[1]
+    remove_sudo(user_id)
+    await message.reply_text(f"Removed {user_id} from sudo users.")
+    await app.send_message(LOG_CHANNEL, f"Removed sudo user: {user_id} by {message.from_user.mention}")
+
+# Show Sudo Users (/sudo)
+@app.on_message(filters.command("sudo") & filters.user(cfg.OWNER_ID))
+async def sudo_command(client, message):
+    sudo_users = get_sudo()
+    await message.reply_text(f"Sudo Users: {', '.join(sudo_users) if sudo_users else 'No sudo users'}")
+
+# Authorize User in Group (/auth)
+@app.on_message(filters.command("auth") & filters.group)
+async def auth_command(client, message):
+    if message.from_user.id not in get_sudo() and message.from_user.id != cfg.OWNER_ID:
+        return
+
+    if len(message.command) < 2:
+        await message.reply_text("Usage: /auth <user_id>")
+        return
+
+    user_id = message.command[1]
+    add_auth(message.chat.id, user_id)
+    await message.reply_text(f"Authorized {user_id} in this group.")
+    await app.send_message(LOG_CHANNEL, f"Authorized {user_id} in group {message.chat.title}")
+
+# Unauthorize User in Group (/unauth)
+@app.on_message(filters.command("unauth") & filters.group)
+async def unauth_command(client, message):
+    if message.from_user.id not in get_sudo() and message.from_user.id != cfg.OWNER_ID:
+        return
+
+    if len(message.command) < 2:
+        await message.reply_text("Usage: /unauth <user_id>")
+        return
+
+    user_id = message.command[1]
+    remove_auth(message.chat.id, user_id)
+    await message.reply_text(f"Unauthorized {user_id} in this group.")
+    await app.send_message(LOG_CHANNEL, f"Unauthorized {user_id} in group {message.chat.title}")
+
+# Show Auth Users in Group (/auths)
+@app.on_message(filters.command("auths") & filters.group)
+async def auths_command(client, message):
+    auth_users = get_auth(message.chat.id)
+    await message.reply_text(f"Authorized Users: {', '.join(auth_users) if auth_users else 'No authorized users'}")
+
+# Handle Edited Messages
+@app.on_message(filters.group & filters.edited)
 async def handle_edited_message(client, message):
-    user_id = message.from_user.id
     chat_id = message.chat.id
-    original_message = message.text or message.caption
+    user_id = message.from_user.id
 
-    if not original_message:
+    if user_id == cfg.OWNER_ID or user_id in get_sudo() or str(user_id) in get_auth(chat_id):
         return
 
-    # Check if user is authorized
-    if user_id in get_auth(chat_id):
-        return
-
-    # Delete the edited message
+    original_text = message.text or message.caption or ""
     await message.delete()
+    await message.reply_text(f"[{message.from_user.mention}] Your message '{original_text}' was deleted.")
+    await app.send_message(LOG_CHANNEL, f"Deleted edited message in {message.chat.title} by {message.from_user.mention}")
 
-    # Notify the group about the deletion
-    await client.send_message(
-        chat_id,
-        f"[{message.from_user.mention}] your message ('{original_message}') has been deleted."
-    )
+# Error Handling
+@app.on_errors()
+async def error_handler(client, error):
+    await app.send_message(LOG_CHANNEL, f"Error occurred: {str(error)}")
 
-    # Log the deletion in the log channel
-    await client.send_message(
-        LOG_CHANNEL,
-        f"Deleted edited message from [{message.from_user.mention}] in chat {chat_id}.\nOriginal message: {original_message}"
-    )
-    
-# Bot Running
-print("🤖 Bot is running...")
+print("Bot is running...")
 app.run()
