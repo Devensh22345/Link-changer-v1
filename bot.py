@@ -159,16 +159,32 @@ async def users_stats(_, m: Message):
 # Delete Edited Messages
 @app.on_edited_message(filters.group)
 async def handle_edited_message(client, message):
-    user_id = m.from_user.id
-    if is_authorized_user(user_id) or is_sudo_user(user_id) or user_id == cfg.OWNER_ID:
-        return
-    
-    old_message = m.text or "Media Message"
-    await m.delete()
-    msg = f"[{m.from_user.mention}] your message '{old_message}' was deleted due to editing."
-    await m.chat.send_message(msg)
-    await app.send_message(LOG_CHANNEL, f"🗑 **Message Deleted:**\nUser: `{user_id}`\nMessage: `{old_message}`")
+    user_id = message.from_user.id
+    chat_id = message.chat.id
+    original_message = message.text or message.caption
 
+    if not original_message:
+        return
+
+    # Check if user is authorized
+    if user_id in get_auth(chat_id):
+        return
+
+    # Delete the edited message
+    await message.delete()
+
+    # Notify the group about the deletion
+    await client.send_message(
+        chat_id,
+        f"[{message.from_user.mention}] your message ('{original_message}') has been deleted."
+    )
+
+    # Log the deletion in the log channel
+    await client.send_message(
+        LOG_CHANNEL,
+        f"Deleted edited message from [{message.from_user.mention}] in chat {chat_id}.\nOriginal message: {original_message}"
+    )
+    
 # Bot Running
 print("🤖 Bot is running...")
 app.run()
