@@ -159,11 +159,12 @@ async def handle_edited_message(client, message):
         await message.delete()
         await message.reply_text(f"[{message.from_user.mention}] Your edited message was deleted.")
         await app.send_message(LOG_CHANNEL, f"Deleted edited message in {message.chat.title} by {message.from_user.mention}")
+# Handle Errors
+@app.on_error()
+async def error_handler(client, update, error):
+    print(f"Error: {error}")
+    await app.send_message(LOG_CHANNEL, f"Error: {error}")
 
-# Error Handling
-@app.on_errors()
-async def error_handler(client, error):
-    await app.send_message(LOG_CHANNEL, f"Error occurred: {str(error)}")
 
 print("Bot is running...")
 app.run()
