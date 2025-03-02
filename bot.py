@@ -145,18 +145,20 @@ async def auths_command(client, message):
 
 # Handle Edited Messages
 # Handle Edited Messages
-@app.on_message(filters.group & filters.edited)
+# Handle Edited Messages
+@app.on_message(filters.group)
 async def handle_edited_message(client, message):
-    chat_id = message.chat.id
-    user_id = message.from_user.id
+    if message.edit_date:  # Check if the message is edited
+        chat_id = message.chat.id
+        user_id = message.from_user.id
 
-    if user_id == cfg.OWNER_ID or user_id in get_sudo() or str(user_id) in get_auth(chat_id):
-        return
+        if user_id == cfg.OWNER_ID or user_id in get_sudo() or str(user_id) in get_auth(chat_id):
+            return
 
-    original_text = message.text or message.caption or ""
-    await message.delete()
-    await message.reply_text(f"[{message.from_user.mention}] Your message '{original_text}' was deleted.")
-    await app.send_message(LOG_CHANNEL, f"Deleted edited message in {message.chat.title} by {message.from_user.mention}")
+        original_text = message.text or message.caption or ""
+        await message.delete()
+        await message.reply_text(f"[{message.from_user.mention}] Your edited message was deleted.")
+        await app.send_message(LOG_CHANNEL, f"Deleted edited message in {message.chat.title} by {message.from_user.mention}")
 
 # Error Handling
 @app.on_errors()
