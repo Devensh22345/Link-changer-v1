@@ -149,23 +149,25 @@ async def auths_command(client, message):
 # Handle Edited Messages
 @app.on_message(filters.group & (filters.text | filters.caption))
 async def handle_edited_message(client, message):
-    if message.edit_date:  # Check if the message is edited
-        chat_id = message.chat.id
-        user_id = message.from_user.id
+    try:
+        if message.edit_date:  # Check if the message is edited
+            chat_id = message.chat.id
+            user_id = message.from_user.id
 
-        # Allow owner, sudo users, and authorized users to edit messages
-        if user_id == cfg.OWNER_ID or user_id in get_sudo() or str(user_id) in get_auth(chat_id):
-            return
+            # Allow owner, sudo users, and authorized users to edit messages
+            if user_id == cfg.OWNER_ID or user_id in get_sudo() or str(user_id) in get_auth(chat_id):
+                return
 
-        original_text = message.text or message.caption or ""
-        await message.delete()
+            await message.delete()
+            await message.reply_text(f"[{message.from_user.mention}] Your edited message was deleted.")
+            await client.send_message(
+                LOG_CHANNEL,
+                f"Deleted edited message in **{message.chat.title}** by [{message.from_user.mention}](tg://user?id={user_id})."
+            )
+    except Exception as e:
+        # Log the error to the log channel
+        await client.send_message(LOG_CHANNEL, f"Error: {str(e)}")
 
-        # Notify the user and log the deletion
-        await message.reply_text(f"[{message.from_user.mention}] Your edited message was deleted.")
-        await client.send_message(
-            LOG_CHANNEL,
-            f"Deleted edited message in **{message.chat.title}** by [{message.from_user.mention}](tg://user?id={user_id})."
-        )
 
 
 # Handle Errors
