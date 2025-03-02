@@ -144,7 +144,7 @@ async def auths_command(client, message):
     await message.reply_text(f"Authorized Users: {', '.join(auth_users) if auth_users else 'No authorized users'}")
 
 # Handle Edited Messages
-@app.on_message(filters.group & filters.edited)
+@app.on_message(filters.group & filters.update.edited_message)
 async def handle_edited_message(client, message):
     chat_id = message.chat.id
     user_id = message.from_user.id
