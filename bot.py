@@ -143,7 +143,15 @@ async def on_callback_query(client, callback_query):
         error_msg = f"❌ Error while changing link: {e}"
         await callback_query.message.reply_text(error_msg)
         await log_to_channel(error_msg)
-# Change all channels in a loop
+
+# Function to display a countdown timer in the log channel
+async def show_countdown(seconds: int):
+    while seconds > 0:
+        await log_to_channel(f"⏳ Next channel link change in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes...")
+        await asyncio.sleep(60 * 60)  # Update every hour
+        seconds -= 60 * 60
+
+# Change all channels in a sequential loop
 @app.on_message(filters.command("changeall"))
 async def change_all_channel_links(client: Client, message: Message):
     global changeall_running
@@ -188,22 +196,26 @@ async def change_all_channel_links(client: Client, message: Message):
 
                 # Create a temporary channel with the old username
                 try:
-                    temp_channel = await user_app.create_channel(
-                        title=old_username,
+                    new_channel = await user_app.create_channel(
+                        title=old_username, 
                         description=f"Temporary channel for @{old_username}"
                     )
-                    await user_app.set_chat_username(temp_channel.id, old_username)
+                    await user_app.set_chat_username(new_channel.id, old_username)
 
-                    add_created_channel(temp_channel.id)
+                    add_created_channel(new_channel.id)
                     await log_to_channel(f"✅ Temporary channel created with username @{old_username}")
 
                     # Schedule deletion after 5 hours
-                    asyncio.create_task(delete_temp_channel(temp_channel.id, old_username))
+                    asyncio.create_task(delete_temp_channel_after_delay(new_channel.id, old_username))
 
                 except Exception as e:
                     await log_to_channel(f"❌ Error creating temporary channel: {e}")
 
-                await asyncio.sleep(60 * 60)  # Wait for 1 hour before the next channel change
+                # Show countdown for the next change (1 hour)
+                await show_countdown(60 * 60)
+
+                # Wait for 1 hour before changing the next channel
+                await asyncio.sleep(60 * 60)
 
         except Exception as e:
             await log_to_channel(f"❌ Error while changing links in loop: {e}")
@@ -211,8 +223,8 @@ async def change_all_channel_links(client: Client, message: Message):
 
     await log_to_channel("🛑 The /changeall process was stopped.")
 
-# Function to delete the temporary channel after 5 hours
-async def delete_temp_channel(channel_id: int, username: str):
+# Delete temporary channel after a delay
+async def delete_temp_channel_after_delay(channel_id: int, username: str):
     await asyncio.sleep(5 * 60 * 60)  # Wait for 5 hours
     try:
         await user_app.delete_channel(channel_id)
@@ -232,5 +244,4 @@ async def stop_change_all(client: Client, message: Message):
 print("Bot & User Session Running...")
 user_app.start()
 app.run()
-
 
