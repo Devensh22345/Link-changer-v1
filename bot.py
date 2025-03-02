@@ -157,8 +157,8 @@ async def users_stats(_, m: Message):
     await app.send_message(LOG_CHANNEL, f"📈 **Stats Command Used:**\n{msg}")
 
 # Delete Edited Messages
-@app.on_message(filters.edited & filters.group)
-async def delete_edited(_, m: Message):
+@app.on_edited_message(filters.group)
+async def handle_edited_message(client, message):
     user_id = m.from_user.id
     if is_authorized_user(user_id) or is_sudo_user(user_id) or user_id == cfg.OWNER_ID:
         return
