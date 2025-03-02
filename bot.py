@@ -170,11 +170,6 @@ async def handle_edited_message(client, message):
 
 
 
-# Handle Errors
-@app.on_error()
-async def error_handler(client, update, error):
-    print(f"Error: {error}")
-    await app.send_message(LOG_CHANNEL, f"Error: {error}")
 
 
 print("Bot is running...")
