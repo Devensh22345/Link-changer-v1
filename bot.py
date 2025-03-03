@@ -144,12 +144,22 @@ async def on_callback_query(client, callback_query):
         await log_to_channel(error_msg)
 
 async def show_countdown(seconds: int):
-    message = await log_to_channel(f"⏳ Next channel link change in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes...")
+    message = await log_to_channel(f"⏳ Next channel link change in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes, {seconds % 60} seconds...")
     while seconds > 0:
-        await asyncio.sleep(2)  # Wait for 30 seconds
+        await asyncio.sleep(2)  # Update every second
         seconds -= 2
         try:
-            await message.edit_text(f"⏳ Next channel link change in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes...")
+            await message.edit_text(f"⏳ Next channel link change in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes, {seconds % 60} seconds...")
+        except Exception as e:
+            print(f"Failed to edit message: {e}")
+
+async def show_countdown1(seconds: int):
+    message = await log_to_channel(f"⏳ Next channel Delete in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes, {seconds % 60} seconds...")
+    while seconds > 0:
+        await asyncio.sleep(2)  # Update every second
+        seconds -= 2
+        try:
+            await message.edit_text(f"⏳ Next channel link change in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes, {seconds % 60} seconds...")
         except Exception as e:
             print(f"Failed to edit message: {e}")
 
@@ -210,7 +220,7 @@ async def change_all_channel_links(client: Client, message: Message):
                     add_created_channel(new_channel.id)
                     await asyncio.sleep(2)
                     await log_to_channel(f"✅ Temporary channel created with username @{old_username}")
-                    await show_countdown(4 * 60 * 60)
+                    await show_countdown1(4 * 60 * 60)
                     # Schedule deletion after 4 hours
                     asyncio.create_task(delete_temp_channel_after_delay(new_channel.id, old_username))
 
