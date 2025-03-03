@@ -146,8 +146,8 @@ async def on_callback_query(client, callback_query):
 async def show_countdown(seconds: int):
     message = await log_to_channel(f"⏳ Next channel link change in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes...")
     while seconds > 0:
-        await asyncio.sleep(30)  # Wait for 30 seconds
-        seconds -= 30
+        await asyncio.sleep(2)  # Wait for 30 seconds
+        seconds -= 2
         try:
             await message.edit_text(f"⏳ Next channel link change in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes...")
         except Exception as e:
