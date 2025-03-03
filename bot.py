@@ -229,3 +229,6 @@ async def stop_change_all(client: Client, message: Message):
     await asyncio.sleep(2)
     await log_to_channel("🛑 The /changeall process was stopped by "
                          f"{message.from_user.mention} (ID: {message.from_user.id})")
+
+user_app.start()
+app.run()
