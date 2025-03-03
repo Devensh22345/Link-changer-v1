@@ -5,7 +5,7 @@ class Config:
     API_HASH = getenv("API_HASH", "5c0ad7c48a86afac87630ba28b42560d")
     BOT_TOKEN = getenv("BOT_TOKEN", "6179730201:AAEn54xemcm4Fhafd4iVzg3xWq3I640ddZA")
     SUDO = list(map(int, getenv("SUDO", "6872968794").split()))
-    MONGO_URI = getenv("MONGO_URI", "mongodb+srv://Test:Test@cluster0.pcpx5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    MONGO_URL = getenv("MONGO_URI", "mongodb+srv://Test:Test@cluster0.pcpx5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
     LOG_CHANNEL = int(getenv("LOG_CHANNEL", "-1002413846440"))# Replace with your log channel ID
 
 cfg = Config()
