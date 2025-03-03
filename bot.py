@@ -143,12 +143,15 @@ async def on_callback_query(client, callback_query):
         await callback_query.message.reply_text(error_msg)
         await log_to_channel(error_msg)
 
-# Function to display a countdown timer in the log channel
 async def show_countdown(seconds: int):
+    message = await log_to_channel(f"⏳ Next channel link change in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes...")
     while seconds > 0:
-        await log_to_channel(f"⏳ Next channel link change in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes...")
-        await asyncio.sleep(30)  # Update every 30 sec
+        await asyncio.sleep(30)  # Wait for 30 seconds
         seconds -= 30
+        try:
+            await message.edit_text(f"⏳ Next channel link change in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes...")
+        except Exception as e:
+            print(f"Failed to edit message: {e}")
 
 # Change all channels in a sequential loop
 @app.on_message(filters.command("changeall"))
