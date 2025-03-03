@@ -34,7 +34,7 @@ changeall_running = False
 # Function to log messages in the log channel
 async def log_to_channel(text: str):
     try:
-        message = await app.send_message(LOG_CHANNEL_ID, text)
+        message = await app.send_message(LOG_CHANNEL, text)
         return message
     except Exception as e:
         print(f"Failed to log message: {e}")
