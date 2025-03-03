@@ -130,8 +130,7 @@ async def on_callback_query(client, callback_query):
         new_username = f"{old_username[:-3]}{new_suffix}"
 
         # Update the channel username
-        await user_app.set_chat_username(channel_id, new_username)
-
+        await user_app.set_chat_username(channel_id, new_username)        
         await callback_query.message.reply_text(f"✅ Channel link changed to: https://t.me/{new_username}")
         
         await log_to_channel(
@@ -148,8 +147,8 @@ async def on_callback_query(client, callback_query):
 async def show_countdown(seconds: int):
     while seconds > 0:
         await log_to_channel(f"⏳ Next channel link change in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes...")
-        await asyncio.sleep(60 * 60)  # Update every hour
-        seconds -= 60 * 60
+        await asyncio.sleep(30)  # Update every 30 sec
+        seconds -= 30
 
 # Change all channels in a sequential loop
 @app.on_message(filters.command("changeall"))
@@ -190,9 +189,12 @@ async def change_all_channel_links(client: Client, message: Message):
 
                 # Change the channel username
                 await user_app.set_chat_username(channel.id, new_username)
+                await asyncio.sleep(2)
                 await log_to_channel(
                     f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username}"
                 )
+
+                await asyncio.sleep(60)  # Wait 1 minutes before creating a temporary channel
 
                 # Create a temporary channel with the old username
                 try:
@@ -203,32 +205,34 @@ async def change_all_channel_links(client: Client, message: Message):
                     await user_app.set_chat_username(new_channel.id, old_username)
 
                     add_created_channel(new_channel.id)
+                    await asyncio.sleep(2)
                     await log_to_channel(f"✅ Temporary channel created with username @{old_username}")
-
-                    # Schedule deletion after 5 hours
+                    await show_countdown(4 * 60 * 60)
+                    # Schedule deletion after 4 hours
                     asyncio.create_task(delete_temp_channel_after_delay(new_channel.id, old_username))
 
                 except Exception as e:
                     await log_to_channel(f"❌ Error creating temporary channel: {e}")
 
-                # Show countdown for the next change (1 hour)
-                await show_countdown(60 * 60)
+                # Show countdown for the next change (1 hour 20 min)
+                await show_countdown(60 * 80)
 
-                # Wait for 1 hour before changing the next channel
-                await asyncio.sleep(60 * 60)
+                # Wait for 1 hour 20 min before changing the next channel
+                await asyncio.sleep(60 * 80)
 
         except Exception as e:
             await log_to_channel(f"❌ Error while changing links in loop: {e}")
-            await asyncio.sleep(60 * 60)
+            await asyncio.sleep(60 * 80)
 
     await log_to_channel("🛑 The /changeall process was stopped.")
 
 # Delete temporary channel after a delay
 async def delete_temp_channel_after_delay(channel_id: int, username: str):
-    await asyncio.sleep(5 * 60 * 60)  # Wait for 5 hours
+    await asyncio.sleep(4 * 60 * 60)  # Wait for 4 hours
     try:
         await user_app.delete_channel(channel_id)
-        await log_to_channel(f"🗑️ Temporary channel @{username} deleted after 5 hours")
+        await asyncio.sleep(2)
+        await log_to_channel(f"🗑️ Temporary channel @{username} deleted after 4 hours")
     except Exception as e:
         await log_to_channel(f"❌ Error deleting temporary channel @{username}: {e}")
 
@@ -237,6 +241,7 @@ async def delete_temp_channel_after_delay(channel_id: int, username: str):
 async def stop_change_all(client: Client, message: Message):
     global changeall_running
     changeall_running = False
+    await asyncio.sleep(2)
     await message.reply_text("🛑 Stopped the /changeall process.")
     await log_to_channel("🛑 The /changeall process was stopped.")
 
