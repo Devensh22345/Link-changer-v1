@@ -158,8 +158,8 @@ async def show_countdown(seconds: int):
         return
     
     while seconds > 0:
-        await asyncio.sleep(2)  # Update every second
-        seconds -= 2
+        await asyncio.sleep(20)  # Update every second
+        seconds -= 20
         try:
             await message.edit_text(
                 f"⏳ Next channel link change in {seconds // 3600} hours, "
@@ -180,8 +180,8 @@ async def show_countdown1(seconds: int):
         return
     
     while seconds > 0:
-        await asyncio.sleep(2)  # Update every second
-        seconds -= 2
+        await asyncio.sleep(20)  # Update every second
+        seconds -= 20
         try:
             await message.edit_text(
                 f"⏳ Next channel link change in {seconds // 3600} hours, "
