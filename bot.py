@@ -34,9 +34,13 @@ changeall_running = False
 # Function to log messages in the log channel
 async def log_to_channel(text: str):
     try:
-        await app.send_message(LOG_CHANNEL, text)
+        message = await app.send_message(LOG_CHANNEL_ID, text)
+        return message
     except Exception as e:
         print(f"Failed to log message: {e}")
+        return None
+        
+
 
 # Function to generate a random string of 3 characters (mix of letters and digits)
 def generate_random_string():
@@ -144,22 +148,45 @@ async def on_callback_query(client, callback_query):
         await log_to_channel(error_msg)
 
 async def show_countdown(seconds: int):
-    message = await log_to_channel(f"⏳ Next channel link change in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes, {seconds % 60} seconds...")
+    message = await log_to_channel(
+        f"⏳ Next channel link change in {seconds // 3600} hours, "
+        f"{(seconds % 3600) // 60} minutes, {seconds % 60} seconds..."
+    )
+    
+    if not message:
+        print("Failed to send initial message to log channel.")
+        return
+    
     while seconds > 0:
         await asyncio.sleep(2)  # Update every second
         seconds -= 2
         try:
-            await message.edit_text(f"⏳ Next channel link change in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes, {seconds % 60} seconds...")
+            await message.edit_text(
+                f"⏳ Next channel link change in {seconds // 3600} hours, "
+                f"{(seconds % 3600) // 60} minutes, {seconds % 60} seconds..."
+            )
         except Exception as e:
             print(f"Failed to edit message: {e}")
+            
 
 async def show_countdown1(seconds: int):
-    message = await log_to_channel(f"⏳ Next channel Delete in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes, {seconds % 60} seconds...")
+    message = await log_to_channel(
+        f"⏳ Next channel link change in {seconds // 3600} hours, "
+        f"{(seconds % 3600) // 60} minutes, {seconds % 60} seconds..."
+    )
+    
+    if not message:
+        print("Failed to send initial message to log channel.")
+        return
+    
     while seconds > 0:
         await asyncio.sleep(2)  # Update every second
         seconds -= 2
         try:
-            await message.edit_text(f"⏳ Next channel link change in {seconds // 3600} hours, {(seconds % 3600) // 60} minutes, {seconds % 60} seconds...")
+            await message.edit_text(
+                f"⏳ Next channel link change in {seconds // 3600} hours, "
+                f"{(seconds % 3600) // 60} minutes, {seconds % 60} seconds..."
+            )
         except Exception as e:
             print(f"Failed to edit message: {e}")
 
