@@ -196,7 +196,7 @@ async def change_all_channel_links(client: Client, message: Message):
                 await log_to_channel(
                     f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username}"
                 )
-
+                await show_countdown(60 * 80)
                 await asyncio.sleep(60)  # Wait 1 minutes before creating a temporary channel
 
                 # Create a temporary channel with the old username
@@ -215,10 +215,7 @@ async def change_all_channel_links(client: Client, message: Message):
                     asyncio.create_task(delete_temp_channel_after_delay(new_channel.id, old_username))
 
                 except Exception as e:
-                    await log_to_channel(f"❌ Error creating temporary channel: {e}")
-
-                # Show countdown for the next change (1 hour 20 min)
-                await show_countdown(60 * 80)
+                    await log_to_channel(f"❌ Error creating temporary channel: {e}")      
 
                 # Wait for 1 hour 20 min before changing the next channel
                 await asyncio.sleep(60 * 80)
