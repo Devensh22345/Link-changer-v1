@@ -33,6 +33,7 @@ changeall_running = False
 
 # Function to log messages in the log channel
 async def log_to_channel(text: str):
+    await asyncio.sleep(2)
     try:
         message = await app.send_message(LOG_CHANNEL, text)
         return message
@@ -45,7 +46,7 @@ async def log_to_channel(text: str):
 # Function to generate a random string of 3 characters (mix of letters and digits)
 def generate_random_string():
     characters = string.ascii_lowercase + string.digits
-    return ''.join(random.choices(characters, k=3))
+    return ''.join(random.choices(characters, k=2))
 
 # Start message
 @app.on_message(filters.command("start"))
@@ -171,7 +172,7 @@ async def show_countdown(seconds: int):
 
 async def show_countdown1(seconds: int):
     message = await log_to_channel(
-        f"⏳ Next channel link change in {seconds // 3600} hours, "
+        f"⏳ Next channel @{old_username} Delete in {seconds // 3600} hours, "
         f"{(seconds % 3600) // 60} minutes, {seconds % 60} seconds..."
     )
     
@@ -184,7 +185,7 @@ async def show_countdown1(seconds: int):
         seconds -= 20
         try:
             await message.edit_text(
-                f"⏳ Next channel link change in {seconds // 3600} hours, "
+                f"⏳ Next channel @{old_username} Delete in {seconds // 3600} hours, "
                 f"{(seconds % 3600) // 60} minutes, {seconds % 60} seconds..."
             )
         except Exception as e:
@@ -225,16 +226,15 @@ async def change_all_channel_links(client: Client, message: Message):
 
                 old_username = channel.username
                 new_suffix = generate_random_string()
-                new_username = f"{old_username[:-3]}{new_suffix}"
+                new_username = f"{old_username[:-2]}{new_suffix}"
 
                 # Change the channel username
                 await user_app.set_chat_username(channel.id, new_username)
-                await asyncio.sleep(2)
                 await log_to_channel(
                     f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username}"
                 )
                 await show_countdown(60 * 80)
-                await asyncio.sleep(60)  # Wait 1 minutes before creating a temporary channel
+                await asyncio.sleep(1 * 30)  # Wait 1 minutes before creating a temporary channel
 
                 # Create a temporary channel with the old username
                 try:
@@ -245,9 +245,7 @@ async def change_all_channel_links(client: Client, message: Message):
                     await user_app.set_chat_username(new_channel.id, old_username)
 
                     add_created_channel(new_channel.id)
-                    await asyncio.sleep(2)
-                    await log_to_channel(f"✅ Temporary channel created with username @{old_username}")
-                    await show_countdown1(4 * 60 * 60)
+                    await log_to_channel(f"✅ Temporary channel created with username @{old_username}")                
                     # Schedule deletion after 4 hours
                     asyncio.create_task(delete_temp_channel_after_delay(new_channel.id, old_username))
 
@@ -268,8 +266,8 @@ async def delete_temp_channel_after_delay(channel_id: int, username: str):
     await asyncio.sleep(4 * 60 * 60)  # Wait for 4 hours
     try:
         await user_app.delete_channel(channel_id)
-        await asyncio.sleep(2)
         await log_to_channel(f"🗑️ Temporary channel @{username} deleted after 4 hours")
+        await show_countdown1(4 * 60 * 60)
     except Exception as e:
         await log_to_channel(f"❌ Error deleting temporary channel @{username}: {e}")
 
@@ -278,7 +276,6 @@ async def delete_temp_channel_after_delay(channel_id: int, username: str):
 async def stop_change_all(client: Client, message: Message):
     global changeall_running
     changeall_running = False
-    await asyncio.sleep(2)
     await message.reply_text("🛑 Stopped the /changeall process.")
     await log_to_channel("🛑 The /changeall process was stopped.")
 
