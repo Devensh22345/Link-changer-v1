@@ -1,4 +1,4 @@
-from pymongo import MongoClient
+from pymongo import MongoClient, ASCENDING
 from configs import cfg
 from datetime import datetime
 
@@ -6,23 +6,35 @@ from datetime import datetime
 client = MongoClient(cfg.MONGO_URI)
 db = client[cfg.MONGO_DB_NAME]
 
-# Collection for storing created channels and logs
+# Collections for storing created channels, logs, and user sessions
 created_channels = db['created_channels']
 channel_logs = db['channel_logs']
+user_sessions = db['user_sessions']
+
+# Ensure indexes for faster queries and unique constraints
+created_channels.create_index([('channel_id', ASCENDING)], unique=True)
+channel_logs.create_index([('channel_id', ASCENDING)])
+user_sessions.create_index([('user_id', ASCENDING)], unique=True)
 
 # Add a created channel to the database
-def add_created_channel(channel_id: int, channel_name: str = None, created_by: str = None, username: str = None):
-    created_channels.insert_one({
-        'channel_id': channel_id,
-        'channel_name': channel_name,
-        'created_by': created_by,
-        'username': username,
-        'created_at': datetime.utcnow()
-    })
+def add_created_channel(channel_id: int, channel_name: str = None, created_by: str = None, username: str = None, temporary: bool = False):
+    created_channels.update_one(
+        {'channel_id': channel_id},
+        {
+            '$set': {
+                'channel_name': channel_name,
+                'created_by': created_by,
+                'username': username,
+                'temporary': temporary,
+                'created_at': datetime.utcnow()
+            }
+        },
+        upsert=True
+    )
 
 # Get all created channels from the database
-def get_created_channels():
-    return list(created_channels.find())
+def get_created_channels(temporary: bool = False):
+    return list(created_channels.find({'temporary': temporary}))
 
 # Delete a created channel from the database
 def delete_created_channel(channel_id: int):
@@ -43,21 +55,20 @@ def log_channel_username_change(old_username: str, new_username: str, changed_by
 
 # Add temporary channel details to the database, including username
 def add_temporary_channel(channel_id: int, old_username: str, created_by: str):
-    created_channels.insert_one({
-        'channel_id': channel_id,
-        'temporary': True,
-        'old_username': old_username,
-        'created_by': created_by,
-        'created_at': datetime.utcnow()
-    })
+    add_created_channel(
+        channel_id=channel_id,
+        username=old_username,
+        created_by=created_by,
+        temporary=True
+    )
 
 # Get all temporary channels
 def get_temporary_channels():
-    return list(created_channels.find({'temporary': True}))
+    return get_created_channels(temporary=True)
 
 # Delete a temporary channel from the database
 def delete_temporary_channel(channel_id: int):
-    created_channels.delete_one({'channel_id': channel_id})
+    delete_created_channel(channel_id)
 
 # Log creation of a new channel with a specific username
 def log_new_channel_creation(channel_id: int, old_username: str, created_by: str):
@@ -67,3 +78,24 @@ def log_new_channel_creation(channel_id: int, old_username: str, created_by: str
         'created_by': created_by,
         'created_at': datetime.utcnow()
     })
+
+# Add or update a user session in the database
+def set_session(user_id: int, session: str = None):
+    user_sessions.update_one(
+        {'user_id': user_id},
+        {'$set': {'session': session, 'updated_at': datetime.utcnow()}},
+        upsert=True
+    )
+
+# Retrieve a user session from the database
+def get_session(user_id: int) -> str:
+    user_data = user_sessions.find_one({'user_id': user_id})
+    return user_data.get('session') if user_data else None
+
+# Delete a user session (logout)
+def delete_session(user_id: int):
+    user_sessions.delete_one({'user_id': user_id})
+
+# Check if a session exists for the user
+def session_exists(user_id: int) -> bool:
+    return user_sessions.find_one({'user_id': user_id}) is not None
