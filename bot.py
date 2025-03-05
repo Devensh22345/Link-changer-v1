@@ -68,7 +68,7 @@ async def start_message(client: Client, message: Message):
 # LOGIN FUNCTION
 @app.on_message(filters.private & filters.command(["login"]))
 async def login(client: Client, message: Message):
-    user_data = await db.get_session(message.from_user.id)
+    user_data = await get_session(message.from_user.id)
     if user_data is not None:
         await message.reply("You are already logged in. Please /logout first before logging in again.")
         return
@@ -122,7 +122,7 @@ async def login(client: Client, message: Message):
 # LOGOUT FUNCTION
 @app.on_message(filters.command("logout"))
 async def logout(client: Client, message: Message):
-    user_data = get_session(message.from_user.id)
+    user_data = await get_session(message.from_user.id)
     if user_data:
         set_session(message.from_user.id, session=None)
         await message.reply("Logged out successfully.")
