@@ -97,6 +97,10 @@ def set_session(user_id: int, session: str = None):
 # Get session string for a specific user
 def get_session(user_id: int):
     return user_sessions.find_one({'user_id': user_id}) if user_sessions else None
+# Delete a session for a specific user (logout)
+def delete_session(user_id: int):
+    user_sessions.delete_one({'user_id': user_id})
+    
 
 # Check if a user is logged in by verifying session existence
 def is_user_logged_in(user_id: int) -> bool:
