@@ -5,7 +5,7 @@ class Config:
     API_ID = int(os.getenv("API_ID", "22207976"))
     API_HASH = os.getenv("API_HASH", "5c0ad7c48a86afac87630ba28b42560d")
     BOT_TOKEN = os.getenv("BOT_TOKEN", "7430337602:AAHes470_Jry8lghlL4_bo49SKZ5W-stBYo")
-    SESSION_STRING = os.getenv("SESSION_STRING", "BQGWsKgAOUCvuMygQHNNYKWp9QqCX_M_fv7mxyvX-zJO_bLiras4g1YMZaqowebr2pz_czND0z0Hr5jAlGf5Q5Jj6ocWuy0WCMuqh1hk89Yub3cB8marX2n21FsNAWWTz4exbZkQBVOlSBao-atMuxQ46mFsoj8Edk3xteNAABME1uxUeQmemWDDvREP_4xdFkorRHQwU5dwGRqq9VTmS5QLdK0mTcdxT0BDrP2VwpdHV5v-Bhc7mGnLumB8bQDPiednuKvdOmEHKJdXiew7Y8XsittCwSvryjvS7fBebostHNFYzAunXEB7qVQmF-XqgIe6VWMjxtiTJSzm34as_e1oUP84AQAAAAGh6PtbAA")
+    SESSION_STRING = os.getenv("SESSION_STRING", "BQFl9_kAagtNFawC2ym0B6bR_8Moll7RqysuGVoogDk3weX-GkoPJyRabNa8qEvrUPYzZW9BRx3lPOYVSHHSArBShKELoD-NpCurpNPheAaQlFxPB7ELXO5ybKPmswjxYpsGtPsDK7NqlH1herD8se5yQmhm0tEmko5aUnO5B86bcLurCgkjgPczXRQ1gq2MhuMC4OUxUb7L-w32pB46uNvETJt2gM5A7ic3ZFD-hrFA_wUdt7khlE1wOvYw-S0v5zHkYCsORn6iTAgFtejUyvjyYxlsKvA2vgtdtvBn2KfHpmy0f-E09YIusjGJ4Yg-j2GzQUvKA4wGaC_3fQpTHtJU2bxDtwAAAAHkzOnhAA")
 
     # Sudo Users (Admins)
     SUDO = list(map(int, os.getenv("SUDO", "6872968794").split()))
