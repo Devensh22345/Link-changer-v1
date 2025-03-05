@@ -11,10 +11,13 @@ from pyrogram.errors import (
 )
 from configs import cfg
 from database import (
-    add_created_channel,
+    db,  # Add this line to import db instance
     set_session,
     get_session,
-    is_user_logged_in
+    delete_session,
+    log_to_channel
+)
+
 )
 import random
 import string
