@@ -1,5 +1,6 @@
 from pymongo import MongoClient, errors
 from configs import cfg
+from pyrogram import Client
 from datetime import datetime
 
 # Initialize MongoDB connection
@@ -49,6 +50,13 @@ def log_channel_username_change(old_username: str, new_username: str, changed_by
             'changed_by': changed_by,
             'changed_at': datetime.utcnow()
         })
+
+
+# Function to log messages to the specified log channel
+async def log_to_channel(client: Client, message: str):
+    if cfg.LOG_CHANNEL:
+        await client.send_message(cfg.LOG_CHANNEL, message)
+        
 
 # Add temporary channel details to the database, including username
 def add_temporary_channel(channel_id: int, old_username: str, created_by: str):
