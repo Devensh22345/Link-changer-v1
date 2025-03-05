@@ -12,9 +12,9 @@ except errors.ServerSelectionTimeoutError as e:
     db = None
 
 # Collection references
-created_channels = db['created_channels'] if db else None
-channel_logs = db['channel_logs'] if db else None
-user_sessions = db['user_sessions'] if db else None
+created_channels = db['created_channels'] 
+channel_logs = db['channel_logs'] 
+user_sessions = db['user_sessions']
 
 # Add a created channel to the database
 def add_created_channel(channel_id: int, channel_name: str = None, created_by: str = None, username: str = None):
