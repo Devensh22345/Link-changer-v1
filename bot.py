@@ -10,7 +10,7 @@ from pyrogram.errors import (
     PasswordHashInvalid
 )
 from configs import cfg
-from plugins.database import (
+from database import (
     add_created_channel,
     set_session,
     get_session,
