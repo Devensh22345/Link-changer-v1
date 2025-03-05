@@ -17,8 +17,6 @@ from database import (
     delete_session,
     log_to_channel
 )
-
-)
 import random
 import string
 import asyncio
