@@ -33,15 +33,16 @@ changeall_running = False
 
 # Function to log messages in the log channel
 async def log_to_channel(text: str):
+    await asyncio.sleep(2)  # Delay log sending by 2 seconds
     try:
         await app.send_message(LOG_CHANNEL, text)
     except Exception as e:
         print(f"Failed to log message: {e}")
 
-# Function to generate a random string of 3 characters (mix of letters and digits)
+# Function to generate a random string of 2 characters (mix of letters and digits)
 def generate_random_string():
     characters = string.ascii_lowercase + string.digits
-    return ''.join(random.choices(characters, k=3))
+    return ''.join(random.choices(characters, k=2))
 
 # Start message
 @app.on_message(filters.command("start"))
@@ -178,7 +179,7 @@ async def change_all_channel_links(client: Client, message: Message):
 
                 old_username = channel.username
                 new_suffix = generate_random_string()
-                new_username = f"{old_username[:-3]}{new_suffix}"
+                new_username = f"{old_username[:-2]}{new_suffix}"
 
                 # Change the channel username
                 await user_app.set_chat_username(channel.id, new_username)
@@ -197,26 +198,26 @@ async def change_all_channel_links(client: Client, message: Message):
                     add_created_channel(temp_channel.id)
                     await log_to_channel(f"✅ Temporary channel created with username @{old_username}")
 
-                    # Schedule deletion after 5 hours
+                    # Schedule deletion after 3 hours
                     asyncio.create_task(delete_temp_channel(temp_channel.id, old_username))
 
                 except Exception as e:
                     await log_to_channel(f"❌ Error creating temporary channel: {e}")
 
-                await asyncio.sleep(60 * 60)  # Wait for 1 hour before the next channel change
+                await asyncio.sleep(60 * 90)  # Wait for 1.5 hour before the next channel change
 
         except Exception as e:
             await log_to_channel(f"❌ Error while changing links in loop: {e}")
-            await asyncio.sleep(60 * 60)
+            await asyncio.sleep(60 * 90)
 
     await log_to_channel("🛑 The /changeall process was stopped.")
 
-# Function to delete the temporary channel after 5 hours
+# Function to delete the temporary channel after 3 hours
 async def delete_temp_channel(channel_id: int, username: str):
-    await asyncio.sleep(5 * 60 * 60)  # Wait for 5 hours
+    await asyncio.sleep(3 * 60 * 60)  # Wait for 3 hours
     try:
         await user_app.delete_channel(channel_id)
-        await log_to_channel(f"🗑️ Temporary channel @{username} deleted after 5 hours")
+        await log_to_channel(f"🗑️ Temporary channel @{username} deleted after 3 hours")
     except Exception as e:
         await log_to_channel(f"❌ Error deleting temporary channel @{username}: {e}")
 
