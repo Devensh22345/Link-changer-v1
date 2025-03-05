@@ -67,16 +67,16 @@ async def start_message(client: Client, message: Message):
 # LOGIN FUNCTION
 @app.on_message(filters.private & filters.command(["login"]))
 async def login(client: Client, message: Message):
-    user_data = get_session(message.from_user.id)
+    user_data = await db.get_session(message.from_user.id)
     if user_data is not None:
         await message.reply("You are already logged in. Please /logout first before logging in again.")
         return
 
     user_id = message.from_user.id
-    phone_number_msg = await client.ask(
-        chat_id=user_id, 
-        text="Please send your phone number with the country code (e.g., +1234567890)."
-    )
+
+    # Ask for the phone number
+    await message.reply("Please send your phone number with the country code (e.g., +1234567890).")
+    phone_number_msg = await app.listen(user_id)
     phone_number = phone_number_msg.text
 
     new_client = Client(":memory:", cfg.API_ID, cfg.API_HASH)
@@ -84,11 +84,12 @@ async def login(client: Client, message: Message):
 
     try:
         code = await new_client.send_code(phone_number)
-        phone_code_msg = await client.ask(
-            user_id, 
-            "Please enter the OTP received on Telegram.\nExample: 1 2 3 4 5"
-        )
+
+        # Ask for the OTP code
+        await message.reply("Please enter the OTP received on Telegram (e.g., 12345).")
+        phone_code_msg = await app.listen(user_id)
         phone_code = phone_code_msg.text.replace(" ", "")
+
         await new_client.sign_in(phone_number, code.phone_code_hash, phone_code)
 
     except (PhoneNumberInvalid, PhoneCodeInvalid, PhoneCodeExpired) as e:
@@ -96,10 +97,9 @@ async def login(client: Client, message: Message):
         return
 
     except SessionPasswordNeeded:
-        password_msg = await client.ask(
-            user_id, 
-            "Your account has 2FA enabled. Please enter your password."
-        )
+        # Ask for the 2FA password
+        await message.reply("Your account has 2FA enabled. Please enter your password.")
+        password_msg = await app.listen(user_id)
         try:
             await new_client.check_password(password=password_msg.text)
         except PasswordHashInvalid:
@@ -109,13 +109,14 @@ async def login(client: Client, message: Message):
     string_session = await new_client.export_session_string()
     await new_client.disconnect()
 
-    if len(string_session) < SESSION_STRING_SIZE:
+    if len(string_session) < 351:
         await message.reply("Invalid session string.")
         return
 
-    set_session(user_id, session=string_session)
+    await db.set_session(user_id, session=string_session)
     await message.reply("Account logged in successfully.")
     await log_to_channel(f"✅ User {message.from_user.mention} logged in successfully.")
+
 
 # LOGOUT FUNCTION
 @app.on_message(filters.command("logout"))
