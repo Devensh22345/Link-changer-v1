@@ -71,4 +71,21 @@ def log_new_channel_creation(channel_id: int, old_username: str, created_by: str
 
 # Session Management Functions
 # Add or update a session string for a specific user
-def set_session(user_id: in
+def set_session(user_id: int, session: str = None):
+    if session:
+        user_sessions.update_one(
+            {'user_id': user_id},
+            {'$set': {'session': session, 'updated_at': datetime.utcnow()}},
+            upsert=True
+        )
+    else:
+        # If session is None, remove it from the database (logout)
+        user_sessions.delete_one({'user_id': user_id})
+
+# Get session string for a specific user
+def get_session(user_id: int):
+    return user_sessions.find_one({'user_id': user_id})
+
+# Check if a user is logged in by verifying session existence
+def is_user_logged_in(user_id: int) -> bool:
+    return get_session(user_id) is not None
