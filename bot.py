@@ -10,7 +10,12 @@ from pyrogram.errors import (
     PasswordHashInvalid
 )
 from configs import cfg
-from plugins.database import db, add_created_channel
+from plugins.database import (
+    add_created_channel,
+    set_session,
+    get_session,
+    is_user_logged_in
+)
 import random
 import string
 import asyncio
@@ -62,7 +67,7 @@ async def start_message(client: Client, message: Message):
 # LOGIN FUNCTION
 @app.on_message(filters.private & filters.command(["login"]))
 async def login(client: Client, message: Message):
-    user_data = await db.get_session(message.from_user.id)
+    user_data = get_session(message.from_user.id)
     if user_data is not None:
         await message.reply("You are already logged in. Please /logout first before logging in again.")
         return
@@ -108,16 +113,16 @@ async def login(client: Client, message: Message):
         await message.reply("Invalid session string.")
         return
 
-    await db.set_session(user_id, session=string_session)
+    set_session(user_id, session=string_session)
     await message.reply("Account logged in successfully.")
     await log_to_channel(f"✅ User {message.from_user.mention} logged in successfully.")
 
 # LOGOUT FUNCTION
 @app.on_message(filters.command("logout"))
 async def logout(client: Client, message: Message):
-    user_data = await db.get_session(message.from_user.id)
+    user_data = get_session(message.from_user.id)
     if user_data:
-        await db.set_session(message.from_user.id, session=None)
+        set_session(message.from_user.id, session=None)
         await message.reply("Logged out successfully.")
         await log_to_channel(f"✅ User {message.from_user.mention} logged out successfully.")
 
@@ -172,7 +177,7 @@ async def change_all_channel_links(client: Client, message: Message):
             await log_to_channel(f"Temporary channel created with @{old_username}")
             
             asyncio.create_task(delete_temp_channel(temp_channel.id, client_user))
-            await asyncio.sleep(3600)  # Wait 1 hour between changes
+            await asyncio.sleep(3600)
 
 # DELETE TEMPORARY CHANNEL AFTER 5 HOURS
 async def delete_temp_channel(channel_id: int, client_user: Client):
@@ -190,7 +195,7 @@ async def stop_change_all(client: Client, message: Message):
 
 # GET LOGGED IN CLIENT
 async def get_logged_in_client(user_id: int) -> Client:
-    user_data = await db.get_session(user_id)
+    user_data = get_session(user_id)
     if not user_data or not user_data['session']:
         raise Exception("User is not logged in.")
     session_string = user_data['session']
@@ -199,4 +204,5 @@ async def get_logged_in_client(user_id: int) -> Client:
     return client_user
 
 print("Bot Running...")
+
 app.run()
