@@ -4,8 +4,8 @@ class Config:
     # Basic Telegram Bot & User Client Configurations
     API_ID = int(os.getenv("API_ID", "22207976"))
     API_HASH = os.getenv("API_HASH", "5c0ad7c48a86afac87630ba28b42560d")
-    BOT_TOKEN = os.getenv("BOT_TOKEN", "7523630639:AAEKX-h5rGwGzCIn-8fcsCJW-CKcWuu640U")
-    SESSION_STRING = os.getenv("SESSION_STRING", "BQFP5NMAnuCnUZEXyZOTW_iPBNvBVkacf-VJ2Y2ZL0uo44um8_qZSkHb5itc0ddI8XUnihqhkGyMtkP9Hafx5g8V6KZSPCaxhPDJxdwMDiZATy5Zd-ur4romPpjlELbBV6UNGEoRj3pdzyx-w9Y_q8mRNWWOJr1L5FqNo_tH9ycfYGVzP1K5tVO8veM9iZMAg2D5DBLeeAbxraVpuT1TOW07rNwLdKfrx3jQgz8l3arCiNp1JajYl-P2RkUO6wFcsE3NAeZqyvg_70CgtmzSXVxn_Gyd5sZtLXiVyc2SiM3NYsm1cEDfs0WLz3MbGV49ap17pZwnDpXwRteNua95lhZK-tCmkQAAAAHObFO5AA")
+    BOT_TOKEN = os.getenv("BOT_TOKEN", "7686232626:AAFb8LoDG_Ioy-r3pGA9gfJejRm4I60HCnA")
+    SESSION_STRING = os.getenv("SESSION_STRING", "BQGwgsYAEiQJm6BHhAJHrNGVG2cbdS-H13UMhHX_OquKRwrUyfLKT-n4w8UJQXKcovSeZiGlwlNzoVAPt_5siZ71VwnTTvVwq8sbgGOD_dmP-0XLpZCFZPdp-0KzTc3T77XLx2NVpQn0qZL0-mGjHM9yKancIycwsYuZG4GV3SYitU0nfhWrJS_mnN_yjinYrLPrYlAShGw-aObsPXhE-cGX6Uc7ZVVv_xI5_nEPPJP8_QOv_jtwuBItioa36rMsHyTSiSwbTVwWBZAYK1X3SlV5lnhrjOPazUgsLkkoJivEfTC4pidUNakHyNwDNeawrHP5Y31X5U-VCWo_EeCLOP05H3taOAAAAAHTrS0mAA")
 
     # Sudo Users (Admins)
     SUDO = list(map(int, os.getenv("SUDO", "6872968794").split()))
