@@ -204,11 +204,11 @@ async def change_all_channel_links(client: Client, message: Message):
                 except Exception as e:
                     await log_to_channel(f"❌ Error creating temporary channel: {e}")
 
-                await asyncio.sleep(60 * 90)  # Wait for 1.5 hour before the next channel change
+                await asyncio.sleep(60 * 100)  # Wait for 1.5 hour before the next channel change
 
         except Exception as e:
             await log_to_channel(f"❌ Error while changing links in loop: {e}")
-            await asyncio.sleep(60 * 90)
+            await asyncio.sleep(60 * 100)
 
     await log_to_channel("🛑 The /changeall process was stopped.")
 
