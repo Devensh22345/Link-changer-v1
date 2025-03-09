@@ -187,6 +187,7 @@ async def change_all_channel_links(client: Client, message: Message):
                     f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username}"
                 )
 
+             await asyncio.sleep(60 * 90)
                 # Create a temporary channel with the old username
                 
 
