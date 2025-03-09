@@ -185,16 +185,17 @@ async def change_all_channel_links(client: Client, message: Message):
                 await user_app.set_chat_username(channel.id, new_username)
                 await log_to_channel(
                     f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username}"
-                )
-
+                )  
+                await asyncio.sleep(60 * 60)
                 # Create a temporary channel with the old username
-                  # Wait for 1.5 hour before the next channel change
+                
 
         except Exception as e:
             await log_to_channel(f"❌ Error while changing links in loop: {e}")
-            await asyncio.sleep(60 * 90)
+            await asyncio.sleep(60 * 30)
 
     await log_to_channel("🛑 The /changeall process was stopped.")
+
 
 # Stop the change all process
 @app.on_message(filters.command("stopchangeall"))
@@ -208,4 +209,3 @@ async def stop_change_all(client: Client, message: Message):
 print("Bot & User Session Running...")
 user_app.start()
 app.run()
-
