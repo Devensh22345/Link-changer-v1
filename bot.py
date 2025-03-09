@@ -188,23 +188,7 @@ async def change_all_channel_links(client: Client, message: Message):
                 )
 
                 # Create a temporary channel with the old username
-                try:
-                    temp_channel = await user_app.create_channel(
-                        title=old_username,
-                        description=f"Temporary channel for @{old_username}"
-                    )
-                    await user_app.set_chat_username(temp_channel.id, old_username)
-
-                    add_created_channel(temp_channel.id)
-                    await log_to_channel(f"✅ Temporary channel created with username @{old_username}")
-
-                    # Schedule deletion after 3 hours
-                    asyncio.create_task(delete_temp_channel(temp_channel.id, old_username))
-
-                except Exception as e:
-                    await log_to_channel(f"❌ Error creating temporary channel: {e}")
-
-                await asyncio.sleep(60 * 90)  # Wait for 1.5 hour before the next channel change
+                
 
         except Exception as e:
             await log_to_channel(f"❌ Error while changing links in loop: {e}")
@@ -212,14 +196,6 @@ async def change_all_channel_links(client: Client, message: Message):
 
     await log_to_channel("🛑 The /changeall process was stopped.")
 
-# Function to delete the temporary channel after 3 hours
-async def delete_temp_channel(channel_id: int, username: str):
-    await asyncio.sleep(3 * 60 * 60)  # Wait for 3 hours
-    try:
-        await user_app.delete_channel(channel_id)
-        await log_to_channel(f"🗑️ Temporary channel @{username} deleted after 3 hours")
-    except Exception as e:
-        await log_to_channel(f"❌ Error deleting temporary channel @{username}: {e}")
 
 # Stop the change all process
 @app.on_message(filters.command("stopchangeall"))
