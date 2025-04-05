@@ -1,7 +1,7 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from configs import cfg
-from database import add_created_channel
+from database import add_created_channel, save_session_string, get_session_string
 import random
 import string
 import asyncio
@@ -29,6 +29,7 @@ user_app = Client(
 LOG_CHANNEL = cfg.LOG_CHANNEL
 
 # Variable to control the infinite loop
+set_string_state = {}
 changeall_running = False
 
 # Function to log messages in the log channel
@@ -144,6 +145,31 @@ async def on_callback_query(client, callback_query):
         error_msg = f"❌ Error while changing link: {e}"
         await callback_query.message.reply_text(error_msg)
         await log_to_channel(error_msg)
+
+
+
+@app.on_message(filters.command("setstring"))
+async def set_session_command(client: Client, message: Message):
+    sudo_users = cfg.SUDO
+    if message.from_user.id not in sudo_users:
+        await message.reply_text("❌ Only sudo users can set session string.")
+        return
+
+    set_string_state[message.from_user.id] = True
+    await message.reply_text("✏️ Please send your **Pyrogram session string**.")
+
+@app.on_message(filters.text & filters.private)
+async def save_session_text(client: Client, message: Message):
+    user_id = message.from_user.id
+    if set_string_state.get(user_id):
+        session_string = message.text.strip()
+        await save_session_string(user_id, session_string)
+        set_string_state.pop(user_id)
+        await message.reply_text("✅ Your session string has been saved successfully.")
+        await log_to_channel(f"✅ Session string set by {message.from_user.mention} (ID: {user_id})")
+
+
+
 # Change all channels in a loop
 @app.on_message(filters.command("changeall"))
 async def change_all_channel_links(client: Client, message: Message):
