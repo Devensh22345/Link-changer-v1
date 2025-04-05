@@ -3,14 +3,19 @@ from configs import cfg
 from datetime import datetime
 from motor.motor_asyncio import AsyncIOMotorClient
 
-# Connect to MongoDB
+# Sync MongoDB client for normal operations
 client = MongoClient(cfg.MONGO_URI)
 db = client[cfg.MONGO_DB_NAME]
-session_collection = db["sessions"]
+session_collection = db["sessions"]  # Sync
 # Collections
 created_channels = db['created_channels']
 channel_logs = db['channel_logs']
-session_data = db['session_data']  # For storing session string
+session_data = db['session_data']
+
+# Async MongoDB client for async functions
+async_client = AsyncIOMotorClient(cfg.MONGO_URI)
+async_db = async_client[cfg.MONGO_DB_NAME]
+async_session_collection = async_db["sessions"]  # Async
 
 # Add a created channel to the database
 def add_created_channel(channel_id: int, channel_name: str = None, created_by: str = None, username: str = None):
@@ -72,15 +77,13 @@ def log_new_channel_creation(channel_id: int, old_username: str, created_by: str
 
 # --------- MAIN SESSION STRING FUNCTIONS ----------
 
-
 async def save_session_string(user_id: int, session_str: str):
-    await session_collection.update_one(
+    await async_session_collection.update_one(
         {"_id": user_id},
         {"$set": {"session": session_str}},
         upsert=True
     )
 
 async def get_session_string(user_id: int):
-    data = await session_collection.find_one({"_id": user_id})
+    data = await async_session_collection.find_one({"_id": user_id})
     return data["session"] if data else None
-    
