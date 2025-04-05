@@ -18,18 +18,23 @@ app = Client(
     bot_token=cfg.BOT_TOKEN
 )
 
-# Initialize User Client (for managing channels)
-user_session_string = asyncio.run(get_session_string("main"))
-if not user_session_string:
-    print("❌ No session string found in database. Use /setstring to add it.")
-    exit()
+user_app = None
 
-user_app = Client(
-    "user_session",
-    api_id=cfg.API_ID,
-    api_hash=cfg.API_HASH,
-    session_string=user_session_string
-)
+async def init_user_app():
+    global user_app
+    session_str = await get_session_string("main")
+    if session_str:
+        user_app = Client(
+            "user_session",
+            api_id=cfg.API_ID,
+            api_hash=cfg.API_HASH,
+            session_string=session_str
+        )
+        await user_app.start()
+        print("✅ User session started.")
+    else:
+        print("⚠️ No user session string found. Use /setstring to add one.")
+
 
 LOG_CHANNEL = cfg.LOG_CHANNEL
 
@@ -233,6 +238,7 @@ async def stop_change_all(client: Client, message: Message):
     await log_to_channel("🛑 The /changeall process was stopped.")
 
 # Start both clients
-print("Bot & User Session Running...")
-user_app.start()
+print("Bot Starting...")
+asyncio.get_event_loop().run_until_complete(init_user_app())
 app.run()
+
