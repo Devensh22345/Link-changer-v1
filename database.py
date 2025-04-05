@@ -1,11 +1,12 @@
 from pymongo import MongoClient
 from configs import cfg
 from datetime import datetime
+from motor.motor_asyncio import AsyncIOMotorClient
 
 # Connect to MongoDB
 client = MongoClient(cfg.MONGO_URI)
 db = client[cfg.MONGO_DB_NAME]
-
+session_collection = db["sessions"]
 # Collections
 created_channels = db['created_channels']
 channel_logs = db['channel_logs']
@@ -71,15 +72,15 @@ def log_new_channel_creation(channel_id: int, old_username: str, created_by: str
 
 # --------- MAIN SESSION STRING FUNCTIONS ----------
 
-# Save or update primary session string
-def set_session_string(session_string: str):
-    session_data.update_one(
-        {'_id': 'main_session'},
-        {'$set': {'session_string': session_string, 'updated_at': datetime.utcnow()}},
+
+async def save_session_string(user_id: int, session_str: str):
+    await session_collection.update_one(
+        {"_id": user_id},
+        {"$set": {"session": session_str}},
         upsert=True
     )
 
-# Get the primary session string
-def get_session_string():
-    data = session_data.find_one({'_id': 'main_session'})
-    return data.get('session_string') if data else None
+async def get_session_string(user_id: int):
+    data = await session_collection.find_one({"_id": user_id})
+    return data["session"] if data else None
+    
