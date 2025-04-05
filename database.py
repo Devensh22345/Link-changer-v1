@@ -6,9 +6,10 @@ from datetime import datetime
 client = MongoClient(cfg.MONGO_URI)
 db = client[cfg.MONGO_DB_NAME]
 
-# Collection for storing created channels and logs
+# Collections
 created_channels = db['created_channels']
 channel_logs = db['channel_logs']
+session_data = db['session_data']  # For storing session string
 
 # Add a created channel to the database
 def add_created_channel(channel_id: int, channel_name: str = None, created_by: str = None, username: str = None):
@@ -67,3 +68,18 @@ def log_new_channel_creation(channel_id: int, old_username: str, created_by: str
         'created_by': created_by,
         'created_at': datetime.utcnow()
     })
+
+# --------- MAIN SESSION STRING FUNCTIONS ----------
+
+# Save or update primary session string
+def set_session_string(session_string: str):
+    session_data.update_one(
+        {'_id': 'main_session'},
+        {'$set': {'session_string': session_string, 'updated_at': datetime.utcnow()}},
+        upsert=True
+    )
+
+# Get the primary session string
+def get_session_string():
+    data = session_data.find_one({'_id': 'main_session'})
+    return data.get('session_string') if data else None
