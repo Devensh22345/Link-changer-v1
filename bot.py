@@ -1,7 +1,7 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from configs import cfg
-from database import add_created_channel
+from database import save_session_string, get_session_string, add_created_channel
 import random
 import string
 import asyncio
@@ -19,17 +19,23 @@ app = Client(
 )
 
 # Initialize User Client (for managing channels)
+user_session_string = asyncio.run(get_session_string("main"))
+if not user_session_string:
+    print("❌ No session string found in database. Use /setstring to add it.")
+    exit()
+
 user_app = Client(
     "user_session",
     api_id=cfg.API_ID,
     api_hash=cfg.API_HASH,
-    session_string=cfg.SESSION_STRING
+    session_string=user_session_string
 )
 
 LOG_CHANNEL = cfg.LOG_CHANNEL
 
 # Variable to control the infinite loop
 changeall_running = False
+set_string_state = {}
 
 # Function to log messages in the log channel
 async def log_to_channel(text: str):
@@ -54,6 +60,27 @@ async def start_message(client: Client, message: Message):
         "Use /stopchangeall to stop the change all process."
     )
     await log_to_channel(f"👋 Bot started by {message.from_user.mention} (ID: {message.from_user.id})")
+
+@app.on_message(filters.command("setstring"))
+async def set_session_command(client: Client, message: Message):
+    sudo_users = cfg.SUDO
+    if message.from_user.id not in sudo_users:
+        await message.reply_text("❌ Only sudo users can set the session string.")
+        return
+
+    set_string_state[message.from_user.id] = True
+    await message.reply_text("✏️ Send your **Pyrogram session string** now.")
+
+@app.on_message(filters.private & filters.text)
+async def save_string_handler(client: Client, message: Message):
+    user_id = message.from_user.id
+    if set_string_state.get(user_id):
+        session_str = message.text.strip()
+        await save_session_string("main", session_str)
+        set_string_state.pop(user_id)
+        await message.reply_text("✅ Session string saved to the database.")
+        await log_to_channel(f"✅ Session string updated by {message.from_user.mention} (ID: {user_id})\nRestart the bot to use new session.")
+        
 
 # Create a private channel
 @app.on_message(filters.command("create"))
