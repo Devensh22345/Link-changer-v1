@@ -147,6 +147,7 @@ async def on_callback_query(client, callback_query):
         await log_to_channel(error_msg)
 
 # Change all channels in a loop with rate-limiting handling
+# Change all channels in a loop with rate-limiting handling
 @app.on_message(filters.command("changeall"))
 async def change_all_channel_links(client: Client, message: Message):
     global changeall_running
@@ -192,19 +193,18 @@ async def change_all_channel_links(client: Client, message: Message):
 
                 except FloodWait as e:
                     # If the rate limit is hit, wait for the specified duration before retrying
-                    await log_to_channel(f"❌ Rate limit exceeded, waiting for {e.seconds} seconds.")
-                    await asyncio.sleep(e.seconds)
-
+                    await log_to_channel(f"❌ Rate limit exceeded, waiting for {e.value} seconds.")
+                    await asyncio.sleep(e.value)  # Correctly use e.value to wait
                     continue  # After waiting, continue with the loop to try again
 
                 await asyncio.sleep(60 * 5)  # Wait for 5 minutes before changing the next channel
 
-        
         except Exception as e:
             await log_to_channel(f"❌ Error while changing links in loop: {e}")
             await asyncio.sleep(2)
 
     await log_to_channel("🛑 The /changeall process was stopped.")
+
 
 # Stop the change all process
 @app.on_message(filters.command("stopchangeall"))
