@@ -248,5 +248,9 @@ async def stop_change_all(client: Client, message: Message):
 
 # Start both clients
 print("Bot & User Sessions Running...")
-user_apps["session1"].start()  # Example: Start one session
+# Load and start all user sessions from config
+for session_name, session_string in cfg.SESSIONS.items():
+    add_user_session(session_name, session_string)
+    user_apps[session_name].start()
+    print(f"✅ Started session: {session_name}")
 app.run()
