@@ -7,6 +7,7 @@ import string
 import asyncio
 import time
 import pyrogram.utils
+from pyrogram.errors import FloodWait
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
 
@@ -144,7 +145,8 @@ async def on_callback_query(client, callback_query):
         error_msg = f"❌ Error while changing link: {e}"
         await callback_query.message.reply_text(error_msg)
         await log_to_channel(error_msg)
-# Change all channels in a loop
+
+# Change all channels in a loop with rate-limiting handling
 @app.on_message(filters.command("changeall"))
 async def change_all_channel_links(client: Client, message: Message):
     global changeall_running
@@ -182,18 +184,26 @@ async def change_all_channel_links(client: Client, message: Message):
                 new_username = f"{old_username[:-2]}{new_suffix}"
 
                 # Change the channel username
-                await user_app.set_chat_username(channel.id, new_username)
-                await log_to_channel(
-                    f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username}"
-                )
+                try:
+                    await user_app.set_chat_username(channel.id, new_username)
+                    await log_to_channel(
+                        f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username}"
+                    )
 
-                await asyncio.sleep(60 * 5)  # Wait for 1.5 hour before the next channel change
+                except FloodWait as e:
+                    # If the rate limit is hit, wait for the specified duration before retrying
+                    await log_to_channel(f"❌ Rate limit exceeded, waiting for {e.x} seconds.")
+                    await asyncio.sleep(e.x)
+                    continue  # After waiting, continue with the loop to try again
+
+                await asyncio.sleep(60 * 5)  # Wait for 5 minutes before changing the next channel
 
         except Exception as e:
             await log_to_channel(f"❌ Error while changing links in loop: {e}")
             await asyncio.sleep(2)
 
     await log_to_channel("🛑 The /changeall process was stopped.")
+
 # Stop the change all process
 @app.on_message(filters.command("stopchangeall"))
 async def stop_change_all(client: Client, message: Message):
