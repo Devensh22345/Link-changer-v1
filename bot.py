@@ -192,12 +192,14 @@ async def change_all_channel_links(client: Client, message: Message):
 
                 except FloodWait as e:
                     # If the rate limit is hit, wait for the specified duration before retrying
-                    await log_to_channel(f"❌ Rate limit exceeded, waiting for {e.x} seconds.")
-                    await asyncio.sleep(e.x)
+                    await log_to_channel(f"❌ Rate limit exceeded, waiting for {e.seconds} seconds.")
+                    await asyncio.sleep(e.seconds)
+
                     continue  # After waiting, continue with the loop to try again
 
                 await asyncio.sleep(60 * 5)  # Wait for 5 minutes before changing the next channel
 
+        
         except Exception as e:
             await log_to_channel(f"❌ Error while changing links in loop: {e}")
             await asyncio.sleep(2)
