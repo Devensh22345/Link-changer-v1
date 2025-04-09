@@ -10,6 +10,7 @@ import pyrogram.utils
 from pyrogram.errors import FloodWait
 import os
 from datetime import datetime, timedelta
+from pyrogram.errors import UsernameOccupied
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
 
