@@ -7,7 +7,7 @@ class Config:
     BOT_TOKEN = os.getenv("BOT_TOKEN", "7686232626:AAFb8LoDG_Ioy-r3pGA9gfJejRm4I60HCnA")
     
     # Support for multiple session strings: SESSION1, SESSION2, SESSION3, etc.
-    SESSIONS = {
+    SESSION_STRING = {
         key.lower(): value
         for key, value in os.environ.items()
         if key.startswith("SESSION")
