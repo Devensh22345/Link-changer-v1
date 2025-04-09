@@ -57,28 +57,7 @@ async def start_message(client: Client, message: Message):
     await log_to_channel(f"👋 Bot started by {message.from_user.mention} (ID: {message.from_user.id})")
 
 # Create a private channel
-@app.on_message(filters.command("create"))
-async def create_channel(client: Client, message: Message):
-    sudo_users = cfg.SUDO
-    if message.from_user.id not in sudo_users:
-        await message.reply_text("❌ Only sudo users can create channels.")
-        await log_to_channel(f"❌ Unauthorized attempt to create a channel by {message.from_user.mention} (ID: {message.from_user.id})")
-        return
-    
-    try:
-        channel = await user_apps[current_session].create_channel(
-            title="hi",
-            description="A private channel created by the bot."
-        )
-        add_created_channel(channel.id)
-        await message.reply_text(f"✅ Private channel created: {channel.title}")
-        await log_to_channel(f"✅ Channel '{channel.title}' created by {message.from_user.mention} (ID: {message.from_user.id})")
-    except Exception as e:
-        error_msg = f"❌ Error: {e}"
-        await message.reply_text(error_msg)
-        await log_to_channel(error_msg)
-
-# Select a session for /changeall
+# /changeall command — show session buttons
 @app.on_message(filters.command("changeall"))
 async def change_all_channel_links(client: Client, message: Message):
     sudo_users = cfg.SUDO
@@ -90,103 +69,29 @@ async def change_all_channel_links(client: Client, message: Message):
         await message.reply_text("❌ The /changeall process is already running.")
         return
 
-    # Show session selection buttons
     buttons = [
         [InlineKeyboardButton(text=session_name, callback_data=f"select_session_{session_name}")]
         for session_name in user_apps.keys()
     ]
 
     await message.reply_text(
-        "Select a session to change its channel usernames:",
+        "Select a session to start changing usernames:",
         reply_markup=InlineKeyboardMarkup(buttons)
     )
 
-# Handle session selection for /changeall
+# Handle session selection and immediately start loop
 @app.on_callback_query(filters.regex(r"^select_session_"))
 async def on_select_session(client, callback_query):
-    global current_session
+    global current_session, changeall_running
 
     session_name = callback_query.data.split("_")[2]
     current_session = session_name
+    changeall_running = True
 
     await callback_query.answer(f"Session {session_name} selected.")
-    await callback_query.message.edit_text(f"✅ Session '{session_name}' selected. Use /changeall to start the username change process.")
+    await callback_query.message.edit_text(f"✅ Session '{session_name}' selected. Starting username change loop...")
 
-# Change the channel link for channels with a username
-@app.on_message(filters.command("change1"))
-async def change_channel_link(client: Client, message: Message):
-    sudo_users = cfg.SUDO
-    if message.from_user.id not in sudo_users:
-        await message.reply_text("❌ Only sudo users can change channel links.")
-        await log_to_channel(f"❌ Unauthorized attempt to change channel link by {message.from_user.mention} (ID: {message.from_user.id})")
-        return
-
-    try:
-        channels = []
-        async for dialog in user_apps[current_session].get_dialogs():
-            await log_to_channel(f"Found chat: {dialog.chat.title} | Type: {dialog.chat.type} | Username: @{dialog.chat.username if dialog.chat.username else 'No Username'}")
-
-            if dialog.chat.username:
-                channels.append(dialog.chat)
-
-        if not channels:
-            await message.reply_text("❌ No channels with a username found in the session account.")
-            await log_to_channel("❌ No channels with a username found in the session account.")
-            return
-
-        buttons = [
-            [InlineKeyboardButton(text=channel.title, callback_data=f"change_{channel.id}")]
-            for channel in channels
-        ]
-        await message.reply_text(
-            "Select a channel to change its link:",
-            reply_markup=InlineKeyboardMarkup(buttons)
-        )
-
-    except Exception as e:
-        error_msg = f"❌ Error while fetching channels: {e}"
-        await message.reply_text(error_msg)
-        await log_to_channel(error_msg)
-
-# Handle the button press and change the link
-@app.on_callback_query(filters.regex(r"^change_"))
-async def on_callback_query(client, callback_query):
-    try:
-        channel_id = int(callback_query.data.split("_")[1])
-        channel = await user_apps[current_session].get_chat(channel_id)
-
-        if not channel.username:
-            await callback_query.answer("❌ This channel does not have a username!", show_alert=True)
-            return
-
-        old_username = channel.username
-        new_suffix = generate_random_string()
-        new_username = f"{old_username[:-3]}{new_suffix}"
-
-        await user_apps[current_session].set_chat_username(channel_id, new_username)
-
-        await callback_query.message.reply_text(f"✅ Channel link changed to: https://t.me/{new_username}")
-        
-        await log_to_channel(
-            f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username} "
-            f"by {callback_query.from_user.mention} (ID: {callback_query.from_user.id})"
-        )
-
-    except Exception as e:
-        error_msg = f"❌ Error while changing link: {e}"
-        await callback_query.message.reply_text(error_msg)
-        await log_to_channel(error_msg)
-
-# Handle /changeall loop with session management
-@app.on_message(filters.command("startchangeall"))
-async def start_change_all(client: Client, message: Message):
-    global changeall_running
-    if not current_session:
-        await message.reply_text("❌ No session selected. Please use /changeall to select a session.")
-        return
-
-    changeall_running = True
-    await message.reply_text("✅ Started changing all channel usernames in an infinite loop.")
+    await log_to_channel(f"🔁 Started change loop for session: {session_name}")
 
     while changeall_running:
         try:
@@ -196,7 +101,7 @@ async def start_change_all(client: Client, message: Message):
                     channels.append(dialog.chat)
 
             if not channels:
-                await log_to_channel("❌ No channels with a username found in the session account.")
+                await log_to_channel("❌ No channels with a username found.")
                 break
 
             for channel in channels:
@@ -210,33 +115,29 @@ async def start_change_all(client: Client, message: Message):
                 try:
                     await user_apps[current_session].set_chat_username(channel.id, new_username)
                     await log_to_channel(
-                        f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username}"
+                        f"✅ Changed: https://t.me/{old_username} → https://t.me/{new_username}"
                     )
-
                 except UsernameOccupied:
-                    await log_to_channel(f"❌ Username {new_username} is already taken, retrying with a new username.")
-                    new_suffix = generate_random_string()
-                    new_username = f"{old_username[:-2]}{new_suffix}"
+                    retry_suffix = generate_random_string()
+                    retry_username = f"{old_username[:-2]}{retry_suffix}"
                     try:
-                        await user_apps[current_session].set_chat_username(channel.id, new_username)
+                        await user_apps[current_session].set_chat_username(channel.id, retry_username)
                         await log_to_channel(
-                            f"✅ Channel link successfully changed to https://t.me/{new_username}"
+                            f"✅ Changed (retry): https://t.me/{old_username} → https://t.me/{retry_username}"
                         )
                     except Exception as e:
-                        await log_to_channel(f"❌ Failed to change username again: {e}")
-
+                        await log_to_channel(f"❌ Retry failed: {e}")
                 except FloodWait as e:
-                    await log_to_channel(f"❌ Rate limit exceeded, waiting for {e.value} seconds.")
+                    await log_to_channel(f"❌ FloodWait: sleeping {e.value}s")
                     await asyncio.sleep(e.value)
-                    continue
 
-                await asyncio.sleep(60)  # Wait for 1 minute before changing the next channel
+                await asyncio.sleep(60)  # 1 min delay
 
         except Exception as e:
-            await log_to_channel(f"❌ Error while changing links in loop: {e}")
+            await log_to_channel(f"❌ Loop error: {e}")
             await asyncio.sleep(2)
 
-    await log_to_channel("🛑 The /changeall process was stopped.")
+    await log_to_channel("🛑 Change loop stopped.")
 
 # Stop the change all process gracefully
 @app.on_message(filters.command("stopchangeall"))
