@@ -9,7 +9,6 @@ import time
 import pyrogram.utils
 from pyrogram.errors import FloodWait
 import os
-from datetime import datetime, timedelta
 from pyrogram.errors import UsernameOccupied
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
@@ -192,12 +191,7 @@ async def change_all_channel_links(client: Client, message: Message):
                 if not changeall_running:
                     break
 
-                now = datetime.utcnow()
-                last_updated = channel_last_updated.get(channel.id)
-
-                # Skip if updated within the last 12 hours
-                if last_updated and now - last_updated < timedelta(hours=12):
-                    continue
+                
 
                 old_username = channel.username
                 new_suffix = generate_random_string()
