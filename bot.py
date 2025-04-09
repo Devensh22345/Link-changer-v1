@@ -190,20 +190,16 @@ async def change_all_channel_links(client: Client, message: Message):
             for channel in channels:
                 if not changeall_running:
                     break
-
-                
-
+                    
                 old_username = channel.username
                 new_suffix = generate_random_string()
                 new_username = f"{old_username[:max(5, len(old_username) - 2)]}{new_suffix}"
-
+                
                 try:
                     await user_app.set_chat_username(channel.id, new_username)
-                    channel_last_updated[channel.id] = now
                     await log_to_channel(
                         f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username}"
                     )
-
                 except FloodWait as e:
                     await log_to_channel(f"❌ Rate limit exceeded, waiting for {e.value} seconds.")
                     await asyncio.sleep(e.value)
@@ -217,7 +213,8 @@ async def change_all_channel_links(client: Client, message: Message):
                     await log_to_channel(f"❌ Error while changing username: {e}")
                     continue
 
-                await asyncio.sleep(60 * 5)  # Wait 5 minutes before attempting next
+               await asyncio.sleep(60 * 5)  # Wait 5 minutes before attempting next
+
 
         except Exception as e:
             await log_to_channel(f"❌ Error in loop: {e}")
