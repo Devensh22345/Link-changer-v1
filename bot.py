@@ -219,9 +219,11 @@ async def handle_changeall_all_sessions(client: Client, callback_query):
                         await selected_client.set_chat_username(channel.id, new_username)
                         await log_to_channel(f"✅ {session_key}: @{old_username} → @{new_username}")
                     except FloodWait as e:
+                        await log_to_channel(f"❌ Rate limit exceeded, waiting for {e.value} seconds.")
                         await asyncio.sleep(e.value)
                         continue
                     except UsernameOccupied:
+                        await log_to_channel(f"⚠️ Username {new_username} already taken. Retrying...")
                         continue
                     except Exception as e:
                         await log_to_channel(f"❌ {session_key} error: {e}")
