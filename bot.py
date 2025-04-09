@@ -125,6 +125,9 @@ async def on_select_session(client, callback_query):
                         await log_to_channel(
                             f"✅ Changed (retry): https://t.me/{old_username} → https://t.me/{retry_username}"
                         )
+                        await asyncio.sleep(60)
+
+
                     except Exception as e:
                         await log_to_channel(f"❌ Retry failed: {e}")
                 except FloodWait as e:
