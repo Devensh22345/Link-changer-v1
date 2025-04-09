@@ -8,6 +8,8 @@ import asyncio
 import time
 import pyrogram.utils
 from pyrogram.errors import FloodWait
+import os
+from datetime import datetime, timedelta
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
 
@@ -31,6 +33,7 @@ LOG_CHANNEL = cfg.LOG_CHANNEL
 
 # Variable to control the infinite loop
 changeall_running = False
+channel_last_updated = {}
 
 # Function to log messages in the log channel
 async def log_to_channel(text: str):
@@ -39,6 +42,12 @@ async def log_to_channel(text: str):
         await app.send_message(LOG_CHANNEL, text)
     except Exception as e:
         print(f"Failed to log message: {e}")
+        
+# Check if changeall is already running (persisted)
+if os.path.exists("changeall.flag"):
+    changeall_running = True
+else:
+    changeall_running = False
 
 # Function to generate a random string of 2 characters (mix of letters and digits)
 def generate_random_string():
@@ -147,7 +156,6 @@ async def on_callback_query(client, callback_query):
         await log_to_channel(error_msg)
 
 # Change all channels in a loop with rate-limiting handling
-# Change all channels in a loop with rate-limiting handling
 @app.on_message(filters.command("changeall"))
 async def change_all_channel_links(client: Client, message: Message):
     global changeall_running
@@ -162,6 +170,9 @@ async def change_all_channel_links(client: Client, message: Message):
         return
 
     changeall_running = True
+    with open("changeall.flag", "w") as f:
+        f.write("running")
+
     await message.reply_text("✅ Started changing all channel usernames in an infinite loop.")
     await log_to_channel("✅ Started /changeall process.")
 
@@ -180,41 +191,54 @@ async def change_all_channel_links(client: Client, message: Message):
                 if not changeall_running:
                     break
 
+                now = datetime.utcnow()
+                last_updated = channel_last_updated.get(channel.id)
+
+                # Skip if updated within the last 12 hours
+                if last_updated and now - last_updated < timedelta(hours=12):
+                    continue
+
                 old_username = channel.username
                 new_suffix = generate_random_string()
-                new_username = f"{old_username[:-2]}{new_suffix}"
+                new_username = f"{old_username[:max(5, len(old_username) - 2)]}{new_suffix}"
 
-                # Change the channel username
                 try:
                     await user_app.set_chat_username(channel.id, new_username)
+                    channel_last_updated[channel.id] = now
                     await log_to_channel(
                         f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username}"
                     )
 
                 except FloodWait as e:
-                    # If the rate limit is hit, wait for the specified duration before retrying
                     await log_to_channel(f"❌ Rate limit exceeded, waiting for {e.value} seconds.")
-                    await asyncio.sleep(e.value)  # Correctly use e.value to wait
-                    continue  # After waiting, continue with the loop to try again
+                    await asyncio.sleep(e.value)
+                    continue
 
-                await asyncio.sleep(60 * 5)  # Wait for 5 minutes before changing the next channel
+                except UsernameOccupied:
+                    await log_to_channel(f"⚠️ Username {new_username} already taken. Retrying...")
+                    continue
+
+                except Exception as e:
+                    await log_to_channel(f"❌ Error while changing username: {e}")
+                    continue
+
+                await asyncio.sleep(60 * 5)  # Wait 5 minutes before attempting next
 
         except Exception as e:
-            await log_to_channel(f"❌ Error while changing links in loop: {e}")
+            await log_to_channel(f"❌ Error in loop: {e}")
             await asyncio.sleep(2)
 
     await log_to_channel("🛑 The /changeall process was stopped.")
 
-
-# Stop the change all process
 @app.on_message(filters.command("stopchangeall"))
 async def stop_change_all(client: Client, message: Message):
     global changeall_running
     changeall_running = False
+    if os.path.exists("changeall.flag"):
+        os.remove("changeall.flag")
     await message.reply_text("🛑 Stopped the /changeall process.")
     await log_to_channel("🛑 The /changeall process was stopped.")
 
-# Start both clients
 
 print("Bot & User Sessions Running...")
 user_app.start()
