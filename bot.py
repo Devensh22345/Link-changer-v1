@@ -6,7 +6,7 @@ import random
 import string
 import asyncio
 import pyrogram.utils
-from pyrogram.errors import FloodWait, UsernameOccupied, RPCError
+from pyrogram.errors import FloodWait, UsernameOccupied
 from typing import List
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
@@ -24,8 +24,7 @@ user_apps = {}
 
 # Add a session to the bot
 def add_user_session(session_name: str, session_string: str):
-    if session_name not in user_apps:
-        user_apps[session_name] = Client(session_name, api_id=cfg.API_ID, api_hash=cfg.API_HASH, session_string=session_string)
+    user_apps[session_name] = Client(session_name, api_id=cfg.API_ID, api_hash=cfg.API_HASH, session_string=session_string)
 
 LOG_CHANNEL = cfg.LOG_CHANNEL
 
@@ -35,7 +34,7 @@ current_session = None
 
 # Function to log messages in the log channel
 async def log_to_channel(text: str):
-    await asyncio.sleep(2)
+    await asyncio.sleep(2)  # Delay log sending by 2 seconds
     try:
         await app.send_message(LOG_CHANNEL, text)
     except Exception as e:
@@ -65,14 +64,9 @@ async def create_channel(client: Client, message: Message):
         await message.reply_text("❌ Only sudo users can create channels.")
         await log_to_channel(f"❌ Unauthorized attempt to create a channel by {message.from_user.mention} (ID: {message.from_user.id})")
         return
-
+    
     try:
-        if current_session not in user_apps:
-            await message.reply_text("⚠️ No session is currently selected.")
-            return
-
-        user = user_apps[current_session]
-        channel = await user.create_channel(
+        channel = await user_apps[current_session].create_channel(
             title="hi",
             description="A private channel created by the bot."
         )
@@ -120,29 +114,30 @@ async def on_select_session(client, callback_query):
         await callback_query.message.edit_text("✅ Started username changing loop for ALL sessions.")
         await log_to_channel("🔁 Started changing usernames for all sessions.")
 
+        # Run all session loops in parallel
         tasks = []
         for session_key in user_apps.keys():
             tasks.append(asyncio.create_task(process_username_loop(session_key)))
 
         await asyncio.gather(*tasks, return_exceptions=True)
+
         await log_to_channel("✅ Finished processing all sessions.")
+
     else:
         current_session = session_name
         await callback_query.answer(f"Session {session_name} selected.")
         await callback_query.message.edit_text(f"✅ Session '{session_name}' selected. Starting username change loop...")
         await log_to_channel(f"🔁 Started change loop for session: {session_name}")
+
         await process_username_loop(session_name)
 
-    changeall_running = False
     await log_to_channel("🛑 Change loop stopped.")
 
 # Reusable function for the loop
 async def process_username_loop(session_name):
     try:
-        user = user_apps[session_name]
         channels = []
-
-        async for dialog in user.get_dialogs():
+        async for dialog in user_apps[session_name].get_dialogs():
             if dialog.chat.username:
                 channels.append(dialog.chat)
 
@@ -159,24 +154,25 @@ async def process_username_loop(session_name):
             new_username = f"{old_username[:-2]}{new_suffix}"
 
             try:
-                await user.set_chat_username(channel.id, new_username)
-                await log_to_channel(f"✅ [{session_name}] Changed: https://t.me/{old_username} → https://t.me/{new_username}")
+                await user_apps[session_name].set_chat_username(channel.id, new_username)
+                await log_to_channel(
+                    f"✅ [{session_name}] Changed: https://t.me/{old_username} → https://t.me/{new_username}"
+                )
 
             except UsernameOccupied:
                 retry_suffix = generate_random_string()
                 retry_username = f"{old_username[:-2]}{retry_suffix}"
                 try:
-                    await user.set_chat_username(channel.id, retry_username)
-                    await log_to_channel(f"✅ [{session_name}] Retry: https://t.me/{old_username} → https://t.me/{retry_username}")
+                    await user_apps[session_name].set_chat_username(channel.id, retry_username)
+                    await log_to_channel(
+                        f"✅ [{session_name}] Retry: https://t.me/{old_username} → https://t.me/{retry_username}"
+                    )
                 except Exception as e:
                     await log_to_channel(f"❌ [{session_name}] Retry failed: {e}")
 
             except FloodWait as e:
                 await log_to_channel(f"❌ [{session_name}] FloodWait: sleeping {e.value}s")
                 await asyncio.sleep(e.value)
-
-            except RPCError as e:
-                await log_to_channel(f"❌ [{session_name}] RPCError: {e}")
 
             await asyncio.sleep(60)
 
@@ -193,16 +189,11 @@ async def change_channel_link(client: Client, message: Message):
         await log_to_channel(f"❌ Unauthorized attempt to change channel link by {message.from_user.mention} (ID: {message.from_user.id})")
         return
 
-    if current_session not in user_apps:
-        await message.reply_text("⚠️ No session is currently selected.")
-        return
-
     try:
         channels = []
-        user = user_apps[current_session]
-
-        async for dialog in user.get_dialogs():
+        async for dialog in user_apps[current_session].get_dialogs():
             await log_to_channel(f"Found chat: {dialog.chat.title} | Type: {dialog.chat.type} | Username: @{dialog.chat.username if dialog.chat.username else 'No Username'}")
+
             if dialog.chat.username:
                 channels.append(dialog.chat)
 
@@ -230,13 +221,7 @@ async def change_channel_link(client: Client, message: Message):
 async def on_callback_query(client, callback_query):
     try:
         channel_id = int(callback_query.data.split("_")[1])
-
-        if current_session not in user_apps:
-            await callback_query.answer("⚠️ No session is currently selected.", show_alert=True)
-            return
-
-        user = user_apps[current_session]
-        channel = await user.get_chat(channel_id)
+        channel = await user_apps[current_session].get_chat(channel_id)
 
         if not channel.username:
             await callback_query.answer("❌ This channel does not have a username!", show_alert=True)
@@ -246,9 +231,10 @@ async def on_callback_query(client, callback_query):
         new_suffix = generate_random_string()
         new_username = f"{old_username[:-3]}{new_suffix}"
 
-        await user.set_chat_username(channel_id, new_username)
+        await user_apps[current_session].set_chat_username(channel_id, new_username)
 
         await callback_query.message.reply_text(f"✅ Channel link changed to: https://t.me/{new_username}")
+        
         await log_to_channel(
             f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username} "
             f"by {callback_query.from_user.mention} (ID: {callback_query.from_user.id})"
@@ -269,12 +255,9 @@ async def stop_change_all(client: Client, message: Message):
 
 # Start both clients
 print("Bot & User Sessions Running...")
+# Load and start all user sessions from config
 for session_name, session_string in cfg.SESSIONS.items():
-    try:
-        add_user_session(session_name, session_string)
-        user_apps[session_name].start()
-        print(f"✅ Started session: {session_name}")
-    except Exception as e:
-        print(f"❌ Failed to start session {session_name}: {e}")
-
+    add_user_session(session_name, session_string)
+    user_apps[session_name].start()
+    print(f"✅ Started session: {session_name}")
 app.run()
