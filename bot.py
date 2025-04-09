@@ -172,7 +172,7 @@ async def handle_changeall_session(client: Client, callback_query):
 
                     try:
                         await selected_client.set_chat_username(dialog.chat.id, new_username)
-                        await log_to_channel(f"✅ {session_key}: {old_username} → {new_username}")
+                        await log_to_channel(f"✅ {session_key}: @{old_username} → @{new_username}")
                     except FloodWait as e:
                         await asyncio.sleep(e.value)
                         continue
@@ -217,7 +217,7 @@ async def handle_changeall_all_sessions(client: Client, callback_query):
                     new_username = f"{old_username[:max(5, len(old_username) - 2)]}{new_suffix}"
                     try:
                         await selected_client.set_chat_username(channel.id, new_username)
-                        await log_to_channel(f"✅ {session_key}: {old_username} → {new_username}")
+                        await log_to_channel(f"✅ {session_key}: @{old_username} → @{new_username}")
                     except FloodWait as e:
                         await asyncio.sleep(e.value)
                         continue
