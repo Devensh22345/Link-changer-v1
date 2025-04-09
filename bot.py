@@ -8,6 +8,7 @@ import asyncio
 import pyrogram.utils
 from pyrogram.errors import FloodWait, UsernameOccupied, RPCError
 from typing import List
+import os
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
 
@@ -32,6 +33,19 @@ LOG_CHANNEL = cfg.LOG_CHANNEL
 # Variable to control the infinite loop
 changeall_running = False
 current_session = None
+
+# Load loop state from file
+def load_loop_state():
+    try:
+        with open("loop_state.txt", "r") as f:
+            return f.read().strip() == "1"
+    except FileNotFoundError:
+        return False
+
+# Save loop state to file
+def save_loop_state(state: bool):
+    with open("loop_state.txt", "w") as f:
+        f.write("1" if state else "0")
 
 # Function to log messages in the log channel
 async def log_to_channel(text: str):
@@ -112,6 +126,7 @@ async def change_all_channel_links(client: Client, message: Message):
 async def on_select_session(client, callback_query):
     global current_session, changeall_running
     changeall_running = True
+    save_loop_state(True)
 
     session_name = callback_query.data.split("_")[2]
 
@@ -134,6 +149,7 @@ async def on_select_session(client, callback_query):
         await process_username_loop(session_name)
 
     changeall_running = False
+    save_loop_state(False)
     await log_to_channel("🛑 Change loop stopped.")
 
 # Reusable function for the loop
@@ -264,6 +280,7 @@ async def on_callback_query(client, callback_query):
 async def stop_change_all(client: Client, message: Message):
     global changeall_running
     changeall_running = False
+    save_loop_state(False)
     await message.reply_text("🛑 Stopped the /changeall process.")
     await log_to_channel("🛑 The /changeall process was stopped.")
 
@@ -276,5 +293,12 @@ for session_name, session_string in cfg.SESSIONS.items():
         print(f"✅ Started session: {session_name}")
     except Exception as e:
         print(f"❌ Failed to start session {session_name}: {e}")
+
+# Resume loop if it was active before restart
+changeall_running = load_loop_state()
+if changeall_running:
+    print("🔁 Resuming username changing loop after restart...")
+    for session_key in user_apps.keys():
+        asyncio.create_task(process_username_loop(session_key))
 
 app.run()
