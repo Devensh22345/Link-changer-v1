@@ -217,13 +217,6 @@ async def stop_change_all(client: Client, message: Message):
 # Start both clients
 
 print("Bot & User Sessions Running...")
-for session_name, session_string in cfg.SESSIONS.items():
-    try:
-        add_user_session(session_name, session_string)
-        user_apps[session_name].start()
-        print(f"✅ Started session: {session_name}")
-    except Exception as e:
-        print(f"❌ Failed to start session {session_name}: {e}")
-
+user_app.start()
 app.run()
 
