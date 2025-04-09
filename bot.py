@@ -117,6 +117,8 @@ async def on_select_session(client, callback_query):
                     await log_to_channel(
                         f"✅ Changed: https://t.me/{old_username} → https://t.me/{new_username}"
                     )
+                    await asyncio.sleep(60)
+
                 except UsernameOccupied:
                     retry_suffix = generate_random_string()
                     retry_username = f"{old_username[:-2]}{retry_suffix}"
