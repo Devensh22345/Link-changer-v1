@@ -61,19 +61,22 @@ def log_new_channel_creation(channel_id: int, old_username: str, created_by: str
     })
 
 # 🔄 Invite Link & Log Message Utils (MODIFIED)
-def set_invite_log(channel_id: int, invite_link: str, message_id: int, expires_at: datetime):
+# Set or update invite log for a channel
+def set_invite_log(channel_id: int, invite_link: str, expires_at: datetime, message_id: int = None):
+    update_data = {
+        'invite_link': invite_link,
+        'expires_at': expires_at,
+        'last_updated': datetime.utcnow()
+    }
+    if message_id:
+        update_data['message_id'] = message_id
+
     channel_invites.update_one(
         {'channel_id': channel_id},
-        {
-            '$set': {
-                'invite_link': invite_link,
-                'message_id': message_id,
-                'expires_at': expires_at,
-                'last_updated': datetime.utcnow()
-            }
-        },
+        {'$set': update_data},
         upsert=True
     )
+
 
 def get_invite_log(channel_id: int):
     return channel_invites.find_one({'channel_id': channel_id})
