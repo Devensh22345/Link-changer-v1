@@ -8,7 +8,7 @@ from database import (
 )
 import asyncio
 import time
-from pyrogram.errors import UsernameOccupied
+import pyrogram.utils
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
 
