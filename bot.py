@@ -101,13 +101,13 @@ async def auto_start_rotation():
         data = get_invite_log(channel_id)
         if data and 'invite_link' in data and 'expires_at' in data:
             expires_at = data['expires_at']
-            if isinstance(expires_at, datetime) and expires_at > datetime.now(timezone.utc):
-                remaining = (expires_at - datetime.now(timezone.utc)).total_seconds()
-                print(f"⏳ Reusing existing link for {channel_id}, expires in {int(remaining)}s")
-                asyncio.create_task(sleep_then_rotate(channel_id, remaining))
-                continue
-        print(f"🔄 Creating new invite link for {channel_id}")
-        asyncio.create_task(rotate_invite_link(channel_id))
+           if isinstance(expires_at, datetime):
+    expires_at_aware = expires_at.replace(tzinfo=timezone.utc)
+    if expires_at_aware > datetime.now(timezone.utc):
+        remaining = (expires_at_aware - datetime.now(timezone.utc)).total_seconds()
+        print(f"⏳ Reusing link for {channel_id}, expires in {int(remaining)}s")
+        asyncio.create_task(sleep_then_rotate(channel_id, remaining))
+        continue
 
 
 # ⏳ Wait till current link expires then rotate
