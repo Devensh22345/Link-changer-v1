@@ -1,16 +1,14 @@
 from pyrogram import Client, filters
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import ChatInviteLink
 from configs import cfg
-from database import add_created_channel
-import random
-import string
+from database import (
+    add_active_channel, get_active_channels,
+    save_logged_message, get_logged_messages,
+    update_logged_message
+)
 import asyncio
 import time
-import pyrogram.utils
 
-pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
-
-# Initialize Bot Client
 app = Client(
     "bot",
     api_id=cfg.API_ID,
@@ -18,219 +16,74 @@ app = Client(
     bot_token=cfg.BOT_TOKEN
 )
 
-# Initialize User Client (for managing channels)
-user_app = Client(
-    "user_session",
-    api_id=cfg.API_ID,
-    api_hash=cfg.API_HASH,
-    session_string=cfg.SESSION_STRING
-)
-
 LOG_CHANNEL = cfg.LOG_CHANNEL
+active_channels = set(get_active_channels())
+logged_messages = get_logged_messages()  # {channel_id: message_id}
 
-# Variable to control the infinite loop
-changeall_running = False
+# Function to log or edit invite link in the log channel
+async def send_or_update_invite_link(channel_id: int, invite_link: str):
+    try:
+        if channel_id in logged_messages:
+            message_id = logged_messages[channel_id]
+            try:
+                await app.edit_message_text(
+                    chat_id=LOG_CHANNEL,
+                    message_id=message_id,
+                    text=f"🔗 Updated Invite Link for Channel `{channel_id}`:\n{invite_link}"
+                )
+            except Exception as e:
+                print(f"Edit failed: {e}")
+                msg = await app.send_message(
+                    LOG_CHANNEL,
+                    f"🔗 New Invite Link for Channel `{channel_id}`:\n{invite_link}"
+                )
+                logged_messages[channel_id] = msg.message_id
+                update_logged_message(channel_id, msg.message_id)
+        else:
+            msg = await app.send_message(
+                LOG_CHANNEL,
+                f"🔗 Invite Link for Channel `{channel_id}`:\n{invite_link}"
+            )
+            logged_messages[channel_id] = msg.message_id
+            save_logged_message(channel_id, msg.message_id)
+    except Exception as e:
+        print(f"Log/update error: {e}")
 
-# Function to log messages in the log channel
+# Background task to rotate invite link every 15 minutes
+async def rotate_invite_link(channel_id: int):
+    while True:
+        try:
+            expire_time = int(time.time()) + 900
+            invite: ChatInviteLink = await app.create_chat_invite_link(
+                chat_id=channel_id,
+                expire_date=expire_time,
+                member_limit=0,
+                name="15min-invite"
+            )
+            await send_or_update_invite_link(channel_id, invite.invite_link)
+            await asyncio.sleep(900)
+        except Exception as e:
+            await log_to_channel(f"❌ Error rotating link for {channel_id}: {e}")
+            break
+
+# Function to log messages
 async def log_to_channel(text: str):
-    await asyncio.sleep(2)  # Delay log sending by 2 seconds
     try:
         await app.send_message(LOG_CHANNEL, text)
     except Exception as e:
-        print(f"Failed to log message: {e}")
+        print(f"Log error: {e}")
 
-# Function to generate a random string of 2 characters (mix of letters and digits)
-def generate_random_string():
-    characters = string.ascii_lowercase + string.digits
-    return ''.join(random.choices(characters, k=2))
+# Detect when bot added to channel
+@app.on_chat_member_updated()
+async def bot_added_to_channel(client, chat_member_updated):
+    if chat_member_updated.new_chat_member and chat_member_updated.new_chat_member.user.id == (await app.get_me()).id:
+        channel_id = chat_member_updated.chat.id
+        if channel_id not in active_channels:
+            active_channels.add(channel_id)
+            add_active_channel(channel_id)
+            await log_to_channel(f"✅ Bot added as admin in channel: `{chat_member_updated.chat.title}` (`{channel_id}`)")
+            asyncio.create_task(rotate_invite_link(channel_id))
 
-# Start message
-@app.on_message(filters.command("start"))
-async def start_message(client: Client, message: Message):
-    await message.reply_text(
-        "Hello! Use /create to create a private channel.\n"
-        "Use /change1 to change a channel link.\n"
-        "Use /changeall to change all channel usernames in a loop.\n"
-        "Use /stopchangeall to stop the change all process."
-    )
-    await log_to_channel(f"👋 Bot started by {message.from_user.mention} (ID: {message.from_user.id})")
-
-# Create a private channel
-@app.on_message(filters.command("create"))
-async def create_channel(client: Client, message: Message):
-    sudo_users = cfg.SUDO
-    if message.from_user.id not in sudo_users:
-        await message.reply_text("❌ Only sudo users can create channels.")
-        await log_to_channel(f"❌ Unauthorized attempt to create a channel by {message.from_user.mention} (ID: {message.from_user.id})")
-        return
-    
-    try:
-        channel = await user_app.create_channel(
-            title="hi",
-            description="A private channel created by the bot."
-        )
-        add_created_channel(channel.id)
-        await message.reply_text(f"✅ Private channel created: {channel.title}")
-        await log_to_channel(f"✅ Channel '{channel.title}' created by {message.from_user.mention} (ID: {message.from_user.id})")
-    except Exception as e:
-        error_msg = f"❌ Error: {e}"
-        await message.reply_text(error_msg)
-        await log_to_channel(error_msg)
-
-# Change the channel link for channels with a username
-@app.on_message(filters.command("change1"))
-async def change_channel_link(client: Client, message: Message):
-    sudo_users = cfg.SUDO
-    if message.from_user.id not in sudo_users:
-        await message.reply_text("❌ Only sudo users can change channel links.")
-        await log_to_channel(f"❌ Unauthorized attempt to change channel link by {message.from_user.mention} (ID: {message.from_user.id})")
-        return
-
-    try:
-        channels = []
-        async for dialog in user_app.get_dialogs():
-            await log_to_channel(f"Found chat: {dialog.chat.title} | Type: {dialog.chat.type} | Username: @{dialog.chat.username if dialog.chat.username else 'No Username'}")
-
-            # Check if the chat has a valid username
-            if dialog.chat.username:
-                channels.append(dialog.chat)
-        
-        if not channels:
-            await message.reply_text("❌ No channels with a username found in the session account.")
-            await log_to_channel("❌ No channels with a username found in the session account.")
-            return
-
-        # Display available channels as inline buttons
-        buttons = [
-            [InlineKeyboardButton(text=channel.title, callback_data=f"change_{channel.id}")]
-            for channel in channels
-        ]
-        await message.reply_text(
-            "Select a channel to change its link:",
-            reply_markup=InlineKeyboardMarkup(buttons)
-        )
-
-    except Exception as e:
-        error_msg = f"❌ Error while fetching channels: {e}"
-        await message.reply_text(error_msg)
-        await log_to_channel(error_msg)
-
-# Handle the button press and change the link
-@app.on_callback_query(filters.regex(r"^change_"))
-async def on_callback_query(client, callback_query):
-    try:
-        channel_id = int(callback_query.data.split("_")[1])
-        channel = await user_app.get_chat(channel_id)
-
-        if not channel.username:
-            await callback_query.answer("❌ This channel does not have a username!", show_alert=True)
-            return
-
-        old_username = channel.username
-        new_suffix = generate_random_string()
-        new_username = f"{old_username[:-3]}{new_suffix}"
-
-        # Update the channel username
-        await user_app.set_chat_username(channel_id, new_username)
-
-        await callback_query.message.reply_text(f"✅ Channel link changed to: https://t.me/{new_username}")
-        
-        await log_to_channel(
-            f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username} "
-            f"by {callback_query.from_user.mention} (ID: {callback_query.from_user.id})"
-        )
-
-    except Exception as e:
-        error_msg = f"❌ Error while changing link: {e}"
-        await callback_query.message.reply_text(error_msg)
-        await log_to_channel(error_msg)
-# Change all channels in a loop
-@app.on_message(filters.command("changeall"))
-async def change_all_channel_links(client: Client, message: Message):
-    global changeall_running
-    sudo_users = cfg.SUDO
-
-    if message.from_user.id not in sudo_users:
-        await message.reply_text("❌ Only sudo users can change all channel links.")
-        return
-
-    if changeall_running:
-        await message.reply_text("❌ The /changeall process is already running.")
-        return
-
-    changeall_running = True
-    await message.reply_text("✅ Started changing all channel usernames in an infinite loop.")
-    await log_to_channel("✅ Started /changeall process.")
-
-    while changeall_running:
-        try:
-            channels = []
-            async for dialog in user_app.get_dialogs():
-                if dialog.chat.username:
-                    channels.append(dialog.chat)
-
-            if not channels:
-                await log_to_channel("❌ No channels with a username found in the session account.")
-                break
-
-            for channel in channels:
-                if not changeall_running:
-                    break
-
-                old_username = channel.username
-                new_suffix = generate_random_string()
-                new_username = f"{old_username[:-2]}{new_suffix}"
-
-                # Change the channel username
-                await user_app.set_chat_username(channel.id, new_username)
-                await log_to_channel(
-                    f"✅ Channel link changed from https://t.me/{old_username} to https://t.me/{new_username}"
-                )
-
-                # Create a temporary channel with the old username
-                try:
-                    temp_channel = await user_app.create_channel(
-                        title=old_username,
-                        description=f"Temporary channel for @{old_username}"
-                    )
-                    await user_app.set_chat_username(temp_channel.id, old_username)
-
-                    add_created_channel(temp_channel.id)
-                    await log_to_channel(f"✅ Temporary channel created with username @{old_username}")
-
-                    # Schedule deletion after 3 hours
-                    asyncio.create_task(delete_temp_channel(temp_channel.id, old_username))
-
-                except Exception as e:
-                    await log_to_channel(f"❌ Error creating temporary channel: {e}")
-
-                await asyncio.sleep(60 * 90)  # Wait for 1.5 hour before the next channel change
-
-        except Exception as e:
-            await log_to_channel(f"❌ Error while changing links in loop: {e}")
-            await asyncio.sleep(60 * 90)
-
-    await log_to_channel("🛑 The /changeall process was stopped.")
-
-# Function to delete the temporary channel after 3 hours
-async def delete_temp_channel(channel_id: int, username: str):
-    await asyncio.sleep(3 * 60 * 60)  # Wait for 3 hours
-    try:
-        await user_app.delete_channel(channel_id)
-        await log_to_channel(f"🗑️ Temporary channel @{username} deleted after 3 hours")
-    except Exception as e:
-        await log_to_channel(f"❌ Error deleting temporary channel @{username}: {e}")
-
-# Stop the change all process
-@app.on_message(filters.command("stopchangeall"))
-async def stop_change_all(client: Client, message: Message):
-    global changeall_running
-    changeall_running = False
-    await message.reply_text("🛑 Stopped the /changeall process.")
-    await log_to_channel("🛑 The /changeall process was stopped.")
-
-# Start both clients
-print("Bot & User Session Running...")
-user_app.start()
+# Start the bot
+print("Bot Running...")
 app.run()
-
