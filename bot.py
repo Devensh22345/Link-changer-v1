@@ -1,4 +1,4 @@
-from pyrogram import Client, filters
+from pyrogram import Client
 from pyrogram.types import ChatInviteLink
 from configs import cfg
 from database import (
@@ -24,7 +24,8 @@ LOG_CHANNEL = cfg.LOG_CHANNEL
 active_channels = set(get_active_channels())
 logged_messages = get_logged_messages()  # {channel_id: message_id}
 
-# Function to log or edit invite link in the log channel
+
+# 🔁 Log or update invite link message in log channel
 async def send_or_update_invite_link(channel_id: int, invite_link: str):
     try:
         if channel_id in logged_messages:
@@ -53,11 +54,12 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
     except Exception as e:
         print(f"Log/update error: {e}")
 
-# Function to create and rotate invite link every 15 mins
+
+# 🔄 Create and rotate invite link every 15 mins
 async def rotate_invite_link(channel_id: int):
     while True:
         try:
-            expire_time = datetime.now(timezone.utc) + timedelta(minutes=2)
+            expire_time = datetime.now(timezone.utc) + timedelta(minutes=15)
             invite: ChatInviteLink = await app.create_chat_invite_link(
                 chat_id=channel_id,
                 expire_date=expire_time,
@@ -66,19 +68,21 @@ async def rotate_invite_link(channel_id: int):
             )
             await send_or_update_invite_link(channel_id, invite.invite_link)
             set_invite_log(channel_id, invite.invite_link, expire_time)
-            await asyncio.sleep(120)
+            await asyncio.sleep(15 * 60)
         except Exception as e:
             await log_to_channel(f"❌ Error rotating link for {channel_id}: {e}")
             break
 
-# Function to log messages
+
+# 📩 Send log message to log channel
 async def log_to_channel(text: str):
     try:
         await app.send_message(LOG_CHANNEL, text)
     except Exception as e:
         print(f"Log error: {e}")
 
-# When bot is added as admin in new channel
+
+# ➕ When bot is added as admin to a new channel
 @app.on_chat_member_updated()
 async def bot_added_to_channel(client, chat_member_updated):
     if chat_member_updated.new_chat_member and chat_member_updated.new_chat_member.user.id == (await app.get_me()).id:
@@ -89,7 +93,8 @@ async def bot_added_to_channel(client, chat_member_updated):
             await log_to_channel(f"✅ Bot added as admin in channel: `{chat_member_updated.chat.title}` (`{channel_id}`)")
             asyncio.create_task(rotate_invite_link(channel_id))
 
-# When bot restarts, restore old valid invite links
+
+# 🚀 On startup: resume rotation from existing link if still valid
 async def auto_start_rotation():
     print("🔁 Checking invite links...")
     for channel_id in active_channels:
@@ -98,26 +103,27 @@ async def auto_start_rotation():
             expires_at = data['expires_at']
             if isinstance(expires_at, datetime) and expires_at > datetime.now(timezone.utc):
                 remaining = (expires_at - datetime.now(timezone.utc)).total_seconds()
-                print(f"⏳ Reusing link for {channel_id}, expires in {int(remaining)}s")
+                print(f"⏳ Reusing existing link for {channel_id}, expires in {int(remaining)}s")
                 asyncio.create_task(sleep_then_rotate(channel_id, remaining))
                 continue
-        print(f"🔄 Generating new link for {channel_id}")
+        print(f"🔄 Creating new invite link for {channel_id}")
         asyncio.create_task(rotate_invite_link(channel_id))
 
-# Helper: wait until old link expires, then rotate
+
+# ⏳ Wait till current link expires then rotate
 async def sleep_then_rotate(channel_id: int, sleep_time: float):
     await asyncio.sleep(sleep_time)
     await rotate_invite_link(channel_id)
 
-# Start the bot
+
+# ✅ Start everything
 async def main():
     await app.start()
     await auto_start_rotation()
     print("✅ Bot Running...")
-    from pyrogram.idle import idle
+    from pyrogram import idle
     await idle()
     await app.stop()
 
 if __name__ == "__main__":
-    import asyncio
     asyncio.run(main())
