@@ -58,7 +58,7 @@ async def rotate_invite_link(channel_id: int):
     while True:
         try:
             # ✅ timezone-aware datetime
-            expire_time = datetime.now(timezone.utc) + timedelta(minutes=15)
+            expire_time = datetime.now(timezone.utc) + timedelta(minutes=2)
             invite: ChatInviteLink = await app.create_chat_invite_link(
                 chat_id=channel_id,
                 expire_date=expire_time,
