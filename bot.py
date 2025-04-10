@@ -59,7 +59,7 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
 async def rotate_invite_link(channel_id: int):
     while True:
         try:
-            expire_time = datetime.now(timezone.utc) + timedelta(minutes=15)
+            expire_time = datetime.now(timezone.utc) + timedelta(minutes=2)
             invite: ChatInviteLink = await app.create_chat_invite_link(
                 chat_id=channel_id,
                 expire_date=expire_time,
@@ -68,7 +68,7 @@ async def rotate_invite_link(channel_id: int):
             )
             await send_or_update_invite_link(channel_id, invite.invite_link)
             set_invite_log(channel_id, invite.invite_link, expire_time)
-            await asyncio.sleep(15 * 60)
+            await asyncio.sleep(120)
         except Exception as e:
             await log_to_channel(f"❌ Error rotating link for {channel_id}: {e}")
             break
