@@ -8,6 +8,9 @@ from database import (
 )
 import asyncio
 import time
+from pyrogram.errors import UsernameOccupied
+
+pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
 
 app = Client(
     "bot",
