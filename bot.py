@@ -6,6 +6,7 @@ from database import (
     save_logged_message, get_logged_messages,
     update_logged_message
 )
+from datetime import datetime, timedelta  # ✅ Add this at top
 import asyncio
 import time
 import pyrogram.utils
@@ -56,7 +57,8 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
 async def rotate_invite_link(channel_id: int):
     while True:
         try:
-            expire_time = int(time.time()) + 900
+            # ✅ Corrected: datetime object instead of int
+            expire_time = datetime.utcnow() + timedelta(minutes=15)
             invite: ChatInviteLink = await app.create_chat_invite_link(
                 chat_id=channel_id,
                 expire_date=expire_time,
