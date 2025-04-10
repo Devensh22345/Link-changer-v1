@@ -93,4 +93,42 @@ def get_invite_log(channel_id: int):
 
 # Delete the invite log for a channel
 def delete_invite_log(channel_id: int):
-    channel_invites.delete_one({'channel_id': channel_id})
+    channel_invites.delete_one({'channel_id': channel_id})>
+# Save active channel
+def add_active_channel(channel_id: int):
+    if not db['invite_rotation'].find_one({'channel_id': channel_id}):
+        db['invite_rotation'].insert_one({
+            'channel_id': channel_id,
+            'joined_at': datetime.utcnow()
+        })
+
+# Get active channels
+def get_active_channels():
+    return [doc['channel_id'] for doc in db['invite_rotation'].find()]
+
+# Save logged message
+def save_logged_message(channel_id: int, message_id: int):
+    db['invite_logs'].update_one(
+        {'channel_id': channel_id},
+        {'$set': {'message_id': message_id, 'updated_at': datetime.utcnow()}},
+        upsert=True
+    )
+
+# Update message ID
+def update_logged_message(channel_id: int, message_id: int):
+    db['invite_logs'].update_one(
+        {'channel_id': channel_id},
+        {'$set': {'message_id': message_id, 'updated_at': datetime.utcnow()}}
+    )
+
+# Get logged messages
+def get_logged_messages():
+    return {
+        doc['channel_id']: doc['message_id']
+        for doc in db['invite_logs'].find()
+        if 'message_id' in doc
+    }
+
+
+
+
