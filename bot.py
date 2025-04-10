@@ -95,6 +95,8 @@ async def main():
         for channel_id in active_channels:
             asyncio.create_task(rotate_invite_link(channel_id))
         print("Bot Running...")
+        await asyncio.Event().wait()  # ✅ Keeps the bot alive
 
 # Start the bot
 app.run(main())
+
