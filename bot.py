@@ -4,11 +4,11 @@ from configs import cfg
 from database import (
     add_active_channel, get_active_channels,
     save_logged_message, get_logged_messages,
-    update_logged_message
+    update_logged_message,
+    get_valid_invite, save_invite
 )
-from datetime import datetime, timedelta, timezone  # ✅ Add timezone
+from datetime import datetime, timedelta, timezone
 import asyncio
-import time
 import pyrogram.utils
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
@@ -33,22 +33,22 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
                 await app.edit_message_text(
                     chat_id=LOG_CHANNEL,
                     message_id=message_id,
-                    text=f"🔗 Updated Invite Link for Channel `{channel_id}`:\n{invite_link}"
+                    text=f"\ud83d\udd17 Updated Invite Link for Channel `{channel_id}`:\n{invite_link}"
                 )
             except Exception as e:
                 print(f"Edit failed: {e}")
                 msg = await app.send_message(
                     LOG_CHANNEL,
-                    f"🔗 New Invite Link for Channel `{channel_id}`:\n{invite_link}"
+                    f"\ud83d\udd17 New Invite Link for Channel `{channel_id}`:\n{invite_link}"
                 )
-                logged_messages[channel_id] = msg.id  # ✅ updated
+                logged_messages[channel_id] = msg.id
                 update_logged_message(channel_id, msg.id)
         else:
             msg = await app.send_message(
                 LOG_CHANNEL,
-                f"🔗 Invite Link for Channel `{channel_id}`:\n{invite_link}"
+                f"\ud83d\udd17 Invite Link for Channel `{channel_id}`:\n{invite_link}"
             )
-            logged_messages[channel_id] = msg.id  # ✅ updated
+            logged_messages[channel_id] = msg.id
             save_logged_message(channel_id, msg.id)
     except Exception as e:
         print(f"Log/update error: {e}")
@@ -57,8 +57,7 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
 async def rotate_invite_link(channel_id: int):
     while True:
         try:
-            # ✅ timezone-aware datetime
-            expire_time = datetime.now(timezone.utc) + timedelta(minutes=2)
+            expire_time = datetime.now(timezone.utc) + timedelta(minutes=15)
             invite: ChatInviteLink = await app.create_chat_invite_link(
                 chat_id=channel_id,
                 expire_date=expire_time,
@@ -66,9 +65,10 @@ async def rotate_invite_link(channel_id: int):
                 name="15min-invite"
             )
             await send_or_update_invite_link(channel_id, invite.invite_link)
-            await asyncio.sleep(120)
+            save_invite(channel_id, invite.invite_link, expire_time)
+            await asyncio.sleep(900)
         except Exception as e:
-            await log_to_channel(f"❌ Error rotating link for {channel_id}: {e}")
+            await log_to_channel(f"\u274c Error rotating link for {channel_id}: {e}")
             break
 
 # Function to log messages
@@ -86,17 +86,24 @@ async def bot_added_to_channel(client, chat_member_updated):
         if channel_id not in active_channels:
             active_channels.add(channel_id)
             add_active_channel(channel_id)
-            await log_to_channel(f"✅ Bot added as admin in channel: `{chat_member_updated.chat.title}` (`{channel_id}`)")
+            await log_to_channel(f"\u2705 Bot added as admin in channel: `{chat_member_updated.chat.title}` (`{channel_id}`)")
             asyncio.create_task(rotate_invite_link(channel_id))
 
-# ✅ Startup tasks: restart rotation for existing active channels
-async def main():
-    async with app:
-        for channel_id in active_channels:
+# Automatically resume rotation on startup
+@app.on_message()
+async def on_ready_handler(client, message):
+    for channel_id in active_channels:
+        existing = get_valid_invite(channel_id)
+        if existing:
+            await send_or_update_invite_link(channel_id, existing['link'])
+            time_left = (existing['expires_at'] - datetime.now(timezone.utc)).total_seconds()
+            asyncio.create_task(resume_invite_rotation(channel_id, time_left))
+        else:
             asyncio.create_task(rotate_invite_link(channel_id))
-        print("Bot Running...")
-        await asyncio.Event().wait()  # ✅ Keeps the bot alive
 
-# Start the bot
-app.run(main())
+async def resume_invite_rotation(channel_id: int, delay: float):
+    await asyncio.sleep(delay)
+    await rotate_invite_link(channel_id)
 
+print("Bot Running...")
+app.run()
