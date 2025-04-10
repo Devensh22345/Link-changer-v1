@@ -6,12 +6,11 @@ from datetime import datetime
 client = MongoClient(cfg.MONGO_URI)
 db = client[cfg.MONGO_DB_NAME]
 
-# Collection for storing created channels and logs
+# Collections
 created_channels = db['created_channels']
 channel_logs = db['channel_logs']
-channel_invites = db['channel_invites']  # NEW: For invite link tracking
+channel_invites = db['channel_invites']
 
-# Add a created channel to the database
 def add_created_channel(channel_id: int, channel_name: str = None, created_by: str = None, username: str = None):
     created_channels.insert_one({
         'channel_id': channel_id,
@@ -21,19 +20,15 @@ def add_created_channel(channel_id: int, channel_name: str = None, created_by: s
         'created_at': datetime.utcnow()
     })
 
-# Get all created channels from the database
 def get_created_channels():
     return list(created_channels.find())
 
-# Delete a created channel from the database
 def delete_created_channel(channel_id: int):
     created_channels.delete_one({'channel_id': channel_id})
 
-# Check if a channel exists in the database
 def channel_exists(channel_id: int) -> bool:
     return created_channels.find_one({'channel_id': channel_id}) is not None
 
-# Store old and new usernames when the channel username changes
 def log_channel_username_change(old_username: str, new_username: str, changed_by: str):
     channel_logs.insert_one({
         'old_username': old_username,
@@ -42,7 +37,6 @@ def log_channel_username_change(old_username: str, new_username: str, changed_by
         'changed_at': datetime.utcnow()
     })
 
-# Add temporary channel details to the database, including username
 def add_temporary_channel(channel_id: int, old_username: str, created_by: str):
     created_channels.insert_one({
         'channel_id': channel_id,
@@ -52,15 +46,12 @@ def add_temporary_channel(channel_id: int, old_username: str, created_by: str):
         'created_at': datetime.utcnow()
     })
 
-# Get all temporary channels
 def get_temporary_channels():
     return list(created_channels.find({'temporary': True}))
 
-# Delete a temporary channel from the database
 def delete_temporary_channel(channel_id: int):
     created_channels.delete_one({'channel_id': channel_id})
 
-# Log creation of a new channel with a specific username
 def log_new_channel_creation(channel_id: int, old_username: str, created_by: str):
     channel_logs.insert_one({
         'channel_id': channel_id,
@@ -69,32 +60,27 @@ def log_new_channel_creation(channel_id: int, old_username: str, created_by: str
         'created_at': datetime.utcnow()
     })
 
-# ================================
-# 🔄 Invite Link & Log Message Utils (NEW)
-# ================================
-
-# Set or update invite log for a channel
-def set_invite_log(channel_id: int, invite_link: str, message_id: int):
+# 🔄 Invite Link & Log Message Utils (MODIFIED)
+def set_invite_log(channel_id: int, invite_link: str, message_id: int, expires_at: datetime):
     channel_invites.update_one(
         {'channel_id': channel_id},
         {
             '$set': {
                 'invite_link': invite_link,
                 'message_id': message_id,
+                'expires_at': expires_at,
                 'last_updated': datetime.utcnow()
             }
         },
         upsert=True
     )
 
-# Get current invite log (invite link + log message ID)
 def get_invite_log(channel_id: int):
     return channel_invites.find_one({'channel_id': channel_id})
 
-# Delete the invite log for a channel
 def delete_invite_log(channel_id: int):
     channel_invites.delete_one({'channel_id': channel_id})
-# Save active channel
+
 def add_active_channel(channel_id: int):
     if not db['invite_rotation'].find_one({'channel_id': channel_id}):
         db['invite_rotation'].insert_one({
@@ -102,11 +88,9 @@ def add_active_channel(channel_id: int):
             'joined_at': datetime.utcnow()
         })
 
-# Get active channels
 def get_active_channels():
     return [doc['channel_id'] for doc in db['invite_rotation'].find()]
 
-# Save logged message
 def save_logged_message(channel_id: int, message_id: int):
     db['invite_logs'].update_one(
         {'channel_id': channel_id},
@@ -114,21 +98,15 @@ def save_logged_message(channel_id: int, message_id: int):
         upsert=True
     )
 
-# Update message ID
 def update_logged_message(channel_id: int, message_id: int):
     db['invite_logs'].update_one(
         {'channel_id': channel_id},
         {'$set': {'message_id': message_id, 'updated_at': datetime.utcnow()}}
     )
 
-# Get logged messages
 def get_logged_messages():
     return {
         doc['channel_id']: doc['message_id']
         for doc in db['invite_logs'].find()
         if 'message_id' in doc
     }
-
-
-
-
