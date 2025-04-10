@@ -66,7 +66,7 @@ async def rotate_invite_link(channel_id: int):
                 name="15min-invite"
             )
             await send_or_update_invite_link(channel_id, invite.invite_link)
-            await asyncio.sleep(900)
+            await asyncio.sleep(120)
         except Exception as e:
             await log_to_channel(f"❌ Error rotating link for {channel_id}: {e}")
             break
