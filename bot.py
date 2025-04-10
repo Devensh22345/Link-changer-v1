@@ -229,7 +229,7 @@ async def handle_changeall_all_sessions(client: Client, callback_query):
                         await log_to_channel(f"❌ {session_key} error: {e}")
                         continue
 
-                    await asyncio.sleep(60 * 5)
+                    await asyncio.sleep(60 * 60)
             except Exception as e:
                 await asyncio.sleep(2)
 
