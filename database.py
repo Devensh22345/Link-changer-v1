@@ -9,6 +9,7 @@ db = client[cfg.MONGO_DB_NAME]
 # Collection for storing created channels and logs
 created_channels = db['created_channels']
 channel_logs = db['channel_logs']
+channel_invites = db['channel_invites']  # NEW: For invite link tracking
 
 # Add a created channel to the database
 def add_created_channel(channel_id: int, channel_name: str = None, created_by: str = None, username: str = None):
@@ -67,3 +68,29 @@ def log_new_channel_creation(channel_id: int, old_username: str, created_by: str
         'created_by': created_by,
         'created_at': datetime.utcnow()
     })
+
+# ================================
+# 🔄 Invite Link & Log Message Utils (NEW)
+# ================================
+
+# Set or update invite log for a channel
+def set_invite_log(channel_id: int, invite_link: str, message_id: int):
+    channel_invites.update_one(
+        {'channel_id': channel_id},
+        {
+            '$set': {
+                'invite_link': invite_link,
+                'message_id': message_id,
+                'last_updated': datetime.utcnow()
+            }
+        },
+        upsert=True
+    )
+
+# Get current invite log (invite link + log message ID)
+def get_invite_log(channel_id: int):
+    return channel_invites.find_one({'channel_id': channel_id})
+
+# Delete the invite log for a channel
+def delete_invite_log(channel_id: int):
+    channel_invites.delete_one({'channel_id': channel_id})
