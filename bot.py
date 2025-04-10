@@ -89,6 +89,12 @@ async def bot_added_to_channel(client, chat_member_updated):
             await log_to_channel(f"✅ Bot added as admin in channel: `{chat_member_updated.chat.title}` (`{channel_id}`)")
             asyncio.create_task(rotate_invite_link(channel_id))
 
+# ✅ Startup tasks: restart rotation for existing active channels
+async def main():
+    async with app:
+        for channel_id in active_channels:
+            asyncio.create_task(rotate_invite_link(channel_id))
+        print("Bot Running...")
+
 # Start the bot
-print("Bot Running...")
-app.run()
+app.run(main())
