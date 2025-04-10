@@ -93,7 +93,7 @@ def get_invite_log(channel_id: int):
 
 # Delete the invite log for a channel
 def delete_invite_log(channel_id: int):
-    channel_invites.delete_one({'channel_id': channel_id})>
+    channel_invites.delete_one({'channel_id': channel_id})
 # Save active channel
 def add_active_channel(channel_id: int):
     if not db['invite_rotation'].find_one({'channel_id': channel_id}):
