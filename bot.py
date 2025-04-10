@@ -6,7 +6,7 @@ from database import (
     save_logged_message, get_logged_messages,
     update_logged_message
 )
-from datetime import datetime, timedelta  # ✅ Add this at top
+from datetime import datetime, timedelta, timezone  # ✅ Add timezone
 import asyncio
 import time
 import pyrogram.utils
@@ -41,15 +41,15 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
                     LOG_CHANNEL,
                     f"🔗 New Invite Link for Channel `{channel_id}`:\n{invite_link}"
                 )
-                logged_messages[channel_id] = msg.message_id
-                update_logged_message(channel_id, msg.message_id)
+                logged_messages[channel_id] = msg.id  # ✅ updated
+                update_logged_message(channel_id, msg.id)
         else:
             msg = await app.send_message(
                 LOG_CHANNEL,
                 f"🔗 Invite Link for Channel `{channel_id}`:\n{invite_link}"
             )
-            logged_messages[channel_id] = msg.message_id
-            save_logged_message(channel_id, msg.message_id)
+            logged_messages[channel_id] = msg.id  # ✅ updated
+            save_logged_message(channel_id, msg.id)
     except Exception as e:
         print(f"Log/update error: {e}")
 
@@ -57,8 +57,8 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
 async def rotate_invite_link(channel_id: int):
     while True:
         try:
-            # ✅ Corrected: datetime object instead of int
-            expire_time = datetime.utcnow() + timedelta(minutes=15)
+            # ✅ timezone-aware datetime
+            expire_time = datetime.now(timezone.utc) + timedelta(minutes=15)
             invite: ChatInviteLink = await app.create_chat_invite_link(
                 chat_id=channel_id,
                 expire_date=expire_time,
