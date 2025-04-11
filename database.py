@@ -20,45 +20,10 @@ def add_created_channel(channel_id: int, channel_name: str = None, created_by: s
         'created_at': datetime.utcnow()
     })
 
-def get_created_channels():
-    return list(created_channels.find())
-
-def delete_created_channel(channel_id: int):
-    created_channels.delete_one({'channel_id': channel_id})
 
 def channel_exists(channel_id: int) -> bool:
     return created_channels.find_one({'channel_id': channel_id}) is not None
 
-def log_channel_username_change(old_username: str, new_username: str, changed_by: str):
-    channel_logs.insert_one({
-        'old_username': old_username,
-        'new_username': new_username,
-        'changed_by': changed_by,
-        'changed_at': datetime.utcnow()
-    })
-
-def add_temporary_channel(channel_id: int, old_username: str, created_by: str):
-    created_channels.insert_one({
-        'channel_id': channel_id,
-        'temporary': True,
-        'old_username': old_username,
-        'created_by': created_by,
-        'created_at': datetime.utcnow()
-    })
-
-def get_temporary_channels():
-    return list(created_channels.find({'temporary': True}))
-
-def delete_temporary_channel(channel_id: int):
-    created_channels.delete_one({'channel_id': channel_id})
-
-def log_new_channel_creation(channel_id: int, old_username: str, created_by: str):
-    channel_logs.insert_one({
-        'channel_id': channel_id,
-        'username': old_username,
-        'created_by': created_by,
-        'created_at': datetime.utcnow()
-    })
 
 # 🔄 Invite Link & Log Message Utils (MODIFIED)
 # Set or update invite log for a channel
