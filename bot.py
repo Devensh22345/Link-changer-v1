@@ -62,9 +62,6 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
 
 # Background task to rotate invite link every 15 minutes
 
-import traceback
-from pyrogram.errors import FloodWait
-
 async def rotate_invite_link(channel_id: int):
     await log_to_channel(f"🔄 Starting link rotation for {channel_id}")
     while True:
@@ -87,7 +84,14 @@ async def rotate_invite_link(channel_id: int):
         except Exception as e:
             tb = traceback.format_exc()
             await log_to_channel(f"❌ Error rotating link for {channel_id}: {e}\n\n{tb}")
-            await remove_channel_from_db(channel_id)  # 🧹 Clean-up in DB
+            
+            # Remove channel from internal tracking and DB
+            active_channels.discard(channel_id)
+            try:
+                remove_channel_from_db(channel_id)
+            except Exception as cleanup_error:
+                await log_to_channel(f"⚠️ Failed to remove {channel_id} from DB: {cleanup_error}")
+            
             break
 
 
