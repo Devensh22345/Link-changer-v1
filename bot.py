@@ -72,6 +72,12 @@ async def rotate_invite_link(channel_id: int):
             await asyncio.sleep(120)
         except Exception as e:
             await log_to_channel(f"❌ Error rotating link for {channel_id}: {e}")
+
+            # 🔥 Clean up on permanent access errors
+            if "CHANNEL_PRIVATE" in str(e):
+                cleanup_channel(channel_id)
+                await log_to_channel(f"⚠️ Channel `{channel_id}` is no longer accessible. Removed from database.")
+
             break
 
 
