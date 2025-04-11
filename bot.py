@@ -104,7 +104,6 @@ def cleanup_channel(channel_id: int):
 # async def rotate_invite_link(channel_id: int): ...
 
 # ✅ USE THIS INSTEAD: correct placement of the handler
-@app.on_my_chat_member()
 async def handle_chat_member_update(client, update):
     me = await app.get_me()
     channel_id = update.chat.id
@@ -189,9 +188,9 @@ async def sleep_then_rotate(channel_id: int, sleep_time: float):
     await rotate_invite_link(channel_id)
 
 
-# ✅ Start everything
 async def main():
     await app.start()
+    app.add_handler(ChatMemberUpdatedHandler(handle_chat_member_update))
     await auto_start_rotation()
     print("✅ Bot Running...")
     from pyrogram import idle
