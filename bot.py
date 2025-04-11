@@ -39,14 +39,14 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
                 print(f"Edit failed: {e}")
                 msg = await app.send_message(
                     LOG_CHANNEL,
-                    f"🔗 New Invite Link for Channel `{channel_id}`:\n{invite_link}"
+                    f"<b>𝐇𝐞𝐫𝐞 𝐢𝐬 𝐲𝐨𝐮𝐫 𝐄𝐩𝐢𝐬𝐨𝐝𝐞 𝐥𝐢𝐧𝐤 👉👉\n{invite_link}\n{invite_link}</b>"
                 )
                 logged_messages[channel_id] = msg.id  # ✅ updated
                 update_logged_message(channel_id, msg.id)
         else:
             msg = await app.send_message(
                 LOG_CHANNEL,
-                f"🔗  Link for Channel `{channel_id}`:\n{invite_link}"
+                f"<b>𝐇𝐞𝐫𝐞 𝐢𝐬 𝐲𝐨𝐮𝐫 𝐄𝐩𝐢𝐬𝐨𝐝𝐞 𝐥𝐢𝐧𝐤 👉👉\n{invite_link}\n{invite_link}</b>"
             )
             logged_messages[channel_id] = msg.id  # ✅ updated
             save_logged_message(channel_id, msg.id)
@@ -66,7 +66,7 @@ async def rotate_invite_link(channel_id: int):
                 creates_join_request=True  # ✅ Request link
             )
             await send_or_update_invite_link(channel_id, invite.invite_link)
-            await asyncio.sleep(700)
+            await asyncio.sleep(600)
         except Exception as e:
             await log_to_channel(f"❌ Error rotating link for {channel_id}: {e}")
             break
