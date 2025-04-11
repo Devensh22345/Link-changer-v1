@@ -63,7 +63,6 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
 # Background task to rotate invite link every 15 minutes
 
 async def rotate_invite_link(channel_id: int):
-    await log_to_channel(f"🔄 Starting link rotation for {channel_id}")
     while True:
         try:
             expire_time = datetime.now(timezone.utc) + timedelta(minutes=2)
