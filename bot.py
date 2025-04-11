@@ -4,7 +4,7 @@ from configs import cfg
 from database import (
     add_active_channel, get_active_channels,
     save_logged_message, get_logged_messages,
-    update_logged_message
+    update_logged_message, remove_channel_from_db
 )
 from datetime import datetime, timedelta, timezone  # ✅ Add timezone
 import traceback
