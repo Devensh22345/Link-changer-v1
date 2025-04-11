@@ -5,7 +5,8 @@ from database import (
     add_active_channel, get_active_channels,
     save_logged_message, get_logged_messages,
     update_logged_message,
-    get_invite_log, set_invite_log
+    get_invite_log, set_invite_log,
+    remove_active_channel, remove_logged_message
 )
 from datetime import datetime, timedelta, timezone
 import asyncio
@@ -57,7 +58,7 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
 
 # 🔄 Create and rotate invite link every 15 mins
 async def rotate_invite_link(channel_id: int):
-    while True:
+    while channel_id in active_channels:
         try:
             expire_time = datetime.now(timezone.utc) + timedelta(minutes=2)
             invite: ChatInviteLink = await app.create_chat_invite_link(
@@ -82,7 +83,14 @@ async def log_to_channel(text: str):
         print(f"Log error: {e}")
 
 
-# ➕ When bot is added as admin to a new channel
+# 🧹 Clean up when bot is removed from a channel
+def cleanup_channel(channel_id: int):
+    active_channels.discard(channel_id)
+    remove_active_channel(channel_id)
+    remove_logged_message(channel_id)
+
+
+# 👮 Handle bot being added or removed as admin
 @app.on_chat_member_updated()
 async def handle_chat_member_update(client, update):
     me = await app.get_me()
@@ -101,17 +109,14 @@ async def handle_chat_member_update(client, update):
     if update.old_chat_member and update.old_chat_member.user.id == me.id:
         if update.old_chat_member.status in ("administrator", "creator") and update.new_chat_member.status not in ("administrator", "creator"):
             if channel_id in active_channels:
-                active_channels.remove(channel_id)
-                from database import remove_active_channel, remove_logged_message
-                remove_active_channel(channel_id)
-                remove_logged_message(channel_id)
+                cleanup_channel(channel_id)
                 await log_to_channel(f"❌ Bot removed or lost admin rights in channel: `{update.chat.title}` (`{channel_id}`)")
 
 
-
+# 🔁 Start invite rotation on startup
 async def auto_start_rotation():
     print("🔁 Checking invite links...")
-    for channel_id in active_channels:
+    for channel_id in list(active_channels):
         data = get_invite_log(channel_id)
         if data and 'invite_link' in data and 'expires_at' in data:
             expires_at = data['expires_at']
@@ -124,7 +129,7 @@ async def auto_start_rotation():
                     print(f"⏳ Reusing link for {channel_id}, expires in {int(remaining)}s")
                     asyncio.create_task(sleep_then_rotate(channel_id, remaining))
                     continue
-        # अगर expire हो गया या data missing है
+        # Expired or no data
         print(f"🔄 Generating new link for {channel_id}")
         asyncio.create_task(rotate_invite_link(channel_id))
 
