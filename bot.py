@@ -102,30 +102,35 @@ async def handle_chat_member_update(client, update):
     me = await app.get_me()
     channel_id = update.chat.id
 
+    print(f"[DEBUG] Chat Member Updated: {channel_id} | old: {update.old_chat_member.status if update.old_chat_member else None} → new: {update.new_chat_member.status if update.new_chat_member else None}")
+
     # Bot added as admin
     if update.new_chat_member and update.new_chat_member.user.id == me.id:
-        if update.new_chat_member.status in ("administrator", "creator"):
-            if channel_id not in active_channels:
-                active_channels.add(channel_id)
-                add_active_channel(channel_id)
-                await log_to_channel(f"✅ Bot added as admin in channel: `{update.chat.title}` (`{channel_id}`)")
-                asyncio.create_task(rotate_invite_link(channel_id))
-            else:
-                # 🔁 Bot was already in database — start rotation again & update link
-                await log_to_channel(f"♻️ Bot re-added as admin in channel: `{update.chat.title}` (`{channel_id}`)")
-                try:
-                    expire_time = datetime.now(timezone.utc) + timedelta(minutes=2)
-                    invite: ChatInviteLink = await app.create_chat_invite_link(
-                        chat_id=channel_id,
-                        expire_date=expire_time,
-                        member_limit=0,
-                        name="15min-invite"
-                    )
-                    await send_or_update_invite_link(channel_id, invite.invite_link)
-                    set_invite_log(channel_id, invite.invite_link, expire_time)
+        try:
+            chat_member = await app.get_chat_member(channel_id, me.id)
+            if chat_member.status in ("administrator", "creator"):
+                if channel_id not in active_channels:
+                    active_channels.add(channel_id)
+                    add_active_channel(channel_id)
+                    await log_to_channel(f"✅ Bot added as admin in channel: `{update.chat.title}` (`{channel_id}`)")
                     asyncio.create_task(rotate_invite_link(channel_id))
-                except Exception as e:
-                    await log_to_channel(f"❌ Error updating invite after re-adding to `{channel_id}`: {e}")
+                else:
+                    await log_to_channel(f"♻️ Bot re-added as admin in channel: `{update.chat.title}` (`{channel_id}`)")
+                    try:
+                        expire_time = datetime.now(timezone.utc) + timedelta(minutes=2)
+                        invite: ChatInviteLink = await app.create_chat_invite_link(
+                            chat_id=channel_id,
+                            expire_date=expire_time,
+                            member_limit=0,
+                            name="15min-invite"
+                        )
+                        await send_or_update_invite_link(channel_id, invite.invite_link)
+                        set_invite_log(channel_id, invite.invite_link, expire_time)
+                        asyncio.create_task(rotate_invite_link(channel_id))
+                    except Exception as e:
+                        await log_to_channel(f"❌ Error updating invite after re-adding to `{channel_id}`: {e}")
+        except Exception as e:
+            print(f"[ERROR] Failed to confirm admin status: {e}")
 
     # Bot removed or lost admin rights
     if update.old_chat_member and update.old_chat_member.user.id == me.id:
@@ -133,6 +138,7 @@ async def handle_chat_member_update(client, update):
             if channel_id in active_channels:
                 cleanup_channel(channel_id)
                 await log_to_channel(f"❌ Bot removed or lost admin rights in channel: `{update.chat.title}` (`{channel_id}`)")
+
 
 # 🔁 Start invite rotation on startup
 async def auto_start_rotation():
