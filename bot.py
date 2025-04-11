@@ -11,6 +11,8 @@ from database import (
 from datetime import datetime, timedelta, timezone
 import asyncio
 from pyrogram import filters
+from pyrogram.handlers import ChatMemberUpdatedHandler
+
 import pyrogram.utils
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
