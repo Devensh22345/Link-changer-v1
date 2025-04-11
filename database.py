@@ -75,10 +75,19 @@ def update_logged_message(channel_id: int, message_id: int):
 
 
 def remove_active_channel(channel_id: int):
-    your_collection.delete_one({"channel_id": channel_id})
+    db['invite_rotation'].delete_one({"channel_id": channel_id})
 
 def remove_logged_message(channel_id: int):
-    your_log_collection.delete_one({"channel_id": channel_id})
+    db['invite_logs'].delete_one({"channel_id": channel_id})
+
+def remove_channel_from_db(channel_id: int):
+    remove_active_channel(channel_id)
+    remove_logged_message(channel_id)
+    delete_invite_log(channel_id)
+    # Optionally:
+    # created_channels.delete_one({'channel_id': channel_id})
+    # channel_logs.delete_one({'channel_id': channel_id})
+
 
 
 def get_logged_messages():
