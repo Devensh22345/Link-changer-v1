@@ -82,7 +82,6 @@ async def rotate_invite_link(channel_id: int):
             await asyncio.sleep(e.value)
 
         except Exception as e:
-            tb = traceback.format_exc()
             await log_to_channel(f"❌ Error rotating link for {channel_id}: {e}\n\n{tb}")
             
             # Remove channel from internal tracking and DB
