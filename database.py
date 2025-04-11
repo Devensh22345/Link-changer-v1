@@ -82,7 +82,6 @@ def remove_logged_message(channel_id: int):
 
 def remove_channel_from_db(channel_id: int):
     remove_active_channel(channel_id)
-    remove_logged_message(channel_id)
     delete_invite_log(channel_id)
     # Optionally:
     # created_channels.delete_one({'channel_id': channel_id})
