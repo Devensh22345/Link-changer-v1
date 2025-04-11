@@ -107,15 +107,13 @@ def update_logged_message(channel_id: int, message_id: int):
         {'$set': {'message_id': message_id, 'updated_at': datetime.utcnow()}}
     )
 # remove from active_channels
+
+
 def remove_active_channel(channel_id: int):
-    # implement DB removal logic for active_channels
-    ...
+    your_collection.delete_one({"channel_id": channel_id})
 
-# remove the log message ID
 def remove_logged_message(channel_id: int):
-    # implement DB removal logic for logged_messages
-    ...
-
+    your_log_collection.delete_one({"channel_id": channel_id})
 
 
 def get_logged_messages():
