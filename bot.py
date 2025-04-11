@@ -5,14 +5,10 @@ from database import (
     add_active_channel, get_active_channels,
     save_logged_message, get_logged_messages,
     update_logged_message,
-    get_invite_log, set_invite_log,
-    remove_active_channel, remove_logged_message
+    get_invite_log, set_invite_log
 )
 from datetime import datetime, timedelta, timezone
 import asyncio
-from pyrogram import filters
-from pyrogram.handlers import ChatMemberUpdatedHandler
-
 import pyrogram.utils
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
@@ -60,11 +56,10 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
 
 
 # 🔄 Create and rotate invite link every 15 mins
-# ✅ Correct: no decorator here
 async def rotate_invite_link(channel_id: int):
-    while channel_id in active_channels:
+    while True:
         try:
-            expire_time = datetime.now(timezone.utc) + timedelta(minutes=2)
+            expire_time = datetime.now(timezone.utc) + timedelta(minutes=15)
             invite: ChatInviteLink = await app.create_chat_invite_link(
                 chat_id=channel_id,
                 expire_date=expire_time,
@@ -73,14 +68,9 @@ async def rotate_invite_link(channel_id: int):
             )
             await send_or_update_invite_link(channel_id, invite.invite_link)
             set_invite_log(channel_id, invite.invite_link, expire_time)
-            await asyncio.sleep(120)
+            await asyncio.sleep(15 * 60)
         except Exception as e:
             await log_to_channel(f"❌ Error rotating link for {channel_id}: {e}")
-
-            if "CHANNEL_PRIVATE" in str(e):
-                cleanup_channel(channel_id)
-                await log_to_channel(f"⚠️ Channel `{channel_id}` is no longer accessible. Removed from database.")
-
             break
 
 
@@ -92,79 +82,22 @@ async def log_to_channel(text: str):
         print(f"Log error: {e}")
 
 
-# 🧹 Clean up when bot is removed from a channel
-def cleanup_channel(channel_id: int):
-    active_channels.discard(channel_id)
-    remove_active_channel(channel_id)
-    remove_logged_message(channel_id)
+# ➕ When bot is added as admin to a new channel
+@app.on_chat_member_updated()
+async def bot_added_to_channel(client, chat_member_updated):
+    if chat_member_updated.new_chat_member and chat_member_updated.new_chat_member.user.id == (await app.get_me()).id:
+        channel_id = chat_member_updated.chat.id
+        if channel_id not in active_channels:
+            active_channels.add(channel_id)
+            add_active_channel(channel_id)
+            await log_to_channel(f"✅ Bot added as admin in channel: `{chat_member_updated.chat.title}` (`{channel_id}`)")
+            asyncio.create_task(rotate_invite_link(channel_id))
 
 
-# ⛔ REMOVE this (it's wrong):
-# @app.on_my_chat_member()
-# async def rotate_invite_link(channel_id: int): ...
-
-# ✅ USE THIS INSTEAD: correct placement of the handler
-async def handle_chat_member_update(client, update):
-    me = await app.get_me()
-    channel_id = update.chat.id
-
-    print(f"[DEBUG] Chat Member Update: {channel_id} | old: {update.old_chat_member.status if update.old_chat_member else None} → new: {update.new_chat_member.status if update.new_chat_member else None}")
-
-    try:
-        if update.new_chat_member.user.id == me.id:
-            new_status = update.new_chat_member.status
-            old_status = update.old_chat_member.status if update.old_chat_member else None
-
-            if new_status in ("administrator", "creator"):
-                if channel_id not in active_channels:
-                    active_channels.add(channel_id)
-                    add_active_channel(channel_id)
-                    await log_to_channel(f"✅ Bot added as admin in channel: `{update.chat.title}` (`{channel_id}`)")
-                    asyncio.create_task(rotate_invite_link(channel_id))
-                else:
-                    await log_to_channel(f"♻️ Bot re-added as admin in channel: `{update.chat.title}` (`{channel_id}`)")
-                    try:
-                        expire_time = datetime.now(timezone.utc) + timedelta(minutes=2)
-                        invite: ChatInviteLink = await app.create_chat_invite_link(
-                            chat_id=channel_id,
-                            expire_date=expire_time,
-                            member_limit=0,
-                            name="15min-invite"
-                        )
-                        await send_or_update_invite_link(channel_id, invite.invite_link)
-                        set_invite_log(channel_id, invite.invite_link, expire_time)
-                        asyncio.create_task(rotate_invite_link(channel_id))
-                    except Exception as e:
-                        await log_to_channel(f"❌ Error updating invite after re-adding to `{channel_id}`: {e}")
-
-            elif old_status in ("administrator", "creator") and new_status not in ("administrator", "creator"):
-                if channel_id in active_channels:
-                    cleanup_channel(channel_id)
-                    await log_to_channel(f"❌ Bot removed or lost admin rights in channel: `{update.chat.title}` (`{channel_id}`)")
-
-    except Exception as e:
-        print(f"[ERROR] chat_member_updated handler failed: {e}")
-
-    if update.old_chat_member and update.old_chat_member.user.id == me.id:
-        if update.old_chat_member.status in ("administrator", "creator") and update.new_chat_member.status not in ("administrator", "creator"):
-            if channel_id in active_channels:
-                cleanup_channel(channel_id)
-                await log_to_channel(f"❌ Bot removed as admin (via my_chat_member) from channel: `{update.chat.title}` (`{channel_id}`)")
-
-
-    # Bot removed or lost admin rights
-    if update.old_chat_member and update.old_chat_member.user.id == me.id:
-        if update.old_chat_member.status in ("administrator", "creator") and update.new_chat_member.status not in ("administrator", "creator"):
-            if channel_id in active_channels:
-                cleanup_channel(channel_id)
-                await log_to_channel(f"❌ Bot removed as admin (via my_chat_member) from channel: `{update.chat.title}` (`{channel_id}`)")
-
-
-
-# 🔁 Start invite rotation on startup
+# 🚀 On startup: resume rotation from existing link if still valid
 async def auto_start_rotation():
     print("🔁 Checking invite links...")
-    for channel_id in list(active_channels):
+    for channel_id in active_channels:
         data = get_invite_log(channel_id)
         if data and 'invite_link' in data and 'expires_at' in data:
             expires_at = data['expires_at']
@@ -177,7 +110,7 @@ async def auto_start_rotation():
                     print(f"⏳ Reusing link for {channel_id}, expires in {int(remaining)}s")
                     asyncio.create_task(sleep_then_rotate(channel_id, remaining))
                     continue
-        # Expired or no data
+        # अगर expire हो गया या data missing है
         print(f"🔄 Generating new link for {channel_id}")
         asyncio.create_task(rotate_invite_link(channel_id))
 
@@ -188,15 +121,14 @@ async def sleep_then_rotate(channel_id: int, sleep_time: float):
     await rotate_invite_link(channel_id)
 
 
+# ✅ Start everything
 async def main():
     await app.start()
-    app.add_handler(ChatMemberUpdatedHandler(handle_chat_member_update))
     await auto_start_rotation()
     print("✅ Bot Running...")
     from pyrogram import idle
     await idle()
     await app.stop()
-
 
 if __name__ == "__main__":
     asyncio.run(main())
