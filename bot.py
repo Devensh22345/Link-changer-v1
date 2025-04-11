@@ -110,6 +110,22 @@ async def handle_chat_member_update(client, update):
                 add_active_channel(channel_id)
                 await log_to_channel(f"✅ Bot added as admin in channel: `{update.chat.title}` (`{channel_id}`)")
                 asyncio.create_task(rotate_invite_link(channel_id))
+            else:
+                # 🔁 Bot was already in database — start rotation again & update link
+                await log_to_channel(f"♻️ Bot re-added as admin in channel: `{update.chat.title}` (`{channel_id}`)")
+                try:
+                    expire_time = datetime.now(timezone.utc) + timedelta(minutes=2)
+                    invite: ChatInviteLink = await app.create_chat_invite_link(
+                        chat_id=channel_id,
+                        expire_date=expire_time,
+                        member_limit=0,
+                        name="15min-invite"
+                    )
+                    await send_or_update_invite_link(channel_id, invite.invite_link)
+                    set_invite_log(channel_id, invite.invite_link, expire_time)
+                    asyncio.create_task(rotate_invite_link(channel_id))
+                except Exception as e:
+                    await log_to_channel(f"❌ Error updating invite after re-adding to `{channel_id}`: {e}")
 
     # Bot removed or lost admin rights
     if update.old_chat_member and update.old_chat_member.user.id == me.id:
@@ -117,7 +133,6 @@ async def handle_chat_member_update(client, update):
             if channel_id in active_channels:
                 cleanup_channel(channel_id)
                 await log_to_channel(f"❌ Bot removed or lost admin rights in channel: `{update.chat.title}` (`{channel_id}`)")
-
 
 # 🔁 Start invite rotation on startup
 async def auto_start_rotation():
