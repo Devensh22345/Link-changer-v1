@@ -84,14 +84,29 @@ async def log_to_channel(text: str):
 
 # ➕ When bot is added as admin to a new channel
 @app.on_chat_member_updated()
-async def bot_added_to_channel(client, chat_member_updated):
-    if chat_member_updated.new_chat_member and chat_member_updated.new_chat_member.user.id == (await app.get_me()).id:
-        channel_id = chat_member_updated.chat.id
-        if channel_id not in active_channels:
-            active_channels.add(channel_id)
-            add_active_channel(channel_id)
-            await log_to_channel(f"✅ Bot added as admin in channel: `{chat_member_updated.chat.title}` (`{channel_id}`)")
-            asyncio.create_task(rotate_invite_link(channel_id))
+async def handle_chat_member_update(client, update):
+    me = await app.get_me()
+    channel_id = update.chat.id
+
+    # Bot added as admin
+    if update.new_chat_member and update.new_chat_member.user.id == me.id:
+        if update.new_chat_member.status in ("administrator", "creator"):
+            if channel_id not in active_channels:
+                active_channels.add(channel_id)
+                add_active_channel(channel_id)
+                await log_to_channel(f"✅ Bot added as admin in channel: `{update.chat.title}` (`{channel_id}`)")
+                asyncio.create_task(rotate_invite_link(channel_id))
+
+    # Bot removed or lost admin rights
+    if update.old_chat_member and update.old_chat_member.user.id == me.id:
+        if update.old_chat_member.status in ("administrator", "creator") and update.new_chat_member.status not in ("administrator", "creator"):
+            if channel_id in active_channels:
+                active_channels.remove(channel_id)
+                from database import remove_active_channel, remove_logged_message
+                remove_active_channel(channel_id)
+                remove_logged_message(channel_id)
+                await log_to_channel(f"❌ Bot removed or lost admin rights in channel: `{update.chat.title}` (`{channel_id}`)")
+
 
 
 async def auto_start_rotation():
