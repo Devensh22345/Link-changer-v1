@@ -33,7 +33,7 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
                 await app.edit_message_text(
                     chat_id=LOG_CHANNEL,
                     message_id=message_id,
-                    text=f"🔗 Updated Invite Link for Channel `{channel_id}`:\n{invite_link}"
+                    text=f"<b>𝐇𝐞𝐫𝐞 𝐢𝐬 𝐲𝐨𝐮𝐫 {chat_member_updated.chat.title} 𝐄𝐩𝐢𝐬𝐨𝐝𝐞 𝐥𝐢𝐧𝐤 👉👉\n{invite_link}\n{invite_link}</b>"
                 )
             except Exception as e:
                 print(f"Edit failed: {e}")
@@ -46,7 +46,7 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
         else:
             msg = await app.send_message(
                 LOG_CHANNEL,
-                f"🔗 Invite Link for Channel `{channel_id}`:\n{invite_link}"
+                f"🔗  Link for Channel `{channel_id}`:\n{invite_link}"
             )
             logged_messages[channel_id] = msg.id  # ✅ updated
             save_logged_message(channel_id, msg.id)
