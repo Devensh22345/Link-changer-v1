@@ -94,7 +94,6 @@ async def bot_added_to_channel(client, chat_member_updated):
             asyncio.create_task(rotate_invite_link(channel_id))
 
 
-# 🚀 On startup: resume rotation from existing link if still valid
 async def auto_start_rotation():
     print("🔁 Checking invite links...")
     for channel_id in active_channels:
@@ -102,13 +101,17 @@ async def auto_start_rotation():
         if data and 'invite_link' in data and 'expires_at' in data:
             expires_at = data['expires_at']
             if isinstance(expires_at, datetime):
-                expires_at_aware = expires_at.replace(tzinfo=timezone.utc)
-                if expires_at_aware > datetime.now(timezone.utc):
-                    remaining = (expires_at_aware - datetime.now(timezone.utc)).total_seconds()
+                if expires_at.tzinfo is None:
+                    expires_at = expires_at.replace(tzinfo=timezone.utc)
+                now = datetime.now(timezone.utc)
+                if expires_at > now:
+                    remaining = (expires_at - now).total_seconds()
                     print(f"⏳ Reusing link for {channel_id}, expires in {int(remaining)}s")
                     asyncio.create_task(sleep_then_rotate(channel_id, remaining))
                     continue
-
+        # अगर expire हो गया या data missing है
+        print(f"🔄 Generating new link for {channel_id}")
+        asyncio.create_task(rotate_invite_link(channel_id))
 
 
 # ⏳ Wait till current link expires then rotate
