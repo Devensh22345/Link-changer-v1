@@ -59,6 +59,7 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
 
 
 # 🔄 Create and rotate invite link every 15 mins
+@app.on_my_chat_member()
 async def rotate_invite_link(channel_id: int):
     while channel_id in active_channels:
         try:
