@@ -59,7 +59,7 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
 
 
 # 🔄 Create and rotate invite link every 15 mins
-@app.on_my_chat_member()
+# ✅ Correct: no decorator here
 async def rotate_invite_link(channel_id: int):
     while channel_id in active_channels:
         try:
@@ -76,7 +76,6 @@ async def rotate_invite_link(channel_id: int):
         except Exception as e:
             await log_to_channel(f"❌ Error rotating link for {channel_id}: {e}")
 
-            # 🔥 Clean up on permanent access errors
             if "CHANNEL_PRIVATE" in str(e):
                 cleanup_channel(channel_id)
                 await log_to_channel(f"⚠️ Channel `{channel_id}` is no longer accessible. Removed from database.")
@@ -99,7 +98,12 @@ def cleanup_channel(channel_id: int):
     remove_logged_message(channel_id)
 
 
-# 👮 Handle bot being added or removed as admi
+# ⛔ REMOVE this (it's wrong):
+# @app.on_my_chat_member()
+# async def rotate_invite_link(channel_id: int): ...
+
+# ✅ USE THIS INSTEAD: correct placement of the handler
+@app.on_my_chat_member()
 async def handle_chat_member_update(client, update):
     me = await app.get_me()
     channel_id = update.chat.id
@@ -140,6 +144,12 @@ async def handle_chat_member_update(client, update):
 
     except Exception as e:
         print(f"[ERROR] chat_member_updated handler failed: {e}")
+
+    if update.old_chat_member and update.old_chat_member.user.id == me.id:
+        if update.old_chat_member.status in ("administrator", "creator") and update.new_chat_member.status not in ("administrator", "creator"):
+            if channel_id in active_channels:
+                cleanup_channel(channel_id)
+                await log_to_channel(f"❌ Bot removed as admin (via my_chat_member) from channel: `{update.chat.title}` (`{channel_id}`)")
 
 
     # Bot removed or lost admin rights
@@ -187,8 +197,6 @@ async def main():
     await idle()
     await app.stop()
 
-
-app.add_handler(MyChatMemberHandler(handle_chat_member_update, filters.me))
 
 if __name__ == "__main__":
     asyncio.run(main())
