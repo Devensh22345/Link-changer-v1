@@ -7,6 +7,9 @@ from database import (
     update_logged_message
 )
 from datetime import datetime, timedelta, timezone  # ✅ Add timezone
+import traceback
+from pyrogram.errors import FloodWait, ChatAdminRequired
+from pyrogram.errors import ChannelPrivate
 import asyncio
 import time
 import pyrogram.utils
@@ -58,7 +61,12 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
 
 
 # Background task to rotate invite link every 15 minutes
+
+import traceback
+from pyrogram.errors import FloodWait
+
 async def rotate_invite_link(channel_id: int):
+    await log_to_channel(f"🔄 Starting link rotation for {channel_id}")
     while True:
         try:
             expire_time = datetime.now(timezone.utc) + timedelta(minutes=2)
@@ -67,13 +75,22 @@ async def rotate_invite_link(channel_id: int):
                 expire_date=expire_time,
                 member_limit=0,
                 name="15min-invite",
-                creates_join_request=True  # ✅ Request link
+                creates_join_request=True
             )
             await send_or_update_invite_link(channel_id, invite.invite_link)
             await asyncio.sleep(120)
+
+        except FloodWait as e:
+            await log_to_channel(f"⏳ FloodWait for {e.value} seconds in {channel_id}")
+            await asyncio.sleep(e.value)
+
         except Exception as e:
-            await log_to_channel(f"❌ Error rotating link for {channel_id}: {e}")
+            tb = traceback.format_exc()
+            await log_to_channel(f"❌ Error rotating link for {channel_id}: {e}\n\n{tb}")
+            await remove_channel_from_db(channel_id)  # 🧹 Clean-up in DB
             break
+
+
 
 
 # Function to log messages
