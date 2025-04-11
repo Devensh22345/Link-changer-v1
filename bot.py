@@ -23,7 +23,7 @@ app = Client(
 LOG_CHANNEL = cfg.LOG_CHANNEL
 active_channels = set(get_active_channels())
 logged_messages = get_logged_messages()  # {channel_id: message_id}
-
+rotation_tasks = {}
 # Function to log or edit invite link in the log channel
 async def send_or_update_invite_link(channel_id: int, invite_link: str):
     try:
@@ -58,22 +58,31 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
 
 
 # Background task to rotate invite link every 15 minutes
+rotation_tasks = {}
+
 async def rotate_invite_link(channel_id: int):
-    while True:
-        try:
-            expire_time = datetime.now(timezone.utc) + timedelta(minutes=2)
-            invite: ChatInviteLink = await app.create_chat_invite_link(
-                chat_id=channel_id,
-                expire_date=expire_time,
-                member_limit=0,
-                name="15min-invite",
-                creates_join_request=True  # ✅ Request link
-            )
-            await send_or_update_invite_link(channel_id, invite.invite_link)
-            await asyncio.sleep(120)
-        except Exception as e:
-            await log_to_channel(f"❌ Error rotating link for {channel_id}: {e}")
-            break
+    if channel_id in rotation_tasks:
+        return  # Prevent duplicate rotation task
+
+    async def _rotate():
+        while True:
+            try:
+                expire_time = datetime.now(timezone.utc) + timedelta(minutes=2)
+                invite: ChatInviteLink = await app.create_chat_invite_link(
+                    chat_id=channel_id,
+                    expire_date=expire_time,
+                    member_limit=0,
+                    name="15min-invite",
+                    creates_join_request=True
+                )
+                await send_or_update_invite_link(channel_id, invite.invite_link)
+                await asyncio.sleep(120)
+            except Exception as e:
+                await log_to_channel(f"❌ Error rotating link for {channel_id}: {e}")
+                break
+
+    task = asyncio.create_task(_rotate())
+    rotation_tasks[channel_id] = task
 
 
 # Function to log messages
@@ -83,16 +92,38 @@ async def log_to_channel(text: str):
     except Exception as e:
         print(f"Log error: {e}")
 
-# Detect when bot added to channel
 @app.on_chat_member_updated()
-async def bot_added_to_channel(client, chat_member_updated):
-    if chat_member_updated.new_chat_member and chat_member_updated.new_chat_member.user.id == (await app.get_me()).id:
-        channel_id = chat_member_updated.chat.id
+async def bot_added_or_removed(client, chat_member_updated):
+    bot_id = (await app.get_me()).id
+    channel_id = chat_member_updated.chat.id
+
+    # Bot added or promoted to admin
+    if chat_member_updated.new_chat_member.user.id == bot_id and chat_member_updated.new_chat_member.status == "administrator":
         if channel_id not in active_channels:
             active_channels.add(channel_id)
             add_active_channel(channel_id)
             await log_to_channel(f"✅ Bot added as admin in channel: `{chat_member_updated.chat.title}` (`{channel_id}`)")
             asyncio.create_task(rotate_invite_link(channel_id))
+
+    # Bot removed or demoted
+    elif chat_member_updated.old_chat_member and chat_member_updated.old_chat_member.user.id == bot_id:
+        new_status = chat_member_updated.new_chat_member.status
+        if new_status not in ("administrator", "member"):
+            if channel_id in active_channels:
+                active_channels.remove(channel_id)
+                remove_active_channel(channel_id)  # 🧠 You need to define this in database.py
+
+                # Cancel rotation task if running
+                if channel_id in rotation_tasks:
+                    rotation_tasks[channel_id].cancel()
+                    del rotation_tasks[channel_id]
+
+                # Optionally remove log message ID from DB and in-memory
+                if channel_id in logged_messages:
+                    del logged_messages[channel_id]
+                    remove_logged_message(channel_id)  # 🧠 Add this in database.py
+
+                await log_to_channel(f"⚠️ Bot removed or demoted from: `{chat_member_updated.chat.title}` (`{channel_id}`)")
 
 # ✅ Startup tasks: restart rotation for existing active channels
 # ✅ Startup tasks: restart rotation for existing active channels
