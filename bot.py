@@ -28,21 +28,26 @@ logged_messages = get_logged_messages()  # {channel_id: message_id}
 async def send_or_update_invite_link(channel_id: int, invite_link: str):
     try:
         if channel_id in logged_messages:
-            message_id = logged_messages[channel_id]
-            try:
-                await app.edit_message_text(
-                    chat_id=LOG_CHANNEL,
-                    message_id=message_id,
-                    text=f"<b>𝐇𝐞𝐫𝐞 𝐢𝐬 𝐲𝐨𝐮𝐫 𝐄𝐩𝐢𝐬𝐨𝐝𝐞 𝐥𝐢𝐧𝐤 👉👉\n{invite_link}\n{invite_link}</b>"
-                )
-            except Exception as e:
-                print(f"Edit failed: {e}")
-                msg = await app.send_message(
-                    LOG_CHANNEL,
-                    f"<b>𝐇𝐞𝐫𝐞 𝐢𝐬 𝐲𝐨𝐮𝐫 𝐄𝐩𝐢𝐬𝐨𝐝𝐞 𝐥𝐢𝐧𝐤 👉👉\n{invite_link}\n{invite_link}</b>"
-                )
-                logged_messages[channel_id] = msg.id  # ✅ updated
-                update_logged_message(channel_id, msg.id)
+    message_id = logged_messages[channel_id]
+    try:
+        await app.edit_message_text(
+            chat_id=LOG_CHANNEL,
+            message_id=message_id,
+            text=f"<b>𝐇𝐞𝐫𝐞 𝐢𝐬 𝐲𝐨𝐮𝐫 𝐄𝐩𝐢𝐬𝐨𝐝𝐞 𝐥𝐢𝐧𝐤 👉👉\n{invite_link}\n{invite_link}</b>"
+        )
+    except Exception as e:
+        print(f"Edit failed: {e}")
+        # Delete old ID before retrying
+        del logged_messages[channel_id]
+        update_logged_message(channel_id, None)  # Or remove from DB
+        # Retry by sending new message
+        msg = await app.send_message(
+            LOG_CHANNEL,
+            f"<b>𝐇𝐞𝐫𝐞 𝐢𝐬 𝐲𝐨𝐮𝐫 𝐄𝐩𝐢𝐬𝐨𝐝𝐞 𝐥𝐢𝐧𝐤 👉👉\n{invite_link}\n{invite_link}</b>"
+        )
+        logged_messages[channel_id] = msg.id
+        update_logged_message(channel_id, msg.id)
+
         else:
             msg = await app.send_message(
                 LOG_CHANNEL,
