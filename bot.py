@@ -10,7 +10,6 @@ from database import (
 )
 from datetime import datetime, timedelta, timezone
 import asyncio
-from pyrogram.handlers import MyChatMemberHandler
 from pyrogram import filters
 import pyrogram.utils
 
