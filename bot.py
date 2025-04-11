@@ -10,6 +10,8 @@ from database import (
 )
 from datetime import datetime, timedelta, timezone
 import asyncio
+from pyrogram.handlers import MyChatMemberHandler
+from pyrogram import filters
 import pyrogram.utils
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
@@ -96,8 +98,7 @@ def cleanup_channel(channel_id: int):
     remove_logged_message(channel_id)
 
 
-# 👮 Handle bot being added or removed as admin
-@app.on_chat_member_updated()
+# 👮 Handle bot being added or removed as admi
 async def handle_chat_member_update(client, update):
     me = await app.get_me()
     channel_id = update.chat.id
@@ -184,6 +185,9 @@ async def main():
     from pyrogram import idle
     await idle()
     await app.stop()
+
+
+app.add_handler(MyChatMemberHandler(handle_chat_member_update, filters.me))
 
 if __name__ == "__main__":
     asyncio.run(main())
