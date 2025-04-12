@@ -71,9 +71,9 @@ async def rotate_invite_link(channel_id: int):
 
             if invite_info:
                expires_at = invite_info["expires_at"]
-                if expires_at.tzinfo is None:
+               if expires_at.tzinfo is None:
                     expires_at = expires_at.replace(tzinfo=timezone.utc)
-                if expires_at > now:
+               if expires_at > now:
 
                     # Still valid, reuse it
                     await send_or_update_invite_link(channel_id, invite_info["invite_link"])
