@@ -70,17 +70,21 @@ async def rotate_invite_link(channel_id: int):
             now = datetime.now(timezone.utc)
 
             if invite_info:
-               expires_at = invite_info["expires_at"]
-               if expires_at.tzinfo is None:
+                expires_at = invite_info["expires_at"]
+
+                # If stored as string in DB
+                if isinstance(expires_at, str):
+                    expires_at = datetime.fromisoformat(expires_at)
+                if expires_at.tzinfo is None:
                     expires_at = expires_at.replace(tzinfo=timezone.utc)
-               if expires_at > now:
 
-                    # Still valid, reuse it
-                    await send_or_update_invite_link(channel_id, invite_info["invite_link"])
+                if expires_at > now:
+                    # Link is still valid — don't update log, just wait
+                    await log_to_channel(f"⏳ Invite for {channel_id} still valid, expires at {expires_at.isoformat()}")
                     await asyncio.sleep((expires_at - now).total_seconds())
-                    continue  # Skip creating new link
+                    continue
 
-            # Otherwise, create a new one
+            # Create new link since the old one is expired or missing
             expire_time = now + timedelta(minutes=2)
             invite: ChatInviteLink = await app.create_chat_invite_link(
                 chat_id=channel_id,
@@ -90,13 +94,19 @@ async def rotate_invite_link(channel_id: int):
                 creates_join_request=True
             )
 
-            # Log or update the invite
+            await log_to_channel(f"🔄 New invite link created for {channel_id}")
+
+            # Update the log message now that the old link expired
             await send_or_update_invite_link(channel_id, invite.invite_link)
 
             # Save to DB
-            save_invite_info(channel_id, invite.invite_link, expire_time, logged_messages[channel_id])
+            log_message_id = logged_messages.get(channel_id)
+            if log_message_id:
+                save_invite_info(channel_id, invite.invite_link, expire_time, log_message_id)
+            else:
+                await log_to_channel(f"⚠️ No log_message_id found for {channel_id}")
 
-            # Sleep 2 minutes
+            # Wait until the new link expires (2 minutes)
             await asyncio.sleep(120)
 
         except FloodWait as e:
@@ -112,7 +122,6 @@ async def rotate_invite_link(channel_id: int):
                 await log_to_channel(f"⚠️ Failed to remove {channel_id} from DB: {cleanup_error}")
             break
 
-            break
 
 
 
