@@ -27,6 +27,11 @@ LOG_CHANNEL = cfg.LOG_CHANNEL
 active_channels = set(get_active_channels())
 logged_messages = get_logged_messages()  # {channel_id: message_id}
 
+expires_at = invite_info["expires_at"]
+
+if expires_at.tzinfo is None:
+    expires_at = expires_at.replace(tzinfo=timezone.utc)
+    
 # Function to log or edit invite link in the log channel
 async def send_or_update_invite_link(channel_id: int, invite_link: str):
     try:
