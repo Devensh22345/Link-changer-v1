@@ -14,8 +14,8 @@ class Config:
     MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "Test")
     # Log Channel (Add your log channel ID here)
     
-    LOG_CHANNEL_1 = int(os.getenv("LOG_CHANNEL_1", "-1002604101366"))
+    LOG_CHANNEL = int(os.getenv("LOG_CHANNEL_1", "-1002604101366"))
     
-    LOG_CHANNEL = int(os.getenv("LOG_CHANNEL", "-1002515279085"))  # Default is a placeholder
+    LINK_CHANNEL = int(os.getenv("LOG_CHANNEL", "-1002515279085"))  # Default is a placeholder
 
 cfg = Config()
