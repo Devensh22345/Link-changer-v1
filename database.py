@@ -87,6 +87,21 @@ def remove_channel_from_db(channel_id: int):
     # created_channels.delete_one({'channel_id': channel_id})
     # channel_logs.delete_one({'channel_id': channel_id})
 
+# Save or update link info
+def save_invite_info(channel_id, invite_link, expires_at, message_id):
+    db.invites.update_one(
+        {"channel_id": channel_id},
+        {"$set": {
+            "invite_link": invite_link,
+            "expires_at": expires_at,
+            "message_id": message_id
+        }},
+        upsert=True
+    )
+
+# Get invite info
+def get_invite_info(channel_id):
+    return db.invites.find_one({"channel_id": channel_id})
 
 
 def get_logged_messages():
