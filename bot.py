@@ -4,7 +4,7 @@ from configs import cfg
 from database import (
     add_active_channel, get_active_channels,
     save_logged_message, get_logged_messages,
-    update_logged_message, remove_channel_from_db
+    update_logged_message, remove_channel_from_db, save_invite_info, get_invite_info
 )
 from datetime import datetime, timedelta, timezone  # ✅ Add timezone
 import traceback
@@ -65,7 +65,19 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
 async def rotate_invite_link(channel_id: int):
     while True:
         try:
-            expire_time = datetime.now(timezone.utc) + timedelta(minutes=2)
+            invite_info = get_invite_info(channel_id)
+            now = datetime.now(timezone.utc)
+
+            if invite_info:
+                expires_at = invite_info["expires_at"]
+                if expires_at > now:
+                    # Still valid, reuse it
+                    await send_or_update_invite_link(channel_id, invite_info["invite_link"])
+                    await asyncio.sleep((expires_at - now).total_seconds())
+                    continue  # Skip creating new link
+
+            # Otherwise, create a new one
+            expire_time = now + timedelta(minutes=2)
             invite: ChatInviteLink = await app.create_chat_invite_link(
                 chat_id=channel_id,
                 expire_date=expire_time,
@@ -73,7 +85,14 @@ async def rotate_invite_link(channel_id: int):
                 name="15min-invite",
                 creates_join_request=True
             )
+
+            # Log or update the invite
             await send_or_update_invite_link(channel_id, invite.invite_link)
+
+            # Save to DB
+            save_invite_info(channel_id, invite.invite_link, expire_time, logged_messages[channel_id])
+
+            # Sleep 2 minutes
             await asyncio.sleep(120)
 
         except FloodWait as e:
@@ -82,14 +101,13 @@ async def rotate_invite_link(channel_id: int):
 
         except Exception as e:
             await log_to_channel(f"❌ Error rotating link for {channel_id}: {e}")
-            
-            # Remove channel from internal tracking and DB
             active_channels.discard(channel_id)
             try:
                 remove_channel_from_db(channel_id)
             except Exception as cleanup_error:
                 await log_to_channel(f"⚠️ Failed to remove {channel_id} from DB: {cleanup_error}")
-            
+            break
+
             break
 
 
