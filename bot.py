@@ -27,11 +27,7 @@ LOG_CHANNEL = cfg.LOG_CHANNEL
 active_channels = set(get_active_channels())
 logged_messages = get_logged_messages()  # {channel_id: message_id}
 
-expires_at = invite_info["expires_at"]
 
-if expires_at.tzinfo is None:
-    expires_at = expires_at.replace(tzinfo=timezone.utc)
-    
 # Function to log or edit invite link in the log channel
 async def send_or_update_invite_link(channel_id: int, invite_link: str):
     try:
@@ -74,8 +70,11 @@ async def rotate_invite_link(channel_id: int):
             now = datetime.now(timezone.utc)
 
             if invite_info:
-                expires_at = invite_info["expires_at"]
+               expires_at = invite_info["expires_at"]
+                if expires_at.tzinfo is None:
+                    expires_at = expires_at.replace(tzinfo=timezone.utc)
                 if expires_at > now:
+
                     # Still valid, reuse it
                     await send_or_update_invite_link(channel_id, invite_info["invite_link"])
                     await asyncio.sleep((expires_at - now).total_seconds())
