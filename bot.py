@@ -23,7 +23,7 @@ app = Client(
 # Dictionary to hold multiple user session clients
 session_clients = {}
 
-for i in range(1, 11):
+for i in range(1, 31):
     session_key = f"session{i}"
     session_string = getattr(cfg, f"SESSION_STRING_{i}", None)
     if session_string:
@@ -146,7 +146,7 @@ async def on_channel_change_callback(client, callback_query):
 async def changeall_command(client: Client, message: Message):
     buttons = [
         [InlineKeyboardButton(f"Session {i}", callback_data=f"changeall_session{i}")]
-        for i in range(1, 11) if f"session{i}" in session_clients
+        for i in range(1, 31) if f"session{i}" in session_clients
     ]
     buttons.append([InlineKeyboardButton("All", callback_data="changeall_all")])
     await message.reply_text("Select a session:", reply_markup=InlineKeyboardMarkup(buttons))
