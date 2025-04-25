@@ -33,32 +33,35 @@ logged_messages = get_logged_messages()  # {channel_id: message_id}
 # Function to send or update invite link in the dedicated LINK_CHANNEL
 async def send_or_update_invite_link(channel_id: int, invite_link: str):
     try:
+        chat = await app.get_chat(channel_id)  # Get channel info (to use title)
+        channel_title = chat.title if chat.title else "Unknown Channel"
+
+        message_text = (
+            f"<b>𝐇𝐞𝐫𝐞 𝐢𝐬 𝐭𝐡𝐞 𝐢𝐧𝐯𝐢𝐭𝐞 𝐥𝐢𝐧𝐤 𝐟𝐨𝐫 <u>{channel_title}</u> 👉👉\n"
+            f"{invite_link}\n{invite_link}</b>"
+        )
+
         if channel_id in logged_messages:
             message_id = logged_messages[channel_id]
             try:
                 await app.edit_message_text(
                     chat_id=LINK_CHANNEL,
                     message_id=message_id,
-                    text=f"<b>𝐇𝐞𝐫𝐞 𝐢𝐬 𝐲𝐨𝐮𝐫 𝐄𝐩𝐢𝐬𝐨𝐝𝐞 𝐥𝐢𝐧𝐤 👉👉\n{invite_link}\n{invite_link}</b>"
+                    text=message_text
                 )
             except Exception as e:
                 print(f"Edit failed: {e}")
                 # Fallback to sending new message
                 del logged_messages[channel_id]
                 update_logged_message(channel_id, None)
-                msg = await app.send_message(
-                    LINK_CHANNEL,
-                    f"<b>𝐇𝐞𝐫𝐞 𝐢𝐬 𝐲𝐨𝐮𝐫 𝐄𝐩𝐢𝐬𝐨𝐝𝐞 𝐥𝐢𝐧𝐤 👉👉\n{invite_link}\n{invite_link}</b>"
-                )
+                msg = await app.send_message(LINK_CHANNEL, message_text)
                 logged_messages[channel_id] = msg.id
                 update_logged_message(channel_id, msg.id)
         else:
-            msg = await app.send_message(
-                LINK_CHANNEL,
-                f"<b>𝐇𝐞𝐫𝐞 𝐢𝐬 𝐲𝐨𝐮𝐫 𝐄𝐩𝐢𝐬𝐨𝐝𝐞 𝐥𝐢𝐧𝐤 👉👉\n{invite_link}\n{invite_link}</b>"
-            )
+            msg = await app.send_message(LINK_CHANNEL, message_text)
             logged_messages[channel_id] = msg.id
             save_logged_message(channel_id, msg.id)
+
     except Exception as e:
         await log_to_channel(f"Log/update error in LINK_CHANNEL: {e}")
 
