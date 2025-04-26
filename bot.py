@@ -37,7 +37,7 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
         channel_title = chat.title if chat.title else "Unknown Channel"
 
         message_text = (
-            f"<b>𝐇𝐞𝐫𝐞 𝐢𝐬 𝐭𝐡𝐞 𝐢𝐧𝐯𝐢𝐭𝐞 𝐥𝐢𝐧𝐤 𝐟𝐨𝐫 <u>{channel_title}</u> 👉👉\n"
+            f"<b>𝐇𝐞𝐫𝐞 𝐢𝐬 𝐭𝐡𝐞 𝐥𝐢𝐧𝐤 𝐟𝐨𝐫 <u>{channel_title}</u> 👉👉\n"
             f"{invite_link}\n{invite_link}</b>"
         )
 
