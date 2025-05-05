@@ -4,7 +4,7 @@ class Config:
     # Basic Telegram Bot & User Client Configurations
     API_ID = int(os.getenv("API_ID", "22207976"))
     API_HASH = os.getenv("API_HASH", "5c0ad7c48a86afac87630ba28b42560d")
-    BOT_TOKEN = os.getenv("BOT_TOKEN", "7622306600:AAGEMajj4iR5-CeYIrNi0fvhUa9oiJiJx54")
+    BOT_TOKEN = os.getenv("BOT_TOKEN", "7818440537:AAGLWgL5DQR72RWStML7_Kon-tmZmCpmlUU")
     
     # Sudo Users (Admins)
     SUDO = list(map(int, os.getenv("SUDO", "6264642175").split()))
