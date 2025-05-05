@@ -62,6 +62,33 @@ async def send_or_update_invite_link(channel_id: int, invite_link: str):
     except Exception as e:
         await log_to_channel(f"Log/update error in LINK_CHANNEL: {e}")
 
+@app.on_message(filters.command("addchannel") & filters.user(cfg.SUDO))  # Only sudo users
+async def manual_add_channel(client, message):
+    if len(message.command) < 2:
+        return await message.reply("❗Usage: `/addchannel <channel_id or @username>`", quote=True)
+
+    input_channel = message.command[1]
+
+    try:
+        chat = await app.get_chat(input_channel)
+        channel_id = chat.id
+
+        if channel_id in active_channels:
+            return await message.reply("✅ This channel is already active and rotating links.")
+
+        active_channels.add(channel_id)
+        add_active_channel(channel_id)
+        await message.reply(f"✅ Added `{chat.title}` (`{channel_id}`) to the active channel list.")
+        await log_to_channel(f"📌 Manually added `{chat.title}` (`{channel_id}`) to rotation.")
+        asyncio.create_task(rotate_invite_link(channel_id))
+
+    except ChannelPrivate:
+        await message.reply("❌ Cannot access the channel. Make sure the bot is admin.")
+    except ChatAdminRequired:
+        await message.reply("❌ Bot needs to be admin in the channel.")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+        await log_to_channel(f"❌ Manual add error: {traceback.format_exc()}")
 
 # Background task to rotate invite link every 15 minutes
 
@@ -134,16 +161,6 @@ async def log_to_channel(text: str):
     except Exception as e:
         print(f"Log error: {e}")
 
-# Detect when bot added to channel
-@app.on_chat_member_updated()
-async def bot_added_to_channel(client, chat_member_updated):
-    if chat_member_updated.new_chat_member and chat_member_updated.new_chat_member.user.id == (await app.get_me()).id:
-        channel_id = chat_member_updated.chat.id
-        if channel_id not in active_channels:
-            active_channels.add(channel_id)
-            add_active_channel(channel_id)
-            await log_to_channel(f"✅ Bot added as admin in channel: `{chat_member_updated.chat.title}` (`{channel_id}`)")
-            asyncio.create_task(rotate_invite_link(channel_id))
 
 # ✅ Startup tasks: restart rotation for existing active channels
 # ✅ Startup tasks: restart rotation for existing active channels
