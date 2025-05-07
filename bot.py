@@ -123,29 +123,27 @@ async def rotate_invite_link(channel_id: int):
 # ✅ Command to set rotation + link channel and start rotation
 
 @app.on_message(filters.command("addrotation"))
-async def add_rotation_channel(client, message: Message):
-    # Ensure command is sent in a channel (not private chat)
-    if message.chat.type != "channel":
-        return await message.reply("❌ Please use this command in a Telegram channel.")
-
+async def add_rotation_from_link_channel(client, message: Message):
     try:
-        # Get channel IDs directly from the message
-        rotation_channel = int(message.text.split()[1])
+        link_channel_id = message.chat.id  # Command must be sent *in* the link channel
+        if len(message.command) < 2:
+            return await message.reply("Usage: /addrotation <rotation_channel_id> (must be sent from the link channel)")
+        
+        rotation_channel_id = int(message.command[1])
 
-        link_channel_id = message.chat.id  # Message must be sent *from* the link channel
-        save_channel_link_mapping(rotation_channel, link_channel_id)
-        add_active_channel(rotation_channel)
-        active_channels.add(rotation_channel)
+        save_channel_link_mapping(rotation_channel_id, link_channel_id)
+        add_active_channel(rotation_channel_id)
+        active_channels.add(rotation_channel_id)
 
         await message.reply(
-            f"✅ Added rotation channel `{rotation_channel}`.\n🔁 Starting invite rotation with this channel (`{link_channel_id}`) as the link display."
+            f"✅ Rotation channel `{rotation_channel_id}` linked to this channel `{link_channel_id}`.\n🔁 Invite rotation started."
         )
-        asyncio.create_task(rotate_invite_link(rotation_channel))
 
-    except IndexError:
-        await message.reply("Usage: /addrotation <rotation_channel_id>")
+        asyncio.create_task(rotate_invite_link(rotation_channel_id))
+
     except Exception as e:
         await message.reply(f"❌ Failed: {e}")
+
 
 
 # ✅ Logging utility
