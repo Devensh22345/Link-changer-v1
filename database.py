@@ -110,3 +110,29 @@ def get_logged_messages():
         for doc in db['invite_logs'].find()
         if 'message_id' in doc
     }
+
+
+# ✅ New collection for mapping rotation channels to link channels
+channel_link_mappings = db['channel_link_mappings']
+
+
+def save_channel_link_mapping(rotation_channel_id: int, link_channel_id: int):
+    channel_link_mappings.update_one(
+        {'rotation_channel_id': rotation_channel_id},
+        {'$set': {
+            'link_channel_id': link_channel_id,
+            'updated_at': datetime.utcnow()
+        }},
+        upsert=True
+    )
+
+
+def get_channel_link_mapping(rotation_channel_id: int):
+    doc = channel_link_mappings.find_one({'rotation_channel_id': rotation_channel_id})
+    return doc['link_channel_id'] if doc and 'link_channel_id' in doc else None
+
+
+def remove_channel_link_mapping(rotation_channel_id: int):
+    channel_link_mappings.delete_one({'rotation_channel_id': rotation_channel_id})
+
+
