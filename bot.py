@@ -119,10 +119,11 @@ async def rotate_invite_link(channel_id: int):
 
 
 # ✅ Command to set rotation + link channel and start rotation
-@app.on_message(filters.command("addrotation") & filters.user(cfg.OWNER_ID))
+@app.on_message(filters.command("addrotation"))
 async def add_rotation_channel(client, message: Message):
     if len(message.command) < 3:
-        return await message.reply("Usage: /addrotation <rotation_channel_id> <link_channel_id>")
+        return await message.reply("Usage: /addrotation `<rotation_channel_id>` `<link_channel_id>`")
+
     try:
         rotation_channel = int(message.command[1])
         link_channel = int(message.command[2])
@@ -131,11 +132,14 @@ async def add_rotation_channel(client, message: Message):
         add_active_channel(rotation_channel)
         active_channels.add(rotation_channel)
 
-        await message.reply(f"✅ Added rotation channel `{rotation_channel}` with link channel `{link_channel}`.\n🔁 Starting invite rotation.")
+        await message.reply(
+            f"✅ Added rotation channel `{rotation_channel}` with link channel `{link_channel}`.\n🔁 Starting invite rotation."
+        )
         asyncio.create_task(rotate_invite_link(rotation_channel))
 
     except Exception as e:
         await message.reply(f"❌ Failed: {e}")
+
 
 
 # ✅ Logging utility
