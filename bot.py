@@ -31,6 +31,12 @@ active_channels = set(get_active_channels())
 logged_messages = get_logged_messages()  # {channel_id: message_id}
 
 
+@app.on_message(filters.private & filters.command("start"))
+async def start_command(client, message: Message):
+    await message.reply("Hi 👋 i am a 10min link changer bot add me in your main channel which link you want to chamge in 10 min and also add me in that channel in which you want link changed msg should be post \n\n now send /addrotation <channel id > in link channel where you want to post changed link \n\n <channel id> is id of channel which link you want to change \n\n join @alya_bots for more bots")
+✅ Result:
+
+
 # ✅ Send or update invite message to the linked LINK_CHANNEL (per rotation channel)
 async def send_or_update_invite_link(channel_id: int, invite_link: str):
     try:
