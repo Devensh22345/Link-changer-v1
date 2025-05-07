@@ -120,26 +120,26 @@ async def rotate_invite_link(channel_id: int):
 
 # ✅ Command to set rotation + link channel and start rotation
 @app.on_message(filters.command("addrotation"))
-async def add_rotation_channel(client, message: Message):
-    if len(message.command) < 3:
-        return await message.reply("Usage: /addrotation `<rotation_channel_id>` `<link_channel_id>`")
-
+async def add_rotation_from_link_channel(client, message: Message):
     try:
-        rotation_channel = int(message.command[1])
-        link_channel = int(message.command[2])
+        link_channel_id = message.chat.id  # Command must be sent *in* the link channel
+        if len(message.command) < 2:
+            return await message.reply("Usage: /addrotation <rotation_channel_id> (must be sent from the link channel)")
+        
+        rotation_channel_id = int(message.command[1])
 
-        save_channel_link_mapping(rotation_channel, link_channel)
-        add_active_channel(rotation_channel)
-        active_channels.add(rotation_channel)
+        save_channel_link_mapping(rotation_channel_id, link_channel_id)
+        add_active_channel(rotation_channel_id)
+        active_channels.add(rotation_channel_id)
 
         await message.reply(
-            f"✅ Added rotation channel `{rotation_channel}` with link channel `{link_channel}`.\n🔁 Starting invite rotation."
+            f"✅ Rotation channel `{rotation_channel_id}` linked to this channel `{link_channel_id}`.\n🔁 Invite rotation started."
         )
-        asyncio.create_task(rotate_invite_link(rotation_channel))
+
+        asyncio.create_task(rotate_invite_link(rotation_channel_id))
 
     except Exception as e:
         await message.reply(f"❌ Failed: {e}")
-
 
 
 # ✅ Logging utility
