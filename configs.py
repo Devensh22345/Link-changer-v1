@@ -11,7 +11,7 @@ class Config:
     #SESSION_STRING_17 = os.getenv("SESSION_STRING_17", "")
 
     # Sudo Users (Admins)
-    SUDO = list(map(int, os.getenv("SUDO", "5687700734").split()))
+    SUDO = list(map(int, os.getenv("SUDO", "6264642175").split()))
 
     # MongoDB Configuration
     MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://gun:gun@cluster0.9xemgey.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
