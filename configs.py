@@ -10,7 +10,7 @@ class Config:
     SUDO = list(map(int, os.getenv("SUDO", "6872968794").split()))
 
     # MongoDB Configuration
-    MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://GUNJI:GUNJI@cluster0.tbsqu96.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://gun:gun@cluster0.3d7fy0w.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
     MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "Test")
     # Log Channel (Add your log channel ID here)
     
