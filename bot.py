@@ -30,6 +30,33 @@ logged_messages = get_logged_messages()  # {channel_id: message_id}
 
 
 # Function to log or edit invite link in the log channel
+@app.on_message(filters.command("start"))
+async def start_message(client: Client, message: Message):
+    buttons = InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton("📢 Help", callback_data="help"),
+                InlineKeyboardButton("alya Bots", url="https://t.me/Alya_bots")
+            ]
+        ]
+    )
+
+    await message.reply_text(
+        "HELLO /n I am a private channel link change BOT /n/n I can change you private channel link in every 10 min just add me in your channel as admin /n/n for help DM - @MAI_HU_KIRA",
+        reply_markup=buttons
+    )
+
+    await log_to_channel(f"👋 Bot started by {message.from_user.mention} (ID: {message.from_user.id})")
+
+@app.on_callback_query(filters.regex("help"))
+async def help_callback(client, callback_query):
+    await callback_query.answer()
+    await callback_query.message.reply_text(
+        "ℹ️ Help:\n- 1. DM - @MAI_HU_KIRA first /n/n 2. ADD me admin in your private Channel."
+    )
+
+
+
 # Function to send or update invite link in the dedicated LINK_CHANNEL
 async def send_or_update_invite_link(channel_id: int, invite_link: str):
     try:
