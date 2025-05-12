@@ -7,6 +7,7 @@ from database import (
     update_logged_message, remove_channel_from_db, save_invite_info, get_invite_info
 )
 from datetime import datetime, timedelta, timezone  # ✅ Add timezone
+from pyrogram.errors import FloodWait
 import traceback
 from pyrogram.errors import FloodWait, ChatAdminRequired
 from pyrogram.errors import ChannelPrivate
@@ -30,6 +31,17 @@ logged_messages = get_logged_messages()  # {channel_id: message_id}
 
 
 # Function to log or edit invite link in the log channel
+
+async def safe_telegram_call(callable_func, *args, **kwargs):
+    while True:
+        try:
+            return await callable_func(*args, **kwargs)
+        except FloodWait as e:
+            wait_time = e.value
+            print(f"[bot] FloodWait: Sleeping for {wait_time} seconds (caused by {e.method})")
+            await asyncio.sleep(wait_time)
+
+
 # Function to send or update invite link in the dedicated LINK_CHANNEL
 async def send_or_update_invite_link(channel_id: int, invite_link: str):
     try:
