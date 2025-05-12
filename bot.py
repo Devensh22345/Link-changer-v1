@@ -6,6 +6,8 @@ from database import (
     save_logged_message, get_logged_messages,
     update_logged_message, remove_channel_from_db, save_invite_info, get_invite_info
 )
+from pyrogram.types import Message
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from datetime import datetime, timedelta, timezone  # ✅ Add timezone
 import traceback
 from pyrogram.errors import FloodWait, ChatAdminRequired
