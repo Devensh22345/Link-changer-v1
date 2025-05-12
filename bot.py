@@ -44,7 +44,7 @@ async def start_message(client: Client, message: Message):
     )
 
     await message.reply_text(
-        "HELLO /n I am a private channel link change BOT /n/n I can change you private channel link in every 10 min just add me in your channel as admin /n/n for help DM - @MAI_HU_KIRA",
+        f"HELLO /n I am a private channel link change BOT /n/n I can change you private channel link in every 10 min just add me in your channel as admin /n/n for help DM - @MAI_HU_KIRA",
         reply_markup=buttons
     )
 
@@ -54,7 +54,7 @@ async def start_message(client: Client, message: Message):
 async def help_callback(client, callback_query):
     await callback_query.answer()
     await callback_query.message.reply_text(
-        "ℹ️ Help:\n- 1. DM - @MAI_HU_KIRA first /n/n 2. ADD me admin in your private Channel."
+        f"ℹ️ Help:\n- 1. DM - @MAI_HU_KIRA first /n/n 2. ADD me admin in your private Channel."
     )
 
 
