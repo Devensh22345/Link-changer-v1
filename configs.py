@@ -32,7 +32,7 @@ class Config:
     #SESSION_STRING_25 = os.getenv("SESSION_STRING_25", "")
     #SESSION_STRING_26 = os.getenv("SESSION_STRING_26", "")
     #SESSION_STRING_27 = os.getenv("SESSION_STRING_27", "")
-    SESSION_STRING_bharat1 = os.getenv("SESSION_STRING_bharat1", "BQFUItYAgZFsxS-Jsh50k89jph-FTs0k-Ic4nOd5OWaxXbwDfkKqZgV0rj3vymA0Tsz2vOv6_3Wwv3AUuJYG24mOKSvKPpxV1wAQOt_nosQy_mzucK9uxm_w1O2ONMRbvpCnK71vxcL0ncQ5rxG1rB1VrXCMfv_OfqC3aWE17TyXJKhU1-McL6Qq6twp1kGpPucl5ZZiIsIH3bXIuT0N79GuKaGfeAoul3ziqBmopQY9gFrGxdJQpyPP9tnXjgn4l3ZLs7h8TVDzVBBraAMLU_JY3vlh7mGOnaR6MkpixVuHzsXMIoA7hqXIf7DqaJzUT9nBKE67bpVnRjBS_1mrsRrO2KeP4gAAAAGdkDFZAA")
+    SESSION_STRING_22 = os.getenv("SESSION_STRING_bharat1", "BQFUItYAgZFsxS-Jsh50k89jph-FTs0k-Ic4nOd5OWaxXbwDfkKqZgV0rj3vymA0Tsz2vOv6_3Wwv3AUuJYG24mOKSvKPpxV1wAQOt_nosQy_mzucK9uxm_w1O2ONMRbvpCnK71vxcL0ncQ5rxG1rB1VrXCMfv_OfqC3aWE17TyXJKhU1-McL6Qq6twp1kGpPucl5ZZiIsIH3bXIuT0N79GuKaGfeAoul3ziqBmopQY9gFrGxdJQpyPP9tnXjgn4l3ZLs7h8TVDzVBBraAMLU_JY3vlh7mGOnaR6MkpixVuHzsXMIoA7hqXIf7DqaJzUT9nBKE67bpVnRjBS_1mrsRrO2KeP4gAAAAGdkDFZAA")
 
     # Sudo Users (Admins)
     SUDO = list(map(int, os.getenv("SUDO", "6872968794").split()))
