@@ -268,23 +268,28 @@ async def make_channel_private(client: Client, message: Message):
 
 @app.on_callback_query(filters.regex(r"^private_session(\d+)$"))
 async def handle_private_callback(client, callback_query):
-    session_number = callback_query.data.split("_")[-1]
-    session_key = f"session{session_number}"
+    session_number = callback_query.data.split("_")[-1]  # Correctly extract number
+    session_key = f"session{session_number}"             # Create valid session key
+
+    if session_key not in session_clients:
+        await callback_query.message.reply_text(f"❌ Session {session_key} not found.")
+        return
+
     selected_client = session_clients[session_key]
 
-    async for dialog in selected_client.get_dialogs():
-        if dialog.chat.username:
-            channel = dialog.chat
-            try:
+    try:
+        async for dialog in selected_client.get_dialogs():
+            if dialog.chat.username:
+                channel = dialog.chat
                 save_old_username(channel.id, channel.username)
                 await selected_client.set_chat_username(channel.id, None)
                 await callback_query.message.reply_text(f"✅ Channel [{channel.title}] made private.")
                 await log_to_channel(f"🔒 Made private: {channel.title} ({channel.id})")
-            except Exception as e:
-                await callback_query.message.reply_text(f"❌ Error: {e}")
-            break
-    else:
+                return
         await callback_query.message.reply_text("❌ No channels with usernames found.")
+    except Exception as e:
+        await callback_query.message.reply_text(f"❌ Error: {e}")
+
 
 @app.on_message(filters.command("public"))
 async def make_channel_public(client: Client, message: Message):
