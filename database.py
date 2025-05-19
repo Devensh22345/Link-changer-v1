@@ -6,9 +6,10 @@ from datetime import datetime
 client = MongoClient(cfg.MONGO_URI)
 db = client[cfg.MONGO_DB_NAME]
 
-# Collection for storing created channels and logs
+# Collections
 created_channels = db['created_channels']
 channel_logs = db['channel_logs']
+old_usernames = db['old_usernames']  # NEW COLLECTION
 
 # Add a created channel to the database
 def add_created_channel(channel_id: int, channel_name: str = None, created_by: str = None, username: str = None):
@@ -67,3 +68,20 @@ def log_new_channel_creation(channel_id: int, old_username: str, created_by: str
         'created_by': created_by,
         'created_at': datetime.utcnow()
     })
+
+# ✅ NEW: Save old username for a channel (for /private -> /public use case)
+def save_old_username(channel_id: int, username: str):
+    old_usernames.update_one(
+        {"channel_id": channel_id},
+        {"$set": {"username": username}},
+        upsert=True
+    )
+
+# ✅ NEW: Get previously saved old username
+def get_old_username(channel_id: int):
+    data = old_usernames.find_one({"channel_id": channel_id})
+    return data["username"] if data else None
+
+# ✅ NEW: Get all saved usernames (for restoring public usernames)
+def get_all_saved_usernames():
+    return list(old_usernames.find())
