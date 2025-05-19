@@ -268,8 +268,10 @@ async def make_channel_private(client: Client, message: Message):
 
 @app.on_callback_query(filters.regex(r"^private_session(\d+)$"))
 async def handle_private_callback(client, callback_query):
-    session_number = callback_query.data.split("_")[-1]  # Correctly extract number
-    session_key = f"session{session_number}"             # Create valid session key
+    session_number = callback_query.data.split("_")[-1]
+    session_key = f"session{session_number}"
+    selected_client = session_clients[session_key]
+   
 
     if session_key not in session_clients:
         await callback_query.message.reply_text(f"❌ Session {session_key} not found.")
