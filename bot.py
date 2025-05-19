@@ -185,7 +185,7 @@ async def handle_changeall_session(client: Client, callback_query):
                 await log_to_channel(f"❌ {session_key} error: {e}")
                 continue
 
-            await asyncio.sleep(3600)  # Wait for 1 hour before the next channel
+            
 
     asyncio.create_task(process_session())
 
@@ -231,7 +231,7 @@ async def handle_changeall_all_sessions(client: Client, callback_query):
                         await log_to_channel(f"❌ {session_key} error: {e}")
                         continue
 
-                    await asyncio.sleep(60 * 90)
+                    await asyncio.sleep(60 * 60)
             except Exception as e:
                 await asyncio.sleep(2)
 
