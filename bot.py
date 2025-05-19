@@ -250,6 +250,86 @@ async def stop_changeall(client: Client, message: Message):
     await message.reply_text("🛑 Changeall process stopped.")
     await log_to_channel(f"🛑 Changeall process stopped by {message.from_user.mention}.")
 
+
+from database import save_old_username, get_old_username
+
+@app.on_message(filters.command("private"))
+async def make_channel_private(client: Client, message: Message):
+    sudo_users = cfg.SUDO
+    if message.from_user.id not in sudo_users:
+        await message.reply_text("❌ Only sudo users can use this command.")
+        return
+
+    buttons = [
+        [InlineKeyboardButton(f"Session {i}", callback_data=f"private_session{i}")]
+        for i in range(1, 11) if f"session{i}" in session_clients
+    ]
+    await message.reply_text("Select a session to make channel private:", reply_markup=InlineKeyboardMarkup(buttons))
+
+@app.on_callback_query(filters.regex(r"^private_session(\d+)$"))
+async def handle_private_callback(client, callback_query):
+    session_number = callback_query.data.split("_")[-1]
+    session_key = f"session{session_number}"
+    selected_client = session_clients[session_key]
+
+    async for dialog in selected_client.get_dialogs():
+        if dialog.chat.username:
+            channel = dialog.chat
+            try:
+                save_old_username(channel.id, channel.username)
+                await selected_client.set_chat_username(channel.id, None)
+                await callback_query.message.reply_text(f"✅ Channel [{channel.title}] made private.")
+                await log_to_channel(f"🔒 Made private: {channel.title} ({channel.id})")
+            except Exception as e:
+                await callback_query.message.reply_text(f"❌ Error: {e}")
+            break
+    else:
+        await callback_query.message.reply_text("❌ No channels with usernames found.")
+
+@app.on_message(filters.command("public"))
+async def make_channel_public(client: Client, message: Message):
+    sudo_users = cfg.SUDO
+    if message.from_user.id not in sudo_users:
+        await message.reply_text("❌ Only sudo users can use this command.")
+        return
+
+    buttons = [
+        [InlineKeyboardButton(f"Session {i}", callback_data=f"public_session{i}")]
+        for i in range(1, 11) if f"session{i}" in session_clients
+    ]
+    await message.reply_text("Select session to restore channel:", reply_markup=InlineKeyboardMarkup(buttons))
+
+@app.on_callback_query(filters.regex(r"^public_session(\d+)$"))
+async def handle_public_callback(client, callback_query):
+    session_number = callback_query.data.split("_")[-1]
+    session_key = f"session{session_number}"
+    selected_client = session_clients[session_key]
+
+    async for dialog in selected_client.get_dialogs():
+        if dialog.chat.username is None:
+            channel = dialog.chat
+            old_username = get_old_username(channel.id)
+            if not old_username:
+                await callback_query.message.reply_text(f"❌ No stored username for [{channel.title}]")
+                return
+
+            await callback_query.message.reply_text(f"⏳ Waiting 20 minutes before making public...")
+
+            await asyncio.sleep(60 * 20)  # 20 minutes
+
+            try:
+                await selected_client.set_chat_username(channel.id, old_username)
+                await callback_query.message.reply_text(f"✅ Channel [{channel.title}] made public with @{old_username}")
+                await log_to_channel(f"🌐 Made public: {channel.title} (@{old_username})")
+            except Exception as e:
+                await callback_query.message.reply_text(f"❌ Error restoring: {e}")
+            break
+    else:
+        await callback_query.message.reply_text("❌ No private channels found.")
+
+
+
+
 # Start all session clients
 for client in session_clients.values():
     client.start()
