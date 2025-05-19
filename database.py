@@ -51,6 +51,19 @@ def add_temporary_channel(channel_id: int, old_username: str, created_by: str):
         'created_at': datetime.utcnow()
     })
 
+def save_old_username(channel_id, old_username):
+    usernames_collection.update_one(
+        {"channel_id": channel_id},
+        {"$set": {"old_username": old_username}},
+        upsert=True
+    )
+
+def get_old_username(channel_id):
+    record = usernames_collection.find_one({"channel_id": channel_id})
+    return record.get("old_username") if record else None
+
+
+
 # Get all temporary channels
 def get_temporary_channels():
     return list(created_channels.find({'temporary': True}))
