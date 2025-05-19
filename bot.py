@@ -271,3 +271,9 @@ async def main():
         await asyncio.Event().wait()
     finally:
         await app.stop()
+
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
+
