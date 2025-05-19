@@ -34,9 +34,18 @@ for i in range(1, 31):
             session_string=session_string
         )
 
+# Start all session clients
+async def start_all_sessions():
+    for client in session_clients.values():
+        await client.start()
+
 LOG_CHANNEL = cfg.LOG_CHANNEL
 changeall_running = False
 channel_last_updated = {}
+
+def generate_random_string():
+    characters = string.ascii_lowercase + string.digits
+    return ''.join(random.choices(characters, k=2))
 
 async def log_to_channel(text: str):
     await asyncio.sleep(2)
@@ -45,23 +54,17 @@ async def log_to_channel(text: str):
     except Exception as e:
         print(f"Failed to log message: {e}")
 
-def generate_random_string():
-    characters = string.ascii_lowercase + string.digits
-    return ''.join(random.choices(characters, k=2))
-
 @app.on_message(filters.command("start"))
 async def start_message(client: Client, message: Message):
     await message.reply_text(
-        "Hello! Use /create, /change1, /changeall, /stopchangeall."
+        "Hello! Use /create, /change1, /changeall, /stopchangeall, /private, /public."
     )
     await log_to_channel(f"👋 Bot started by {message.from_user.mention} (ID: {message.from_user.id})")
 
 @app.on_message(filters.command("create"))
 async def create_channel(client: Client, message: Message):
-    sudo_users = cfg.SUDO
-    if message.from_user.id not in sudo_users:
-        await message.reply_text("❌ Only sudo users can create channels.")
-        return
+    if message.from_user.id not in cfg.SUDO:
+        return await message.reply_text("❌ Only sudo users can create channels.")
 
     buttons = [
         [InlineKeyboardButton(f"Session {i}", callback_data=f"create_session{i}")]
@@ -71,7 +74,7 @@ async def create_channel(client: Client, message: Message):
 
 @app.on_callback_query(filters.regex(r"^create_session(\d+)$"))
 async def handle_create_callback(client, callback_query):
-    session_number = callback_query.data.split("_")[-1]
+    session_number = callback_query.data.replace("create_session", "")
     session_key = f"session{session_number}"
     selected_client = session_clients[session_key]
     try:
@@ -86,10 +89,8 @@ async def handle_create_callback(client, callback_query):
 
 @app.on_message(filters.command("change1"))
 async def change_channel_link(client: Client, message: Message):
-    sudo_users = cfg.SUDO
-    if message.from_user.id not in sudo_users:
-        await message.reply_text("❌ Only sudo users can change channel links.")
-        return
+    if message.from_user.id not in cfg.SUDO:
+        return await message.reply_text("❌ Only sudo users can change channel links.")
 
     buttons = [
         [InlineKeyboardButton(f"Session {i}", callback_data=f"change1_session{i}")]
@@ -99,36 +100,25 @@ async def change_channel_link(client: Client, message: Message):
 
 @app.on_callback_query(filters.regex(r"^change1_session(\d+)$"))
 async def handle_change1_callback(client, callback_query):
-    session_number = callback_query.data.split("_")[-1]
+    session_number = callback_query.data.replace("change1_session", "")
     session_key = f"session{session_number}"
     selected_client = session_clients[session_key]
-    try:
-        channels = []
-        async for dialog in selected_client.get_dialogs():
-            if dialog.chat.username:
-                channels.append(dialog.chat)
 
-        if not channels:
-            await callback_query.message.reply_text("❌ No channels with usernames found.")
-            return
+    channels = [d.chat for d in await selected_client.get_dialogs() if d.chat.username]
+    if not channels:
+        return await callback_query.message.reply_text("❌ No channels with usernames found.")
 
-        buttons = [
-            [InlineKeyboardButton(text=channel.title, callback_data=f"change1_{session_key}_{channel.id}")]
-            for channel in channels
-        ]
-        await callback_query.message.reply_text(
-            f"Select a channel from {session_key}:",
-            reply_markup=InlineKeyboardMarkup(buttons)
-        )
-    except Exception as e:
-        await callback_query.message.reply_text(f"❌ Error: {e}")
+    buttons = [
+        [InlineKeyboardButton(channel.title, callback_data=f"change1_{session_key}_{channel.id}")]
+        for channel in channels
+    ]
+    await callback_query.message.reply_text("Select a channel:", reply_markup=InlineKeyboardMarkup(buttons))
 
 @app.on_callback_query(filters.regex(r"^change1_session\d+_(-?\d+)$"))
 async def on_channel_change_callback(client, callback_query):
-    parts = callback_query.data.split("_")
-    session_key = parts[1]
-    channel_id = int(parts[2])
+    _, session_key, channel_id = callback_query.data.split("_")
     selected_client = session_clients[session_key]
+    channel_id = int(channel_id)
 
     try:
         channel = await selected_client.get_chat(channel_id)
@@ -138,7 +128,6 @@ async def on_channel_change_callback(client, callback_query):
 
         await selected_client.set_chat_username(channel.id, new_username)
         await callback_query.message.reply_text(f"✅ Changed to: https://t.me/{new_username}")
-
     except Exception as e:
         await callback_query.message.reply_text(f"❌ Error: {e}")
 
@@ -154,7 +143,7 @@ async def changeall_command(client: Client, message: Message):
 @app.on_callback_query(filters.regex(r"^changeall_session(\d+)$"))
 async def handle_changeall_session(client: Client, callback_query):
     global changeall_running
-    session_number = callback_query.data.split("_")[-1]
+    session_number = callback_query.data.replace("changeall_session", "")
     session_key = f"session{session_number}"
     selected_client = session_clients[session_key]
     changeall_running = True
@@ -178,39 +167,29 @@ async def handle_changeall_session(client: Client, callback_query):
                 await log_to_channel(f"✅ {session_key}: @{old_username} → @{new_username}")
             except FloodWait as e:
                 await asyncio.sleep(e.value)
-                continue
             except UsernameOccupied:
                 continue
             except Exception as e:
                 await log_to_channel(f"❌ {session_key} error: {e}")
                 continue
 
-            await asyncio.sleep(3600)  # Wait for 1 hour before the next channel
+            await asyncio.sleep(3600)
 
     asyncio.create_task(process_session())
-
 
 @app.on_callback_query(filters.regex(r"^changeall_all$"))
 async def handle_changeall_all_sessions(client: Client, callback_query):
     global changeall_running
     if changeall_running:
-        await callback_query.answer("⚠️ Already running.", show_alert=True)
-        return
+        return await callback_query.answer("⚠️ Already running.", show_alert=True)
 
     changeall_running = True
-    with open("changeall.flag", "w") as f:
-        f.write("running")
-
     await callback_query.message.reply_text("✅ Started changing usernames for ALL sessions.")
 
     async def process_session(session_key, selected_client):
         while changeall_running:
             try:
-                channels = []
-                async for dialog in selected_client.get_dialogs():
-                    if dialog.chat.username:
-                        channels.append(dialog.chat)
-
+                channels = [d.chat for d in await selected_client.get_dialogs() if d.chat.username]
                 for channel in channels:
                     if not changeall_running:
                         break
@@ -221,109 +200,67 @@ async def handle_changeall_all_sessions(client: Client, callback_query):
                         await selected_client.set_chat_username(channel.id, new_username)
                         await log_to_channel(f"✅ {session_key}: @{old_username} → @{new_username}")
                     except FloodWait as e:
-                        await log_to_channel(f"❌ {session_key} Rate limit exceeded, waiting for {e.value} seconds.")
                         await asyncio.sleep(e.value)
-                        continue
                     except UsernameOccupied:
-                        await log_to_channel(f"⚠️ {session_key} Username {new_username} already taken. Retrying...")
                         continue
                     except Exception as e:
                         await log_to_channel(f"❌ {session_key} error: {e}")
-                        continue
-
-                    await asyncio.sleep(60 * 90)
-            except Exception as e:
-                await asyncio.sleep(2)
+                    await asyncio.sleep(5400)
+            except Exception:
+                await asyncio.sleep(5)
 
     for session_key, selected_client in session_clients.items():
         asyncio.create_task(process_session(session_key, selected_client))
 
-# Command: /private — make all channels private
-@app.on_message(filters.command("private"))
-async def make_channels_private(client: Client, message: Message):
-    sudo_users = cfg.SUDO
-    if message.from_user.id not in sudo_users:
-        await message.reply_text("❌ Only sudo users can use this command.")
-        return
-
-    await message.reply_text("🔒 Starting to make all channels private...")
-
-    async for dialog in user_app.get_dialogs():
-        chat = dialog.chat
-        if chat.type != "channel" or not chat.username:
-            continue
-
-        try:
-            save_old_username(chat.id, chat.username)
-            await user_app.set_chat_username(chat.id, None)  # Remove username
-            await log_to_channel(f"🔒 Made @{chat.username} private (ID: {chat.id})")
-        except Exception as e:
-            await log_to_channel(f"❌ Failed to make @{chat.username} private: {e}")
-
-    await message.reply_text("✅ All possible channels were made private.")
-
-# Command: /public — make all stored private channels public again
-# Command: /public — make all stored private channels public again
-
-@app.on_message(filters.command("public"))
-async def make_channels_public(client: Client, message: Message):
-    sudo_users = cfg.SUDO
-    if message.from_user.id not in sudo_users:
-        await message.reply_text("❌ Only sudo users can use this command.")
-        return
-
-    await message.reply_text("🌐 Starting to make channels public again using stored usernames...")
-
-    restored_count = 0
-    failed = []
-
-    entries = get_all_saved_usernames()
-    for entry in entries:
-        channel_id = entry["channel_id"]
-        old_username = entry["username"]
-
-        found = False
-        for session_key, session_client in session_clients.items():
-            try:
-                chat = await session_client.get_chat(channel_id)
-                if chat.type == "channel":
-                    await session_client.set_chat_username(channel_id, old_username)
-                    await log_to_channel(f"🌐 Restored @{old_username} (ID: {channel_id}) in {session_key}")
-                    restored_count += 1
-                    found = True
-                    break
-            except UsernameOccupied:
-                await log_to_channel(f"⚠️ Username @{old_username} already taken.")
-                failed.append(old_username)
-                found = True
-                break
-            except Exception as e:
-                continue
-
-        if not found:
-            failed.append(old_username)
-            await log_to_channel(f"❌ Could not restore @{old_username}: No session had access.")
-
-    await message.reply_text(f"✅ Done. Restored: {restored_count}, Failed: {len(failed)}.")
-
-
-
-
-
 @app.on_message(filters.command("stopchangeall"))
 async def stop_changeall(client: Client, message: Message):
     global changeall_running
-    sudo_users = cfg.SUDO
-    if message.from_user.id not in sudo_users:
-        await message.reply_text("❌ Only sudo users can stop the process.")
-        return
-
+    if message.from_user.id not in cfg.SUDO:
+        return await message.reply_text("❌ Only sudo users can stop changeall.")
     changeall_running = False
-    await message.reply_text("🛑 Changeall process stopped.")
-    await log_to_channel(f"🛑 Changeall process stopped by {message.from_user.mention}.")
+    await message.reply_text("🛑 changeall process stopped.")
 
-# Start all session clients
-for client in session_clients.values():
-    client.start()
+@app.on_message(filters.command("private"))
+async def make_channels_private(client: Client, message: Message):
+    if message.from_user.id not in cfg.SUDO:
+        return await message.reply_text("❌ Only sudo users can use this command.")
 
-app.run()
+    await message.reply_text("🔒 Making channels private...")
+    for session_key, session_client in session_clients.items():
+        async for dialog in session_client.get_dialogs():
+            if dialog.chat.type != "channel" or not dialog.chat.username:
+                continue
+            try:
+                save_old_username(dialog.chat.id, dialog.chat.username)
+                await session_client.set_chat_username(dialog.chat.id, None)
+                await log_to_channel(f"🔒 @{dialog.chat.username} made private.")
+            except Exception as e:
+                await log_to_channel(f"❌ Failed for @{dialog.chat.username}: {e}")
+    await message.reply_text("✅ Done.")
+
+@app.on_message(filters.command("public"))
+async def make_channels_public(client: Client, message: Message):
+    if message.from_user.id not in cfg.SUDO:
+        return await message.reply_text("❌ Only sudo users can use this command.")
+
+    await message.reply_text("🌐 Making channels public again...")
+    for entry in get_all_saved_usernames():
+        channel_id = entry["channel_id"]
+        old_username = entry["username"]
+        for session_key, session_client in session_clients.items():
+            try:
+                await session_client.set_chat_username(channel_id, old_username)
+                await log_to_channel(f"🌐 Restored @{old_username} on {session_key}")
+                break
+            except Exception:
+                continue
+    await message.reply_text("✅ Public restoration attempt complete.")
+
+# Start all sessions on bot startup
+async def main():
+    await start_all_sessions()
+    await app.run()
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
