@@ -264,6 +264,7 @@ async def make_channels_private(client: Client, message: Message):
 
 # Command: /public — make all stored private channels public again
 # Command: /public — make all stored private channels public again
+
 @app.on_message(filters.command("public"))
 async def make_channels_public(client: Client, message: Message):
     sudo_users = cfg.SUDO
@@ -281,29 +282,29 @@ async def make_channels_public(client: Client, message: Message):
         channel_id = entry["channel_id"]
         old_username = entry["username"]
 
-        # Attempt to find the session client that has access to this channel
         found = False
         for session_key, session_client in session_clients.items():
             try:
                 chat = await session_client.get_chat(channel_id)
-                await session_client.set_chat_username(channel_id, old_username)
-                await log_to_channel(f"🌐 Restored @{old_username} to channel ID {channel_id} using {session_key}")
-                restored_count += 1
-                found = True
-                break
+                if chat.type == "channel":
+                    await session_client.set_chat_username(channel_id, old_username)
+                    await log_to_channel(f"🌐 Restored @{old_username} (ID: {channel_id}) in {session_key}")
+                    restored_count += 1
+                    found = True
+                    break
             except UsernameOccupied:
-                await log_to_channel(f"⚠️ Username @{old_username} is already taken.")
+                await log_to_channel(f"⚠️ Username @{old_username} already taken.")
+                failed.append(old_username)
                 found = True
                 break
             except Exception as e:
-                continue  # Try with next session client
+                continue
 
         if not found:
-            failed.append(channel_id)
+            failed.append(old_username)
+            await log_to_channel(f"❌ Could not restore @{old_username}: No session had access.")
 
-    await message.reply_text(f"✅ Public restoration complete.\nRestored: {restored_count}\nFailed: {len(failed)}")
-    if failed:
-        await log_to_channel(f"❌ Failed to restore usernames for channel IDs: {', '.join(map(str, failed))}")
+    await message.reply_text(f"✅ Done. Restored: {restored_count}, Failed: {len(failed)}.")
 
 
 
