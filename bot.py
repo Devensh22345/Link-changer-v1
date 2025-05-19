@@ -1,7 +1,7 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from configs import cfg
-from database import add_created_channel
+from database import add_created_channel, save_old_username, get_old_username, get_all_saved_usernames
 import random
 import string
 import asyncio
@@ -237,6 +237,58 @@ async def handle_changeall_all_sessions(client: Client, callback_query):
 
     for session_key, selected_client in session_clients.items():
         asyncio.create_task(process_session(session_key, selected_client))
+
+# Command: /private — make all channels private
+@app.on_message(filters.command("private"))
+async def make_channels_private(client: Client, message: Message):
+    sudo_users = cfg.SUDO
+    if message.from_user.id not in sudo_users:
+        await message.reply_text("❌ Only sudo users can use this command.")
+        return
+
+    await message.reply_text("🔒 Starting to make all channels private...")
+
+    async for dialog in user_app.get_dialogs():
+        chat = dialog.chat
+        if chat.type != "channel" or not chat.username:
+            continue
+
+        try:
+            save_old_username(chat.id, chat.username)
+            await user_app.set_chat_username(chat.id, None)  # Remove username
+            await log_to_channel(f"🔒 Made @{chat.username} private (ID: {chat.id})")
+        except Exception as e:
+            await log_to_channel(f"❌ Failed to make @{chat.username} private: {e}")
+
+    await message.reply_text("✅ All possible channels were made private.")
+
+# Command: /public — make all stored private channels public again
+@app.on_message(filters.command("public"))
+async def make_channels_public(client: Client, message: Message):
+    sudo_users = cfg.SUDO
+    if message.from_user.id not in sudo_users:
+        await message.reply_text("❌ Only sudo users can use this command.")
+        return
+
+    await message.reply_text("🌐 Starting to make channels public again using stored usernames...")
+
+    entries = get_all_saved_usernames()
+    for entry in entries:
+        channel_id = entry["channel_id"]
+        old_username = entry["username"]
+
+        try:
+            await user_app.set_chat_username(channel_id, old_username)
+            await log_to_channel(f"🌐 Restored public username @{old_username} to channel ID {channel_id}")
+        except Exception as e:
+            await log_to_channel(f"❌ Failed to set @{old_username} on channel {channel_id}: {e}")
+
+        await asyncio.sleep(60 * 30)  # Wait 30 minutes
+
+    await message.reply_text("✅ All usernames were restored.")
+
+
+
 
 @app.on_message(filters.command("stopchangeall"))
 async def stop_changeall(client: Client, message: Message):
