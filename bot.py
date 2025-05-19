@@ -261,7 +261,7 @@ async def make_channel_private(client: Client, message: Message):
         return
 
     buttons = [
-        [InlineKeyboardButton(f"Session {i}", callback_data=f"private_session{i}"}")]
+        [InlineKeyboardButton(f"Session {i}", callback_data=f"private_session{i}")]
         for i in range(1, 11) if f"session{i}" in session_clients
     ]
     await message.reply_text("Select a session to make channel private:", reply_markup=InlineKeyboardMarkup(buttons))
