@@ -264,9 +264,10 @@ async def make_channels_public(client: Client, message: Message):
 # Start all sessions on bot startup
 async def main():
     await start_all_sessions()
-    await app.run()
-
-if __name__ == "__main__":
-    import asyncio
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
+    await app.start()
+    print("Bot started!")
+    try:
+        # keep the program running
+        await asyncio.Event().wait()
+    finally:
+        await app.stop()
