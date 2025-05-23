@@ -87,7 +87,7 @@ async def rotate_invite_link(channel_id: int):
                     continue
 
             # Create new link since the old one is expired or missing
-            expire_time = now + timedelta(minutes=10)
+            expire_time = now + timedelta(minutes=2)
             invite: ChatInviteLink = await app.create_chat_invite_link(
                 chat_id=channel_id,
                 expire_date=expire_time,
@@ -108,7 +108,7 @@ async def rotate_invite_link(channel_id: int):
                 await log_to_channel(f"⚠️ No log_message_id found for {channel_id}")
 
             # Wait until the new link expires (2 minutes)
-            await asyncio.sleep(570)
+            await asyncio.sleep(110)
 
         except FloodWait as e:
             await log_to_channel(f"⏳ FloodWait for {e.value} seconds in {channel_id}")
