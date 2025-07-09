@@ -146,7 +146,8 @@ async def on_channel_change_callback(client, callback_query):
 async def changeall_command(client: Client, message: Message):
     global changeall_running
     sudo_users = cfg.SUDO
-    if message.from_user.id not in sudo_users:
+
+    if message.chat.id != LOG_CHANNEL and message.from_user and message.from_user.id not in sudo_users:
         await message.reply_text("❌ Only sudo users can run this command.")
         return
 
@@ -159,6 +160,7 @@ async def changeall_command(client: Client, message: Message):
         f.write("running")
 
     await message.reply_text("✅ Started changing usernames for ALL sessions.")
+    await log_to_channel("🚀 Changeall started.")
 
     async def process_session(session_key, selected_client):
         while changeall_running:
@@ -178,23 +180,23 @@ async def changeall_command(client: Client, message: Message):
                         await selected_client.set_chat_username(channel.id, new_username)
                         await log_to_channel(f"✅ {session_key}: @{old_username} → @{new_username}")
                     except FloodWait as e:
-                        await log_to_channel(f"❌ {session_key} Rate limit exceeded, waiting {e.value}s.")
+                        await log_to_channel(f"❌ {session_key} Rate limit exceeded. Waiting {e.value}s.")
                         await asyncio.sleep(e.value)
                         continue
                     except UsernameOccupied:
-                        await log_to_channel(f"⚠️ {session_key}: Username @{new_username} already taken.")
+                        await log_to_channel(f"⚠️ {session_key}: @{new_username} already taken.")
                         continue
                     except Exception as e:
                         await log_to_channel(f"❌ {session_key} error: {e}")
                         continue
 
-                    await asyncio.sleep(60 * 60)  # 1 hour between changes per channel
+                    await asyncio.sleep(60 * 60)  # 1 hour delay per channel
             except Exception as e:
                 await asyncio.sleep(2)
 
     for session_key, selected_client in session_clients.items():
         asyncio.create_task(process_session(session_key, selected_client))
-        
+
                         
 @app.on_message(filters.command("stopchangeall"))
 async def stop_changeall(client: Client, message: Message):
