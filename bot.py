@@ -190,7 +190,7 @@ async def changeall_command(client: Client, message: Message):
                         await log_to_channel(f"❌ {session_key} error: {e}")
                         continue
 
-                    await asyncio.sleep(60 * 60)  # 1 hour delay per channel
+                    await asyncio.sleep(60 * 90)  # 1 hour delay per channel
             except Exception as e:
                 await asyncio.sleep(2)
 
