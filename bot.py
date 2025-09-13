@@ -7,7 +7,7 @@ import string
 import asyncio
 import time
 import pyrogram.utils
-from pyrogram.errors import FloodWait, UsernameOccupied
+from pyrogram.errors import FloodWait, UsernameOccupied, AuthKeyDuplicated
 import os
 
 pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
@@ -179,6 +179,9 @@ async def changeall_command(client: Client, message: Message):
                     try:
                         await selected_client.set_chat_username(channel.id, new_username)
                         await log_to_channel(f"✅ {session_key}: @{old_username} → @{new_username}")
+                    except AuthKeyDuplicated:
+                        await log_to_channel(f"❌ {session_key}: AuthKeyDuplicated — session must be regenerated.")
+                        return  # stop using this session
                     except FloodWait as e:
                         await log_to_channel(f"❌ {session_key} Rate limit exceeded. Waiting {e.value}s.")
                         await asyncio.sleep(e.value)
