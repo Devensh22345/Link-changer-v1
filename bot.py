@@ -215,20 +215,20 @@ async def stop_changeall(client: Client, message: Message):
 
 # Start all session clients
 # Start all session clients safely
-for session_key, client in session_clients.items():
+for session_key, client in list(session_clients.items()):
     try:
         client.start()
         print(f"[OK] {session_key} started")
     except AuthKeyDuplicated:
         print(f"[ERROR] {session_key}: AuthKeyDuplicated — remove or regenerate this session.")
-        # optional: send log to Telegram
         asyncio.get_event_loop().create_task(
             log_to_channel(f"❌ {session_key}: AuthKeyDuplicated — session must be regenerated.")
         )
-        # remove this bad session so rest of code won't try to use it
+        # now safe to remove
         session_clients.pop(session_key, None)
     except Exception as e:
         print(f"[ERROR] {session_key}: Could not start — {e}")
+
 
 
 app.run()
